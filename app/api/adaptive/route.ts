@@ -1,0 +1,2 @@
+import {NextResponse} from "next/server";
+export async function POST(req:Request){const d=await req.json(),accuracy=d.total?d.correct/d.total:0;const repeat=Object.entries(d.mistakes||{}).filter(([,n])=>Number(n)>=2).map(([w])=>w);return NextResponse.json({difficulty:accuracy>.8?'hard':accuracy<.5?'easy':'normal',repeat,recommendation:accuracy<.5?'Түсіндіруді қайтала және жеңіл жаттығуды орында':repeat.length?`${repeat.join(', ')} сөздерін қайтала`:'Келесі аялдамаға өт'});}

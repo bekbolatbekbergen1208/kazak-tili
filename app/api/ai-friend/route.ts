@@ -1,0 +1,2 @@
+import {NextResponse} from "next/server";
+export async function POST(req:Request){const {message='',level=1}=await req.json();const safe=String(message).toLowerCase();let reply="Мен тек қазақ тілін үйренуге көмектесемін. Саяхат туралы сұрап көрші!";if(safe.includes('сәлем'))reply='Сәлем! Бүгін қазақша не үйренгіміз келеді?';if(safe.includes('ұшақ'))reply=level>3?'Ұшақ туралы күрделі сөйлем құрап көр: «Ұшақ әуежайдан уақытында ұшты».':'Ұшақ аспанда ұшады. «Мен ұшақпен барамын» деп айт!';return NextResponse.json({reply,safe:true,provider:'mock',level});}
