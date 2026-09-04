@@ -7,6 +7,11 @@ import "./methodology.css";
 import "./lesson-method.css";
 import "./mistake-review.css";
 import "./catalog.css";
+import "./voice.css";
+import "./listening.css";
+import "./progression.css";
+import "./scenes.css";
+import "./help.css";
 
 export const metadata: Metadata = { title: "QazaqDos — қазақ тілін саяхатпен үйрен", description: "Балаларға арналған бейімделмелі қазақ тілі платформасы" };
 export default function RootLayout({children}:{children:React.ReactNode}) { return <html lang="kk"><body>{children}</body></html>; }

@@ -1,0 +1,143 @@
+.courseProgress {
+  margin-bottom: 18px;
+  padding: 16px 18px;
+  border: 1px solid #dfe2ff;
+  border-radius: 16px;
+  background: white;
+}
+
+.courseProgress > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+
+.courseProgress span {
+  color: var(--purple);
+  font-weight: 700;
+}
+
+.courseProgress > div:last-child {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 9px;
+  background: #eceef4;
+}
+
+.courseProgress i {
+  display: block;
+  height: 100%;
+  min-width: 3px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--purple), #8d72ed);
+}
+
+.lessonGrid > article {
+  padding: 17px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: white;
+}
+
+.lessonGrid .lockedLesson {
+  opacity: .48;
+  filter: grayscale(.25);
+  cursor: not-allowed;
+}
+
+.lessonGrid .currentLesson {
+  border: 2px solid var(--purple);
+  box-shadow: 0 8px 24px #5c67e824;
+}
+
+.lessonGrid .completedLesson footer {
+  color: var(--green);
+}
+
+.lessonGate {
+  min-height: 70vh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  color: var(--muted);
+}
+
+.lessonGate svg {
+  width: 42px;
+  height: 42px;
+  color: var(--purple);
+}
+
+.homeLessonPath {
+  display: grid;
+  gap: 9px;
+}
+
+.homeLessonPath > div {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+}
+
+.homeLessonPath > div > span {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 11px;
+  background: #eef0ff;
+  color: var(--purple);
+}
+
+.homeLessonPath > div.done > span {
+  background: #e5f8f1;
+  color: var(--green);
+}
+
+.homeLessonPath > div.locked {
+  opacity: .45;
+}
+
+.homeLessonPath > div.current {
+  border-color: var(--purple);
+  background: #fafaff;
+}
+
+.homeLessonPath div div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.homeLessonPath small {
+  color: var(--muted);
+}
+
+.homeLessonPath a {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--purple);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.homeLessonPath svg {
+  width: 16px;
+}
+
+@media (max-width: 600px) {
+  .courseProgress > div:first-child {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .homeLessonPath a {
+    font-size: 0;
+  }
+}

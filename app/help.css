@@ -1,0 +1,61 @@
+.dosshaHint {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin: 14px 0;
+  padding: 14px 42px 14px 15px;
+  border: 1px solid #f1d78b;
+  border-radius: 13px;
+  background: #fff8df;
+  color: #76602b;
+  animation: hintAppear .22s ease-out;
+}
+
+.dosshaHint > svg {
+  width: 21px;
+  flex: 0 0 auto;
+  color: #e3a91e;
+}
+
+.dosshaHint b {
+  color: #8b6814;
+}
+
+.dosshaHint p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.dosshaHint > button {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  border: 0;
+  background: transparent;
+  color: #8b6814;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.genericLesson .hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.genericLesson .hint.active {
+  background: #fff3c5;
+  color: #8b6814;
+}
+
+@keyframes hintAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+}

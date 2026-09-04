@@ -1,0 +1,65 @@
+.chat input {
+  min-width: 0;
+}
+
+.chat form button {
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.chat form button svg {
+  width: 19px;
+}
+
+.chat form .voiceButton {
+  background: #eef0ff;
+  color: var(--purple);
+}
+
+.chat form .voiceButton.listening {
+  background: #ff6474;
+  color: white;
+  animation: voicePulse 1.2s infinite;
+}
+
+.voiceStatus,
+.voiceError {
+  margin: 0 24px 8px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 11px;
+}
+
+.voiceStatus {
+  color: #bc3d4b;
+  background: #fff0f2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.voiceStatus i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff6474;
+  animation: voicePulse 1.2s infinite;
+}
+
+.voiceError {
+  color: #9b4c31;
+  background: #fff2e8;
+}
+
+.chat input:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px #eeecff;
+}
+
+@keyframes voicePulse {
+  50% {
+    opacity: .55;
+    transform: scale(.92);
+  }
+}

@@ -1,0 +1,68 @@
+.listeningPlayer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 20px 0;
+  padding: 18px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f0eeff, #eef8ff);
+  color: var(--purple);
+}
+
+.listeningPlayer > svg {
+  width: 34px;
+  height: 34px;
+}
+
+.listeningPlayer div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.listeningPlayer span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.listeningPlayer button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 15px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--purple);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.listeningPlayer button svg {
+  width: 18px;
+}
+
+.audioError {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff0f1;
+  color: #a94350;
+  font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .listeningPlayer {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .listeningPlayer div {
+    min-width: 160px;
+  }
+
+  .listeningPlayer button {
+    width: 100%;
+    justify-content: center;
+  }
+}
