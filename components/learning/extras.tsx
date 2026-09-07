@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { books, exerciseById, shop } from "@/lib/learning/content";
+import { books, exerciseById } from "@/lib/learning/content";
 import {
   accessible,
   isCorrect,
@@ -19,6 +19,7 @@ export function BookCatalog() {
     <div className="page">
       <span className="pill">📚 QazaqDos</span>
       <h1>{t("Произведения и идеи", "Stories and ideas")}</h1>
+      <Companion context="books" />
       <p>
         {t(
           "Краткие пересказы и самостоятельно составленные учебные задания.",
@@ -165,53 +166,6 @@ export function Review() {
           </Link>
         </section>
       )}
-    </div>
-  );
-}
-export function Shop() {
-  const { state, t, dispatch, busy } = useLearning();
-  return (
-    <div className="page">
-      <h1>{t("Немного вашего стиля", "A little of your style")}</h1>
-      <p>
-        {t(
-          "Монеты можно только заработать за обучение и потратить здесь.",
-          "Coins can only be earned through learning and spent here.",
-        )}{" "}
-        🪙 {state.progress.coins}
-      </p>
-      <div className="qd-grid two">
-        {shop.map((item) => {
-          const owned = state.progress.inventory.includes(item.id);
-          return (
-            <section className="panel qd-shop-item" key={item.id}>
-              <span>{item.icon}</span>
-              <h2>{item.title[state.profile.language]}</h2>
-              <p>🪙 {item.price}</p>
-              <button
-                className="btn primary"
-                disabled={busy || owned || state.progress.coins < item.price}
-                onClick={() => void dispatch({ type: "buy", itemId: item.id })}
-              >
-                {owned ? t("Куплено ✓", "Owned ✓") : t("Купить", "Buy")}
-              </button>
-              {owned && item.id === "mint" && (
-                <Link className="btn ghost" href="/learn/settings">
-                  {t("Выбрать в настройках", "Choose in settings")}
-                </Link>
-              )}
-              {item.id === "hint" && (
-                <p>
-                  {t(
-                    "Открывает постоянную подсказку первого слова в заданиях.",
-                    "Unlocks a reusable first-word hint in exercises.",
-                  )}
-                </p>
-              )}
-            </section>
-          );
-        })}
-      </div>
     </div>
   );
 }

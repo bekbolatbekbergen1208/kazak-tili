@@ -1,4 +1,2 @@
-import { Shop } from "@/components/learning/extras";
-export default function Page() {
-  return <Shop />;
-}
+import { CharacterShop } from '@/components/characters/shop';
+export default function Page(){return <CharacterShop/>;}

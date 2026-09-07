@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { applyAction, initialState } from "@/lib/learning/state";
 import type { LearningAction, LearningState } from "@/lib/learning/types";
+import { hydrateCharacters } from "@/lib/characters/state";
 export async function GET() {
   const db = createClient(await cookies());
   const {
@@ -21,7 +22,7 @@ export async function GET() {
       { status: 503 },
     );
   return NextResponse.json({
-    state: data?.state ?? initialState(),
+    state: hydrateCharacters(data?.state ?? initialState()),
     revision: data?.revision ?? 0,
     userId: user.id,
   });
@@ -52,6 +53,10 @@ export async function POST(req: Request) {
     "review",
     "claim",
     "buy",
+    "select-character",
+    "reveal-character",
+    "equip",
+    "unequip",
   ];
   if (
     !body.action ||

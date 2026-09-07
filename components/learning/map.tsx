@@ -3,6 +3,8 @@ import Link from "next/link";
 import { courses, lessonById } from "@/lib/learning/content";
 import { accessible } from "@/lib/learning/state";
 import { useLearning } from "./provider";
+import { Companion } from "./frame";
+import { coinRewards } from "@/lib/characters/config";
 export default function LearningMap() {
   const { state, t } = useLearning(),
     course = courses.find((c) => c.id === state.profile.goal)!,
@@ -17,6 +19,7 @@ export default function LearningMap() {
           "Each section has lessons, a mini-game, review and a checkpoint.",
         )}
       </p>
+      <Companion context="map" />
       <div className="qd-map">
         {course.sections.map((section, i) => (
           <section className="panel" key={section.id}>
@@ -27,7 +30,7 @@ export default function LearningMap() {
                 </span>
                 <h2>{section.title[lang]}</h2>
               </div>
-              <span className="pill">+50 XP · 🪙 20</span>
+              <span className="pill">+50 XP · 🪙 {coinRewards.section}</span>
             </div>
             {section.lessonIds.map((id, index) => {
               const l = lessonById(id)!,

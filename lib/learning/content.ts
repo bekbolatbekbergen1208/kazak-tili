@@ -679,6 +679,12 @@ export const achievements: Achievement[] = [
   ["perfect", "Идеальный урок", "Perfect lesson", "⭐"],
   ["section", "Первый раздел", "First section", "🧭"],
   ["thousand", "1 000 XP", "1,000 XP", "⚡"],
+  [
+    "legendary",
+    "Аңыз деңгейі · Уровень легенды",
+    "Аңыз деңгейі · Legend level",
+    "✦",
+  ],
   ["tourism", "Знаток путешествий", "Travel expert", "✈️"],
   ["daily", "Мастер повседневных фраз", "Everyday phrase master", "☀️"],
   ["books", "Эксперт по произведениям", "Literature expert", "📚"],
@@ -718,27 +724,6 @@ export const quests: DailyQuest[] = [
     target: 1,
     reward: 10,
     metric: "dialogues",
-  },
-];
-export const shop = [
-  {
-    id: "scarf",
-    title: L("Шарф для Досши", "Dossha’s scarf"),
-    price: 30,
-    icon: "🧣",
-  },
-  { id: "mint", title: L("Мятная тема", "Mint theme"), price: 50, icon: "🌿" },
-  {
-    id: "frame",
-    title: L("Рамка профиля", "Profile frame"),
-    price: 40,
-    icon: "✨",
-  },
-  {
-    id: "hint",
-    title: L("Подсказка: первое слово", "Hint: first word"),
-    price: 5,
-    icon: "💡",
   },
 ];
 export const lessonById = (id: string) => lessons.find((l) => l.id === id);

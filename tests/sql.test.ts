@@ -18,6 +18,18 @@ test("migrations execute; RLS isolates two users and protects curriculum", async
         "utf8",
       ),
     );
+    await db.exec(
+      readFileSync(
+        "supabase/migrations/202609070003_character_system.sql",
+        "utf8",
+      ),
+    );
+    await db.exec(
+      readFileSync(
+        "supabase/migrations/202609070004_character_catalog.sql",
+        "utf8",
+      ),
+    );
     const a = "00000000-0000-0000-0000-000000000001",
       b = "00000000-0000-0000-0000-000000000002";
     await db.query("insert into auth.users values ($1),($2)", [a, b]);
@@ -58,6 +70,21 @@ test("migrations execute; RLS isolates two users and protects curriculum", async
       ),
     );
     await assert.rejects(db.exec("update public.qd_courses set title='{}'"));
+    assert.equal(
+      (await db.query("select * from public.qd_characters")).rows.length,
+      8,
+    );
+    assert.equal(
+      (await db.query("select * from public.qd_character_skins")).rows.length,
+      3,
+    );
+    assert.equal(
+      (await db.query("select * from public.qd_user_characters")).rows.length,
+      1,
+    );
+    await assert.rejects(
+      db.exec("update public.qd_characters set unlock_xp=0"),
+    );
     await db.exec(`reset role; set role anon;`);
     await assert.rejects(db.exec("select * from public.qd_learning_states"));
   } finally {

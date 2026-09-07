@@ -72,7 +72,7 @@ test("onboarding, locking and incomplete lesson cannot be bypassed", () => {
 test("correct lesson awards once, unlocks next, achievements persist", () => {
   let s = finish(ready(), "tourism-1");
   assert.equal(s.progress.xp, 105);
-  assert.equal(s.progress.coins, 21);
+  assert.equal(s.progress.coins, 41);
   assert.equal(accessible(s, "tourism-2"), true);
   assert.equal(s.progress.lessons["tourism-1"].status, "perfect");
   assert.ok(s.progress.achievements.some((a) => a.achievementId === "first"));

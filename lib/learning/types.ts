@@ -1,3 +1,8 @@
+import type {
+  CharacterCollection,
+  CharacterId,
+  EquipmentSlot,
+} from "../characters/types";
 export type InterfaceLanguage = "ru" | "en";
 export type LearningGoal = "tourism" | "work" | "study" | "daily" | "books";
 export type Localized = Record<InterfaceLanguage, string>;
@@ -136,6 +141,7 @@ export type UserProgress = {
   coinTransactions: CoinTransaction[];
   streak: UserStreak;
   inventory: string[];
+  characters?: CharacterCollection;
 };
 export type LearningState = { profile: UserProfile; progress: UserProgress };
 export type LearningAction =
@@ -145,4 +151,8 @@ export type LearningAction =
   | { type: "finish"; lessonId: string }
   | { type: "review"; exerciseId: string; answer: string }
   | { type: "claim"; questId: string }
-  | { type: "buy"; itemId: string };
+  | { type: "buy"; itemId: string }
+  | { type: "select-character"; characterId: CharacterId }
+  | { type: "reveal-character"; characterId: CharacterId; select: boolean }
+  | { type: "equip"; characterId: CharacterId; itemId: string }
+  | { type: "unequip"; characterId: CharacterId; slot: EquipmentSlot };

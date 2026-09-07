@@ -11,6 +11,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { applyAction, initialState, levelFor } from "@/lib/learning/state";
 import type { LearningAction, LearningState } from "@/lib/learning/types";
 import { createClient } from "@/utils/supabase/client";
+import {
+  hydrateCharacters,
+  pendingReveals,
+  selectedCharacter,
+  equipmentFor,
+} from "@/lib/characters/state";
+import { CharacterReveal } from "@/components/characters/reveal";
+import { CharacterArt } from "@/components/characters/character-art";
 const DEMO_KEY = "qazaqdos-learning-demo-v1";
 type Context = {
   state: LearningState;
@@ -60,6 +68,7 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
             localStorage.removeItem(DEMO_KEY);
           }
         }
+        s = hydrateCharacters(s);
         current.current = s;
         setState(s);
       } else {
@@ -70,8 +79,8 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
         }
         const body = await res.json();
         if (!res.ok) throw new Error(body.error);
-        current.current = body.state;
-        setState(body.state);
+        current.current = hydrateCharacters(body.state);
+        setState(current.current);
         revision.current = body.revision;
       }
       setReady(true);
@@ -182,7 +191,8 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
         ) : (
           <p>{t("Открываем настройку профиля…", "Opening profile setup…")}</p>
         )}
-        {levelUp > 0 && (
+        <CharacterReveal />
+        {levelUp > 0 && pendingReveals(state).length === 0 && (
           <div className="qd-overlay">
             <section
               role="dialog"
@@ -190,7 +200,11 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
               aria-labelledby="level-title"
               className="panel qd-celebrate"
             >
-              <span className="qd-confetti">✦ ✨ ✦</span>
+              <CharacterArt
+                characterId={selectedCharacter(state).id}
+                mood="celebration"
+                equipped={equipmentFor(state)}
+              />
               <h2 id="level-title">
                 {t("Новый уровень", "New level")} {levelUp}!
               </h2>

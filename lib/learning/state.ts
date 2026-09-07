@@ -4,8 +4,18 @@ import {
   exerciseById,
   lessonById,
   quests,
-  shop,
 } from "./content";
+import { characterShop, coinRewards } from "../characters/config";
+import {
+  awardAchievementCoins,
+  awardLegendary,
+  equipItem,
+  freshCollection,
+  getCollection,
+  hydrateCharacters,
+  selectCharacter,
+  unequipItem,
+} from "../characters/state";
 import type {
   Exercise,
   LearningAction,
@@ -38,6 +48,7 @@ export function initialState(): LearningState {
       coinTransactions: [],
       streak: { current: 0, best: 0, lastDay: null, days: [] },
       inventory: [],
+      characters: freshCollection(),
     },
   };
 }
@@ -118,7 +129,7 @@ export function applyAction(
   action: LearningAction,
   now = new Date(),
 ): LearningState {
-  const s = structuredClone(input),
+  const s = hydrateCharacters(input, now),
     p = s.progress,
     today = dayKey(now),
     stamp = now.toISOString();
@@ -130,16 +141,41 @@ export function applyAction(
     p.coinTransactions.push({ id, amount: coins, date: stamp, reason });
   };
   const q = (p.quests[today] ??= emptyQuest());
+  awardLegendary(s, stamp);
   if (action.type === "profile") {
     validateProfile(action.profile);
     if (action.profile.theme === "mint" && !p.inventory.includes("mint"))
       throw new Error("Theme not owned");
     s.profile = { ...action.profile, nickname: action.profile.nickname.trim() };
+    if (s.profile.theme === "mint")
+      getCollection(s).globalEquipped.theme = "mint";
+    else delete getCollection(s).globalEquipped.theme;
     return s;
   }
   if (!s.profile.onboarded) throw new Error("Complete onboarding first");
+  if (action.type === "select-character") {
+    selectCharacter(s, action.characterId);
+    return s;
+  }
+  if (action.type === "reveal-character") {
+    if (typeof action.select !== "boolean") throw new Error("Invalid reveal");
+    const previous = getCollection(s).selectedId;
+    selectCharacter(s, action.characterId);
+    if (!action.select) getCollection(s).selectedId = previous;
+    if (!getCollection(s).announcedIds.includes(action.characterId))
+      getCollection(s).announcedIds.push(action.characterId);
+    return s;
+  }
+  if (action.type === "equip") {
+    equipItem(s, action.characterId, action.itemId);
+    return s;
+  }
+  if (action.type === "unequip") {
+    unequipItem(s, action.characterId, action.slot);
+    return s;
+  }
   if (action.type === "buy") {
-    const item = shop.find((i) => i.id === action.itemId);
+    const item = characterShop.find((i) => i.id === action.itemId);
     if (!item || p.coins < item.price || p.inventory.includes(item.id))
       throw new Error("Purchase unavailable");
     p.coins -= item.price;
@@ -161,7 +197,12 @@ export function applyAction(
     )
       throw new Error("Quest not available");
     q.claimed.push(quest.id);
-    reward(`quest-${today}-${quest.id}`, quest.reward, 5, "quest");
+    reward(
+      `quest-${today}-${quest.id}`,
+      quest.reward,
+      coinRewards.dailyQuest,
+      "quest",
+    );
   }
   if (
     action.type === "start" ||
@@ -197,7 +238,7 @@ export function applyAction(
           p.combo++;
           q.combo = Math.max(q.combo, p.combo);
           q.words++;
-          reward(`answer-${ex.id}`, 10, 1, "answer");
+          reward(`answer-${ex.id}`, 10, coinRewards.answer, "answer");
         } else {
           p.combo = 0;
         }
@@ -232,7 +273,7 @@ export function applyAction(
       reward(
         `finish-${lesson.id}`,
         30 + (perfect ? 20 : 0) + (lesson.kind === "test" ? 20 : 0),
-        10 + (perfect ? 5 : 0),
+        coinRewards.lesson + (perfect ? coinRewards.perfect : 0),
         "lesson",
       );
       if (p.streak.lastDay !== today) {
@@ -242,7 +283,7 @@ export function applyAction(
         p.streak.best = Math.max(p.streak.best, p.streak.current);
         p.streak.lastDay = today;
         p.streak.days.push(today);
-        reward(`return-${today}`, 5, 1, "daily-return");
+        reward(`return-${today}`, 5, coinRewards.activeDay, "daily-return");
       }
       const section = courses
         .flatMap((c) => c.sections)
@@ -252,7 +293,7 @@ export function applyAction(
           ["completed", "perfect"].includes(p.lessons[id]?.status),
         )
       )
-        reward(`section-${section.id}`, 50, 20, "section");
+        reward(`section-${section.id}`, 50, coinRewards.section, "section");
     }
   }
   if (action.type === "review") {
@@ -262,7 +303,7 @@ export function applyAction(
     if (isCorrect(e, action.answer)) {
       m.resolved = true;
       q.reviews++;
-      reward(`review-${e.id}`, 5, 1, "review");
+      reward(`review-${e.id}`, 5, coinRewards.review, "review");
     } else m.count++;
   }
   const complete = (id: string) =>
@@ -272,7 +313,7 @@ export function applyAction(
     level <= levelFor(p.xp);
     level++
   ) {
-    reward(`level-${level}`, 0, 10, "level");
+    reward(`level-${level}`, 0, coinRewards.level, "level");
   }
   const earned: Record<string, boolean> = {
     first: Object.values(p.lessons).some((l) => l.completedAt),
@@ -288,8 +329,11 @@ export function applyAction(
     books: complete("books-2") && complete("books-4"),
   };
   achievements.forEach((a) => {
-    if (earned[a.id] && !p.achievements.some((x) => x.achievementId === a.id))
+    if (earned[a.id] && !p.achievements.some((x) => x.achievementId === a.id)) {
       p.achievements.push({ achievementId: a.id, date: stamp });
+      awardAchievementCoins(s, a.id, stamp);
+    }
   });
-  return s;
+  awardLegendary(s, stamp);
+  return hydrateCharacters(s, now);
 }

@@ -153,6 +153,7 @@ export default function LessonPlayer({ lessonId }: { lessonId: string }) {
         </details>
       )}
       <Companion
+        exercise={exercise}
         mood={feedback ? (feedback.correct ? "joy" : "support") : "thinking"}
         text={
           feedback

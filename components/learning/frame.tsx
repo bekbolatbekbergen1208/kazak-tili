@@ -10,42 +10,12 @@ import {
   ShoppingBag,
   Trophy,
   RotateCcw,
+  PawPrint,
 } from "lucide-react";
-import { Logo, Mascot } from "@/components/icons";
+import { Logo } from "@/components/icons";
+import { getCollection } from "@/lib/characters/state";
 import { useLearning } from "./provider";
-export function Companion({
-  mood = "greeting",
-  text,
-}: {
-  mood?:
-    | "greeting"
-    | "waiting"
-    | "joy"
-    | "thinking"
-    | "support"
-    | "celebration"
-    | "sleep";
-  text?: string;
-}) {
-  const { state, t } = useLearning();
-  return (
-    <div className={`qd-companion mood-${mood}`}>
-      <div>
-        <Mascot />
-        {state.progress.inventory.includes("scarf") && (
-          <span className="qd-scarf">🧣</span>
-        )}
-      </div>
-      <p>
-        {text ??
-          t(
-            "Сәлем! Давайте сделаем ещё один маленький шаг.",
-            "Сәлем! Let’s take another small step.",
-          )}
-      </p>
-    </div>
-  );
-}
+export { Companion } from "@/components/characters/companion";
 export function LearningFrame({ children }: { children: React.ReactNode }) {
   const { state, t, demo, logout } = useLearning(),
     path = usePathname();
@@ -55,6 +25,7 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
     ["/learn/books", BookOpen, t("Произведения", "Literature")],
     ["/learn/review", RotateCcw, t("Повторение", "Review")],
     ["/learn/ranking", Trophy, t("Лиги", "Leagues")],
+    ["/learn/characters", PawPrint, t("Персонажи", "Companions")],
     ["/learn/shop", ShoppingBag, t("Магазин", "Shop")],
     ["/learn/settings", Settings, t("Настройки", "Settings")],
   ] as const;
@@ -103,7 +74,7 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
           <Link
             href="/learn/settings"
             aria-label={t("Настройки профиля", "Profile settings")}
-            className={`avatar ${state.progress.inventory.includes("frame") ? "qd-avatar-frame" : ""}`}
+            className={`avatar ${getCollection(state).globalEquipped.frame ? "qd-avatar-frame" : ""}`}
           >
             {state.profile.avatar}
           </Link>

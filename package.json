@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
-    "seed:learning": "node --import tsx scripts/seed-learning.ts"
+    "seed:learning": "node --import tsx scripts/seed-learning.ts",
+    "assets:characters": "node --import tsx scripts/render-characters.tsx",
+    "seed:characters": "node --import tsx scripts/seed-characters.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.6",

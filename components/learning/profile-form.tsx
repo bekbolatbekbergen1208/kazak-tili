@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { goals } from "@/lib/learning/content";
 import { useLearning } from "./provider";
 import { Logo } from "@/components/icons";
+import Link from "next/link";
+import { Companion } from "./frame";
 export function ProfileForm({ onboarding = false }: { onboarding?: boolean }) {
   const { state, dispatch, busy, logout } = useLearning(),
     [profile, setProfile] = useState(state.profile),
@@ -24,6 +26,17 @@ export function ProfileForm({ onboarding = false }: { onboarding?: boolean }) {
   return (
     <main className="page qd-profile">
       <Logo />
+      {!onboarding && (
+        <>
+          <Companion context="profile" />
+          <Link className="btn ghost" href="/learn/characters">
+            {t(
+              "Менің кейіпкерлерім · Мои персонажи",
+              "Менің кейіпкерлерім · My companions",
+            )}
+          </Link>
+        </>
+      )}
       <span className="pill">{onboarding ? `${step} / 2` : "QazaqDos"}</span>
       <h1>
         {step === 1
