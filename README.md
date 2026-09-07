@@ -1,8 +1,16 @@
 # QazaqDos MVP
 
-Балаларға қазақ тілін ойын және қауіпсіз виртуалды AI-дос арқылы үйрететін demo-first веб-платформа. Қазіргі нұсқа сыртқы API немесе Supabase кілттерін қажет етпейді. Интерфейс қазақ тілінде және телефонға бейімделген.
+Новый личный кабинет: `/learn`. Регистрация: `/login`. Пять целей, русский/английский язык объяснений, 45 уроков, 225 заданий, прогресс и награды. Старые исследовательские демо-страницы сохранены.
+
+**[Функции, запуск, миграции Supabase, тесты и границы MVP](docs/LEARNING-MVP.md)**.
+
+Для облачного кабинета сначала примените две миграции из `supabase/migrations/`. Без миграций доступен локальный демо-режим `/learn?demo=1`.
+
+Балаларға қазақ тілін ойын және қауіпсіз виртуалды AI-дос арқылы үйрететін demo-first веб-платформа. Supabase клиенттері мен сессияны жаңарту middleware-і қосылған. Интерфейс қазақ тілінде және телефонға бейімделген.
 
 ## Іске қосу
+
+`.env.example` файлын `.env.local` ретінде көшіріп, Supabase жобаңыздың URL және publishable key мәндерін енгізіңіз. `.env.local` Git-ке жіберілмейді.
 
 ```bash
 npm install
@@ -10,6 +18,26 @@ npm run dev
 ```
 
 `http://localhost:3000` мекенжайын ашыңыз. Тексеру: `npm run typecheck` және `npm run build`.
+
+## Supabase
+
+Браузерде `@/utils/supabase/client`, ал Server Component немесе Route Handler ішінде `@/utils/supabase/server` клиентін қолданыңыз. Түбірдегі `middleware.ts` сессия cookie-лерін жаңартады.
+
+Server Component мысалы (Supabase ішінде `todos` кестесі және тиісті оқу рұқсаттары болса):
+
+```tsx
+import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
+
+export default async function Page() {
+  const supabase = createClient(await cookies());
+  const { data: todos, error } = await supabase.from("todos").select("id, name");
+  if (error) throw new Error("Could not load todos");
+  return <ul>{todos?.map((todo) => <li key={todo.id}>{todo.name}</li>)}</ul>;
+}
+```
+
+Жаңа `/learn` кабинеті Supabase Auth пен жеке прогресті қолданады; алдымен миграцияларды орындаңыз. Бұрынғы `/student` зерттеу демосы және жаңа кабинеттің demo режимі браузерде сақталады.
 
 ## Демо кіру
 

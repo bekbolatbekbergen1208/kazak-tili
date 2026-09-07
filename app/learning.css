@@ -1,0 +1,740 @@
+.qd-app {
+  --qd-accent: var(--purple);
+  min-height: 100vh;
+}
+.qd-mint {
+  --purple: #197767;
+  --purple2: #399887;
+}
+.qd-app button:focus-visible,
+.qd-app a:focus-visible,
+.qd-app input:focus-visible,
+.qd-app select:focus-visible,
+.qd-app textarea:focus-visible,
+.qd-auth :focus-visible {
+  outline: 3px solid #b55a18;
+  outline-offset: 4px;
+}
+.qd-app button:disabled,
+.qd-auth button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+.qd-app .page {
+  animation: qd-appear 0.3s ease-out;
+}
+.qd-app p {
+  line-height: 1.65;
+}
+.qd-app small {
+  color: #56617b;
+  line-height: 1.5;
+}
+.qd-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 40px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  color: #59647b;
+}
+.qd-grid {
+  display: grid;
+  gap: 20px;
+}
+.qd-grid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.qd-grid.goals {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.qd-option {
+  padding: 24px;
+  background: white;
+  border: 2px solid var(--line);
+  border-radius: 20px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--ink);
+}
+.qd-option > span {
+  font-size: 32px;
+}
+.qd-option b {
+  font-size: 17px;
+}
+.qd-option:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px #29397510;
+}
+.qd-option.selected,
+.qd-choice.selected {
+  border-color: var(--purple);
+  background: #f0f1ff;
+  box-shadow: 0 0 0 2px #5c67e81a;
+}
+.qd-profile {
+  max-width: 1040px;
+}
+.qd-profile > .pill {
+  margin-top: 30px;
+}
+.qd-profile h1 {
+  font-size: 38px;
+  letter-spacing: -0.035em;
+}
+.qd-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 18px 0;
+  font-weight: 700;
+}
+.qd-field input,
+.qd-field textarea,
+.qd-field select,
+.qd-matches select {
+  width: 100%;
+  padding: 13px 15px;
+  border-radius: 12px;
+  border: 1px solid #bac1d3;
+  background: white;
+  color: var(--ink);
+}
+.qd-field textarea {
+  min-height: 120px;
+  resize: vertical;
+  font: inherit;
+}
+.qd-app fieldset,
+.qd-auth fieldset {
+  border: 0;
+  padding: 0;
+  margin: 20px 0;
+  min-width: 0;
+}
+.qd-app legend {
+  font-weight: 800;
+  margin-bottom: 15px;
+}
+.qd-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 25px 0;
+}
+.qd-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 22px 0;
+}
+.qd-loading {
+  max-width: 800px;
+  margin: 80px auto;
+  padding: 30px;
+}
+.qd-skeleton {
+  height: 220px;
+  background: linear-gradient(100deg, #e9ecf7, #f7f8fc, #e9ecf7);
+  background-size: 200% 100%;
+  border-radius: 24px;
+  animation: qd-shimmer 1.5s infinite;
+}
+.qd-error {
+  background: #fff0ed;
+  color: #8d3026;
+  padding: 16px;
+  border-radius: 12px;
+  margin: 12px;
+  overflow-wrap: anywhere;
+}
+.qd-auth .loginCard {
+  max-width: 520px;
+}
+.qd-auth .loginCard > .btn {
+  margin: 12px 5px;
+}
+.qd-auth .qd-actions {
+  justify-content: center;
+}
+.qd-auth form {
+  text-align: left;
+}
+.qd-auth form > .btn {
+  width: 100%;
+}
+.qd-auth details {
+  margin-top: 24px;
+}
+.qd-app progress {
+  width: 100%;
+  height: 12px;
+  border: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #e6e8f4;
+  accent-color: var(--purple);
+}
+.qd-app progress::-webkit-progress-bar {
+  background: #e6e8f4;
+}
+.qd-app progress::-webkit-progress-value {
+  background: var(--purple);
+  border-radius: 20px;
+  transition: width 0.4s;
+}
+.qd-companion {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  position: relative;
+  z-index: 1;
+}
+.qd-companion > div {
+  position: relative;
+  flex-shrink: 0;
+}
+.qd-companion .mascot {
+  width: 100px;
+  height: 112px;
+  animation: qd-float 4s ease-in-out infinite;
+}
+.qd-companion p {
+  background: white;
+  color: #414f95;
+  padding: 15px;
+  border-radius: 18px;
+  font-size: 14px;
+  max-width: 320px;
+  box-shadow: 0 6px 20px #1726540c;
+}
+.heroCard > .qd-companion {
+  flex-direction: column;
+  justify-content: center;
+}
+.heroCard > .qd-companion .mascot {
+  width: 160px;
+  height: 160px;
+}
+.heroCard > .qd-companion p {
+  margin: 0;
+}
+.qd-scarf {
+  position: absolute;
+  bottom: 24px;
+  left: 42%;
+  font-size: 28px;
+}
+.mood-joy .mascot,
+.mood-celebration .mascot {
+  animation: qd-bounce 0.8s ease-in-out 3;
+}
+.mood-thinking .mascot {
+  transform: rotate(-5deg);
+}
+.mood-support .mascot {
+  animation: qd-float 5s ease-in-out infinite;
+}
+.mood-sleep .mascot {
+  opacity: 0.75;
+  animation-duration: 7s;
+}
+.qd-quest {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.qd-quest small {
+  display: block;
+  margin-top: 4px;
+}
+.qd-quest b {
+  font-size: 13px;
+}
+.qd-quest .btn {
+  font-size: 12px;
+  padding: 9px 12px;
+}
+.qd-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+.qd-calendar span {
+  background: #f0f2f8;
+  text-align: center;
+  padding: 12px 3px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+.qd-calendar span.active {
+  background: #d7f2e9;
+  color: #16624f;
+  font-weight: bold;
+}
+.qd-badges {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+.qd-badges > div {
+  text-align: center;
+  filter: grayscale(1);
+  opacity: 0.65;
+}
+.qd-badges > div.earned {
+  filter: none;
+  opacity: 1;
+}
+.qd-badges span {
+  display: block;
+  font-size: 28px;
+}
+.qd-badges small {
+  font-size: 10px;
+  display: block;
+}
+.qd-map {
+  display: grid;
+  gap: 26px;
+  max-width: 900px;
+}
+.qd-map-node {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  position: relative;
+  padding: 20px 0;
+}
+.qd-map-node:not(:last-child):after {
+  content: "";
+  position: absolute;
+  left: 26px;
+  top: 68px;
+  height: 30px;
+  width: 2px;
+  background: #dfe3f1;
+}
+.qd-node {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background: #e9ecf8;
+  font-weight: 800;
+  color: #566388;
+}
+.qd-map-node > div {
+  flex: 1;
+}
+.qd-map-node small {
+  display: block;
+  margin-top: 6px;
+}
+.qd-map-node.started .qd-node,
+.qd-map-node.available .qd-node {
+  background: var(--purple);
+  color: white;
+  box-shadow: 0 0 0 5px #eceeff;
+}
+.qd-map-node.completed .qd-node {
+  background: #d9f5e8;
+  color: #186e52;
+}
+.qd-map-node.perfect .qd-node {
+  background: #fff0c8;
+  color: #916419;
+}
+.qd-map-node.locked {
+  opacity: 0.7;
+}
+.qd-lock-note {
+  font-size: 11px;
+  max-width: 120px;
+}
+.qd-lesson {
+  max-width: 950px;
+}
+.qd-lesson > h1 {
+  font-size: 24px;
+}
+.qd-exercise {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 30px;
+  margin: 20px 0;
+}
+.qd-exercise h2 {
+  font-size: 23px;
+  line-height: 1.5;
+}
+.qd-answers {
+  display: grid;
+  gap: 12px;
+}
+.qd-choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  cursor: pointer;
+}
+.qd-choice input {
+  accent-color: var(--purple);
+  width: 18px;
+  height: 18px;
+}
+.qd-answer-box {
+  min-height: 70px;
+  padding: 15px;
+  background: #f5f6fb;
+  border: 1px dashed #bbc2df;
+  border-radius: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.qd-answer-box button {
+  padding: 10px;
+  border: 0;
+  background: white;
+  border-radius: 10px;
+  color: var(--ink);
+  cursor: pointer;
+}
+.qd-word-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+}
+.qd-matches {
+  display: grid;
+  gap: 14px;
+}
+.qd-matches label {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 14px;
+  align-items: center;
+}
+.qd-matches select {
+  font-size: 14px;
+}
+.qd-feedback {
+  padding: 20px;
+  border-radius: 14px;
+  margin-top: 20px;
+  background: #ecf9f2;
+  color: #195840;
+}
+.qd-exercise.incorrect .qd-feedback {
+  background: #fff5e9;
+  color: #7d4c15;
+}
+.qd-exercise.correct {
+  animation: qd-appear 0.3s;
+}
+.qd-exercise.incorrect {
+  animation: qd-nudge 0.25s;
+}
+.qd-feedback h3 {
+  margin: 0;
+}
+.qd-flashcard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  min-height: 150px;
+  width: 100%;
+  border: 0;
+  border-radius: 20px;
+  background: linear-gradient(120deg, #eeebff, #e0f3fa);
+  color: #334575;
+  font-size: 24px;
+  cursor: pointer;
+}
+.qd-flashcard small {
+  font-size: 12px;
+}
+.qd-result {
+  max-width: 900px;
+  text-align: center;
+}
+.qd-result .qd-companion,
+.qd-result .qd-actions {
+  justify-content: center;
+}
+.qd-confetti {
+  display: block;
+  font-size: 48px;
+  animation: qd-bounce 1s 2;
+}
+.qd-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #18223b90;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.qd-celebrate {
+  text-align: center;
+  max-width: 440px;
+  box-shadow: 0 20px 80px #0003;
+}
+.qd-count {
+  animation: qd-appear 0.35s;
+}
+.qd-book-cover {
+  height: 230px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #4457a3, #9180d6);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  font-size: 35px;
+}
+.qd-book-cover span {
+  font-size: 27px;
+  font-weight: 800;
+}
+.qd-book-cover small {
+  color: #fff;
+}
+.qd-book-cover.cover-1 {
+  background: linear-gradient(135deg, #257567, #79aca0);
+}
+.qd-book details {
+  margin: 24px 0;
+}
+.qd-book-summary {
+  margin-top: 20px;
+}
+.qd-shop-item > span {
+  font-size: 48px;
+}
+.qd-avatar-frame {
+  outline: 3px solid #e4ae43;
+  outline-offset: 3px;
+}
+.qd-leagues {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin: 25px 0;
+}
+.qd-leagues > span {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: white;
+}
+.qd-leagues > span.active {
+  border: 2px solid var(--purple);
+}
+.qd-leagues small {
+  display: block;
+}
+.qd-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.qd-still *,
+.qd-still *:before,
+.qd-still *:after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+@keyframes qd-appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes qd-float {
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes qd-bounce {
+  50% {
+    transform: translateY(-10px) rotate(3deg);
+  }
+}
+@keyframes qd-nudge {
+  33% {
+    transform: translateX(-3px);
+  }
+  66% {
+    transform: translateX(3px);
+  }
+}
+@keyframes qd-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qd-app *,
+  .qd-app *:before,
+  .qd-app *:after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+@media (max-width: 1000px) {
+  .qd-grid.goals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .qd-dashboard .heroCard {
+    padding: 28px;
+  }
+  .qd-dashboard .heroCard h2 {
+    font-size: 28px;
+  }
+  .qd-grid.two {
+    grid-template-columns: 1fr;
+  }
+  .qd-shell .page {
+    padding: 24px;
+  }
+}
+@media (max-width: 700px) {
+  .qd-shell {
+    display: block;
+  }
+  .qd-shell > aside {
+    position: sticky;
+    top: 0;
+    height: auto;
+    padding: 8px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    display: block;
+    z-index: 20;
+  }
+  .qd-shell > aside .brand,
+  .qd-shell > aside .sideBottom {
+    display: none;
+  }
+  .qd-shell > aside nav {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 4px;
+  }
+  .qd-shell > aside nav a {
+    flex-direction: column;
+    font-size: 9px;
+    gap: 4px;
+    white-space: nowrap;
+    padding: 8px;
+  }
+  .qd-bar {
+    padding: 10px 18px;
+  }
+  .qd-app .page {
+    padding: 22px 16px 50px;
+  }
+  .qd-grid.goals {
+    grid-template-columns: 1fr;
+  }
+  .qd-profile h1 {
+    font-size: 30px;
+  }
+  .qd-dashboard .heroCard {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+  .heroCard > .qd-companion {
+    flex-direction: row;
+    margin-top: 16px;
+  }
+  .heroCard > .qd-companion .mascot {
+    width: 75px;
+    height: 90px;
+  }
+  .heroCard > .qd-companion p {
+    font-size: 12px;
+  }
+  .qd-dashboard .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .qd-exercise {
+    padding: 20px 16px;
+  }
+  .qd-exercise h2 {
+    font-size: 20px;
+  }
+  .qd-map-node {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .qd-map-node .btn {
+    margin-left: 66px;
+  }
+  .qd-map-node > div {
+    min-width: 150px;
+  }
+  .qd-lock-note {
+    margin-left: 66px;
+    max-width: none;
+  }
+  .qd-leagues {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .qd-matches label {
+    grid-template-columns: 1fr;
+  }
+  .qd-book-cover {
+    height: 190px;
+  }
+  .qd-auth {
+    padding: 24px 16px;
+  }
+  .qd-auth .loginCard {
+    padding: 24px 18px;
+  }
+}
+@media (max-width: 700px) {
+  .qd-shell.appShell aside nav a span {
+    display: block;
+  }
+}

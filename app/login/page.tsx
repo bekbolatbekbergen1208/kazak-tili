@@ -1,2 +1,4 @@
-import Link from "next/link";import {ArrowRight,GraduationCap,UserRound} from "lucide-react";import {Logo,Mascot} from "@/components/icons";
-export default function Page(){return <div className="loginPage"><Link href="/"><Logo/></Link><div className="loginCard"><div className="loginMascot"><Mascot/></div><span className="pill">ДЕМО РЕЖИМ</span><h1>Қош келдің!</h1><p>QazaqDos әлеміне кім болып кіресің?</p><Link href="/student" className="roleCard"><i><UserRound/></i><span><b>Оқушы • эксперимент</b><small>Саяхатқа шығып, Досшамен үйрен</small></span><ArrowRight/></Link><Link href="/student/control" className="roleCard"><i><UserRound/></i><span><b>Оқушы • бақылау</b><small>Бірдей материал, бейтарап формат</small></span><ArrowRight/></Link><Link href="/teacher" className="roleCard"><i className="purple"><GraduationCap/></i><span><b>Мұғалім / зерттеуші</b><small>Топтар мен нәтижелерді басқар</small></span><ArrowRight/></Link><small className="noData">Тіркелу қажет емес • Демо деректер ғана</small></div></div>}
+import AuthForm from "@/components/learning/auth-form";
+export default function Page() {
+  return <AuthForm />;
+}
