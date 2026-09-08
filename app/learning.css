@@ -175,6 +175,11 @@
 .qd-auth form > .btn {
   width: 100%;
 }
+.qd-auth .qd-password-hint {
+  margin: -8px 0 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
 .qd-auth details {
   margin-top: 24px;
 }

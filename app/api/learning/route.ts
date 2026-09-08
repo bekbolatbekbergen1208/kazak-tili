@@ -22,8 +22,12 @@ export async function GET() {
       { error: "Database setup required. Apply the QazaqDos migration." },
       { status: 503 },
     );
+  const fresh = initialState();
+  const nickname = user.user_metadata?.nickname;
+  if (!data && typeof nickname === "string" && nickname.trim().length >= 2)
+    fresh.profile.nickname = nickname.trim().slice(0, 24);
   return NextResponse.json({
-    state: hydrateCharacters(data?.state ?? initialState()),
+    state: hydrateCharacters(data?.state ?? fresh),
     revision: data?.revision ?? 0,
     userId: user.id,
   });

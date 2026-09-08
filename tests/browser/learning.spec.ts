@@ -117,6 +117,23 @@ test("registration UI, unauthenticated API and legacy pages", async ({
 }) => {
   await page.goto("/login");
   await page.getByRole("button", { name: "Нет аккаунта? Регистрация" }).click();
+  await expect(page).toHaveURL(/\/register$/);
+  await expect(page.getByLabel("Ваше имя")).toBeVisible();
+  await expect(page.getByLabel("Повторите пароль")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Зарегистрироваться", exact: true }),
+  ).toBeVisible();
+  await page.getByLabel("Ваше имя").fill("Дос");
+  await page.getByLabel("Email").fill("dos@example.com");
+  await page.getByLabel("Пароль", { exact: true }).fill("password-1");
+  await page.getByLabel("Повторите пароль").fill("password-2");
+  await page
+    .getByRole("button", { name: "Зарегистрироваться", exact: true })
+    .click();
+  await expect(page.locator(".loginCard .qd-error")).toContainText(
+    "Пароли не совпадают",
+  );
+  await page.goto("/register");
   await expect(
     page.getByRole("button", { name: "Зарегистрироваться", exact: true }),
   ).toBeVisible();

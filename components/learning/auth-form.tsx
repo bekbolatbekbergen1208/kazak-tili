@@ -4,16 +4,50 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { Logo, Mascot } from "@/components/icons";
-export default function AuthForm() {
-  const [register, setRegister] = useState(false),
+export default function AuthForm({
+  initialMode = "login",
+}: {
+  initialMode?: "login" | "register";
+}) {
+  const [register, setRegister] = useState(initialMode === "register"),
     [lang, setLang] = useState<"ru" | "en">("ru"),
+    [nickname, setNickname] = useState(""),
     [email, setEmail] = useState(""),
     [password, setPassword] = useState(""),
+    [confirmPassword, setConfirmPassword] = useState(""),
     [busy, setBusy] = useState(false),
+    [retryAt, setRetryAt] = useState(0),
     [error, setError] = useState(""),
     [message, setMessage] = useState(""),
     router = useRouter();
   const t = (ru: string, en: string) => (lang === "ru" ? ru : en);
+  const retrySeconds = Math.max(0, Math.ceil((retryAt - Date.now()) / 1000));
+  const submitDisabled = busy || retrySeconds > 0;
+  function friendlyError(value: unknown) {
+    const text =
+      value instanceof Error
+        ? value.message
+        : t(
+            "Не удалось подключиться. Попробуйте снова.",
+            "Could not connect. Please try again.",
+          );
+    const match = text.match(/after\s+(\d+)\s+seconds/i);
+    if (match) {
+      const seconds = Number(match[1]);
+      if (Number.isFinite(seconds)) setRetryAt(Date.now() + seconds * 1000);
+      return t(
+        `Письмо уже отправлено. Подождите ${seconds} сек. и нажмите снова.`,
+        `The email was already sent. Wait ${seconds} seconds and try again.`,
+      );
+    }
+    if (/already registered|user already registered/i.test(text)) {
+      return t(
+        "Этот email уже зарегистрирован. Нажмите «Войти».",
+        "This email is already registered. Choose “Sign in”.",
+      );
+    }
+    return text;
+  }
   useEffect(() => {
     if (
       new URLSearchParams(window.location.search).get("error") ===
@@ -26,6 +60,28 @@ export default function AuthForm() {
   }, []);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (retrySeconds > 0) {
+      setError(
+        t(
+          `Подождите ${retrySeconds} сек. перед повторной отправкой.`,
+          `Wait ${retrySeconds} seconds before trying again.`,
+        ),
+      );
+      return;
+    }
+    if (register && nickname.trim().length < 2) {
+      setError(
+        t(
+          "Введите имя: минимум 2 символа.",
+          "Enter a name of at least 2 characters.",
+        ),
+      );
+      return;
+    }
+    if (register && password !== confirmPassword) {
+      setError(t("Пароли не совпадают.", "Passwords do not match."));
+      return;
+    }
     setBusy(true);
     setError("");
     setMessage("");
@@ -37,6 +93,7 @@ export default function AuthForm() {
             password,
             options: {
               emailRedirectTo: `${window.location.origin}/auth/callback`,
+              data: { nickname: nickname.trim() },
             },
           })
         : await db.auth.signInWithPassword({ email: email.trim(), password });
@@ -53,14 +110,7 @@ export default function AuthForm() {
           ),
         );
     } catch (e) {
-      setError(
-        e instanceof Error
-          ? e.message
-          : t(
-              "Не удалось подключиться. Попробуйте снова.",
-              "Could not connect. Please try again.",
-            ),
-      );
+      setError(friendlyError(e));
     } finally {
       setBusy(false);
     }
@@ -103,6 +153,20 @@ export default function AuthForm() {
           )}
         </p>
         <form onSubmit={submit}>
+          {register && (
+            <label className="qd-field">
+              {t("Ваше имя", "Your name")}
+              <input
+                type="text"
+                autoComplete="name"
+                required
+                minLength={2}
+                maxLength={24}
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+              />
+            </label>
+          )}
           <label className="qd-field">
             Email
             <input
@@ -126,13 +190,34 @@ export default function AuthForm() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </label>
-          <button className="btn primary" disabled={busy}>
-            {busy
-              ? t("Подключаемся…", "Connecting…")
-              : t(
-                  register ? "Зарегистрироваться" : "Войти",
-                  register ? "Create account" : "Sign in",
-                )}
+          {register && (
+            <>
+              <p className="qd-password-hint">
+                {t("Не менее 8 символов.", "Use at least 8 characters.")}
+              </p>
+              <label className="qd-field">
+                {t("Повторите пароль", "Confirm password")}
+                <input
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={8}
+                  maxLength={128}
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </label>
+            </>
+          )}
+          <button className="btn primary" disabled={submitDisabled}>
+            {retrySeconds > 0
+              ? t(`Подождите ${retrySeconds} сек.`, `Wait ${retrySeconds}s`)
+              : busy
+                ? t("Подключаемся…", "Connecting…")
+                : t(
+                    register ? "Зарегистрироваться" : "Войти",
+                    register ? "Create account" : "Sign in",
+                  )}
           </button>
         </form>
         {error && (
@@ -144,9 +229,12 @@ export default function AuthForm() {
         <button
           className="btn ghost"
           onClick={() => {
-            setRegister(!register);
+            const next = !register;
+            setRegister(next);
+            setConfirmPassword("");
             setError("");
             setMessage("");
+            router.replace(next ? "/register" : "/login");
           }}
         >
           {t(
