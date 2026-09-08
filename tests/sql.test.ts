@@ -7,7 +7,7 @@ test("migrations execute; RLS isolates two users and protects curriculum", async
   const db = new PGlite();
   try {
     await db.exec(
-      `create role anon; create role authenticated; create schema auth; create table auth.users(id uuid primary key); create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$; grant usage on schema public,auth to authenticated,anon; grant execute on function auth.uid() to authenticated,anon;`,
+      `create role anon; create role authenticated; create role service_role bypassrls; create schema auth; create table auth.users(id uuid primary key); create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$; grant usage on schema public,auth to authenticated,anon; grant execute on function auth.uid() to authenticated,anon;`,
     );
     await db.exec(
       readFileSync("supabase/migrations/202609070001_learning_mvp.sql", "utf8"),
@@ -84,6 +84,29 @@ test("migrations execute; RLS isolates two users and protects curriculum", async
     );
     await assert.rejects(
       db.exec("update public.qd_characters set unlock_xp=0"),
+    );
+    await db.exec("reset role");
+    await db.exec(
+      readFileSync(
+        "supabase/migrations/202609080005_travel_progress.sql",
+        "utf8",
+      ),
+    );
+    await db.exec(
+      readFileSync(
+        "supabase/migrations/202609080006_server_owned_progress.sql",
+        "utf8",
+      ),
+    );
+    await db.exec(`set role authenticated; set request.jwt.claim.sub='${a}';`);
+    assert.equal(
+      (await db.query("select * from public.qd_learning_states")).rows.length,
+      1,
+    );
+    await assert.rejects(
+      db.exec(
+        "update public.qd_learning_states set state=jsonb_set(state,'{progress,xp}','999999')",
+      ),
     );
     await db.exec(`reset role; set role anon;`);
     await assert.rejects(db.exec("select * from public.qd_learning_states"));

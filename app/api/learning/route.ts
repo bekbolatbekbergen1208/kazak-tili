@@ -1,3 +1,4 @@
+import { createProgressWriter } from "@/utils/supabase/admin";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
@@ -46,6 +47,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
   const allowed = [
+    "travel-visit",
+    "travel-section",
+    "travel-object",
+    "travel-word",
+    "travel-game",
+    "travel-settings",
+    "travel-camera",
+    "travel-announce",
     "profile",
     "start",
     "answer",
@@ -93,8 +102,18 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
+  const writer = createProgressWriter();
+  if (!writer && body.action.type.startsWith("travel-"))
+    return NextResponse.json(
+      {
+        error:
+          "Travel saving requires SUPABASE_SECRET_KEY on the server and migration 006.",
+      },
+      { status: 503 },
+    );
+  const writeDb = writer ?? db;
   const result = data
-    ? await db
+    ? await writeDb
         .from("qd_learning_states")
         .update({
           state,
@@ -105,7 +124,7 @@ export async function POST(req: Request) {
         .eq("revision", body.revision)
         .select("revision")
         .maybeSingle()
-    : await db
+    : await writeDb
         .from("qd_learning_states")
         .insert({ user_id: user.id, state, revision: 1 })
         .select("revision")

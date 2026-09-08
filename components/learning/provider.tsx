@@ -1,4 +1,5 @@
 "use client";
+import { TravelRewards } from "@/components/travel/rewards";
 import {
   createContext,
   useCallback,
@@ -192,6 +193,9 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
           <p>{t("Открываем настройку профиля…", "Opening profile setup…")}</p>
         )}
         <CharacterReveal />
+        {levelUp === 0 && pendingReveals(state).length === 0 && (
+          <TravelRewards />
+        )}
         {levelUp > 0 && pendingReveals(state).length === 0 && (
           <div className="qd-overlay">
             <section

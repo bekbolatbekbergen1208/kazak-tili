@@ -1,3 +1,4 @@
+import type { TravelAction, TravelProgress } from "../travel/types";
 import type {
   CharacterCollection,
   CharacterId,
@@ -142,9 +143,11 @@ export type UserProgress = {
   streak: UserStreak;
   inventory: string[];
   characters?: CharacterCollection;
+  travel?: TravelProgress;
 };
 export type LearningState = { profile: UserProfile; progress: UserProgress };
 export type LearningAction =
+  | TravelAction
   | { type: "profile"; profile: UserProfile }
   | { type: "start"; lessonId: string }
   | { type: "answer"; lessonId: string; exerciseId: string; answer: string }

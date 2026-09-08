@@ -1,3 +1,5 @@
+import { applyTravel } from "../travel/state";
+import type { TravelAction } from "../travel/types";
 import {
   achievements,
   courses,
@@ -306,6 +308,8 @@ export function applyAction(
       reward(`review-${e.id}`, 5, coinRewards.review, "review");
     } else m.count++;
   }
+  if (action.type.startsWith("travel-"))
+    applyTravel(s, action as TravelAction, stamp, reward);
   const complete = (id: string) =>
     ["completed", "perfect"].includes(p.lessons[id]?.status);
   for (
