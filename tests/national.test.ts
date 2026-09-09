@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { initialState, applyAction } from "../lib/learning/state";
 import { national, freshNational } from "../lib/national/state";
-import { questionFor } from "../lib/national/catalog";
+import { questionFor, questions } from "../lib/national/catalog";
 import { initialBones, simulate, step } from "../lib/national/physics";
 import { lessonById } from "../lib/learning/content";
 function ready() {
@@ -13,6 +13,17 @@ function ready() {
   return s;
 }
 const now = new Date("2026-09-09T12:00:00Z");
+test("national question bank is broad, valid and has no duplicate prompts", () => {
+  assert(questions.length >= 60);
+  assert.equal(new Set(questions.map((q) => q.prompt)).size, questions.length);
+  for (const question of questions) {
+    assert.equal(question.options.length, 3);
+    assert(Number.isInteger(question.answer));
+    assert(question.answer >= 0 && question.answer < question.options.length);
+    assert.equal(new Set(question.options).size, question.options.length);
+    assert(question.explanation.length >= 8);
+  }
+});
 test("physics is deterministic, transfers momentum, stops, scores exits, preserves input", () => {
   const input = initialBones(),
     copy = structuredClone(input),
