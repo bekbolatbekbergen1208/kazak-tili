@@ -5,10 +5,10 @@ import { Mic, MicOff, Send, ShieldCheck, Sparkles } from "lucide-react";
 import { Mascot } from "./icons";
 import { Shell, StudentTop } from "./shell";
 import { interfaceLanguages, localized } from "@/lib/learning/languages";
-import type { InterfaceLanguage, Localized } from "@/lib/learning/types";
+import { commonDictionary } from "@/components/learning/lesson-translator";
+import type { InterfaceLanguage } from "@/lib/learning/types";
 
 type Message = { me: boolean; text: string };
-type DictionaryEntry = { kk: string; translation: Localized };
 type SpeechResultEvent = {
   results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean }>;
 };
@@ -39,96 +39,7 @@ const replies: Record<string, string> = {
   Ұшақ: "Ұшақ аспанда ұшады. «Мен ұшақпен барамын» деп айтып көр!",
 };
 
-const dictionary: DictionaryEntry[] = [
-  {
-    kk: "Сәлем",
-    translation: {
-      ru: "Привет",
-      en: "Hello",
-      zh: "你好",
-      es: "Hola",
-      de: "Hallo",
-      fr: "Bonjour",
-    },
-  },
-  {
-    kk: "Рақмет",
-    translation: {
-      ru: "Спасибо",
-      en: "Thank you",
-      zh: "谢谢",
-      es: "Gracias",
-      de: "Danke",
-      fr: "Merci",
-    },
-  },
-  {
-    kk: "Саяхат",
-    translation: {
-      ru: "Путешествие",
-      en: "Travel",
-      zh: "旅行",
-      es: "Viaje",
-      de: "Reise",
-      fr: "Voyage",
-    },
-  },
-  {
-    kk: "Ұшақ",
-    translation: {
-      ru: "Самолёт",
-      en: "Airplane",
-      zh: "飞机",
-      es: "Avión",
-      de: "Flugzeug",
-      fr: "Avion",
-    },
-  },
-  {
-    kk: "Дос",
-    translation: {
-      ru: "Друг",
-      en: "Friend",
-      zh: "朋友",
-      es: "Amigo",
-      de: "Freund",
-      fr: "Ami",
-    },
-  },
-  {
-    kk: "Мектеп",
-    translation: {
-      ru: "Школа",
-      en: "School",
-      zh: "学校",
-      es: "Escuela",
-      de: "Schule",
-      fr: "École",
-    },
-  },
-  {
-    kk: "Кітап",
-    translation: {
-      ru: "Книга",
-      en: "Book",
-      zh: "书",
-      es: "Libro",
-      de: "Buch",
-      fr: "Livre",
-    },
-  },
-  {
-    kk: "Қазақстан",
-    translation: {
-      ru: "Казахстан",
-      en: "Kazakhstan",
-      zh: "哈萨克斯坦",
-      es: "Kazajistán",
-      de: "Kasachstan",
-      fr: "Kazakhstan",
-    },
-  },
-];
+const dictionary = commonDictionary;
 
 function answerFor(text: string) {
   const key = Object.keys(replies).find((item) =>

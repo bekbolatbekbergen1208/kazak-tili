@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Exercise } from "@/lib/learning/types";
 import { isCorrect } from "@/lib/learning/state";
+import { localized } from "@/lib/learning/languages";
 import { useLearning } from "./provider";
 export function ExerciseView({
   exercise: e,
@@ -61,7 +62,9 @@ export function ExerciseView({
     : [];
   const orderedWords =
     e.kind === "order"
-      ? options.map((o) => (typeof o.text === "string" ? o.text : o.text[lang]))
+      ? options.map((o) =>
+          typeof o.text === "string" ? o.text : localized(o.text, lang),
+        )
       : (e.words ?? []);
   const response =
     e.kind === "sentence" || e.kind === "correction"
@@ -176,7 +179,7 @@ export function ExerciseView({
           }[e.kind]
         }
       </span>
-      <h2>{e.prompt[lang]}</h2>
+      <h2>{localized(e.prompt, lang)}</h2>
       {e.kind === "timed" && (
         <p role="timer">
           ⏱ {seconds}{" "}
@@ -199,7 +202,7 @@ export function ExerciseView({
           aria-expanded={revealed}
           onClick={() => setRevealed(!revealed)}
         >
-          {revealed ? e.translation[lang] : e.example}
+          {revealed ? localized(e.translation, lang) : e.example}
           <small>{t("Нажмите, чтобы перевернуть", "Tap to flip")}</small>
         </button>
       )}
@@ -309,7 +312,7 @@ export function ExerciseView({
                     </option>
                     {[...e.pairs!].reverse().map((p, j) => (
                       <option key={p.kk} value={e.pairs!.length - 1 - j}>
-                        {p.translation[lang]}
+                        {localized(p.translation, lang)}
                       </option>
                     ))}
                   </select>
@@ -354,7 +357,9 @@ export function ExerciseView({
                     onChange={() => setValue(o.id)}
                   />
                   <span>
-                    {typeof o.text === "string" ? o.text : o.text[lang]}
+                    {typeof o.text === "string"
+                      ? o.text
+                      : localized(o.text, lang)}
                   </span>
                 </label>
               ))}
@@ -396,17 +401,19 @@ export function ExerciseView({
                     "Almost! Let’s work through it.",
                   )}
           </h3>
-          <p>{e.explanation[lang]}</p>
+          <p>{localized(e.explanation, lang)}</p>
           <p>
             <b>{t("Образец ответа", "Model answer")}: </b>
             {e.kind === "match"
               ? e.pairs
-                  ?.map((p) => `${p.kk} — ${p.translation[lang]}`)
+                  ?.map((p) => `${p.kk} — ${localized(p.translation, lang)}`)
                   .join("; ")
               : e.kind === "order"
                 ? e.options
                     ?.map((o) =>
-                      typeof o.text === "string" ? o.text : o.text[lang],
+                      typeof o.text === "string"
+                        ? o.text
+                        : localized(o.text, lang),
                     )
                     .join(" → ")
                 : (() => {
@@ -414,12 +421,12 @@ export function ExerciseView({
                     return option
                       ? typeof option.text === "string"
                         ? option.text
-                        : option.text[lang]
+                        : localized(option.text, lang)
                       : e.answer;
                   })()}
           </p>
           <p>
-            <b lang="kk">{e.example}</b> — {e.translation[lang]}
+            <b lang="kk">{e.example}</b> — {localized(e.translation, lang)}
           </p>
           {!feedback.correct && (
             <p>

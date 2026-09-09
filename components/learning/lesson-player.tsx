@@ -5,10 +5,12 @@ import { LessonReward } from "@/components/national/lesson-reward";
 import type { RewardEntry } from "@/lib/national/types";
 import { useEffect, useState } from "react";
 import { books, lessonById } from "@/lib/learning/content";
+import { localized } from "@/lib/learning/languages";
 import { accessible, isCorrect, nextLesson } from "@/lib/learning/state";
 import { useLearning } from "./provider";
 import { Companion } from "./frame";
 import { ExerciseView } from "./exercise";
+import { LessonTranslator } from "./lesson-translator";
 export default function LessonPlayer({ lessonId }: { lessonId: string }) {
   const { state, t, dispatch, busy } = useLearning(),
     lesson = lessonById(lessonId),
@@ -63,7 +65,7 @@ export default function LessonPlayer({ lessonId }: { lessonId: string }) {
           text={t("Жарайсың! Вы справились.", "Жарайсың! You did it.")}
         />
         <h1>{t("Урок завершён!", "Lesson complete!")}</h1>
-        <h2>{lesson.title[state.profile.language]}</h2>
+        <h2>{localized(lesson.title, state.profile.language)}</h2>
         <p>
           {lp.correct}/{lesson.exercises.length}{" "}
           {t("верно с первой попытки", "correct on the first try")} ·{" "}
@@ -103,7 +105,7 @@ export default function LessonPlayer({ lessonId }: { lessonId: string }) {
     return (
       <div className="page qd-lesson">
         <span className="pill">5 {t("заданий", "exercises")} · A1</span>
-        <h1>{lesson.title[state.profile.language]}</h1>
+        <h1>{localized(lesson.title, state.profile.language)}</h1>
         <Companion mood="greeting" />
         <p>
           {t(
@@ -142,18 +144,19 @@ export default function LessonPlayer({ lessonId }: { lessonId: string }) {
         </span>
       </div>
       <progress value={index} max={lesson.exercises.length} />
-      <h1>{lesson.title[state.profile.language]}</h1>
+      <h1>{localized(lesson.title, state.profile.language)}</h1>
       {book && (
         <details className="panel qd-book-summary" open>
           <summary>
             {t("Прочитать краткое содержание", "Read the summary")} ·{" "}
             {book.title}
           </summary>
-          <p>{book.summary[state.profile.language]}</p>
+          <p>{localized(book.summary, state.profile.language)}</p>
           <p>
             {book.characters
               .map(
-                (c) => `${c.name} — ${c.description[state.profile.language]}`,
+                (c) =>
+                  `${c.name} — ${localized(c.description, state.profile.language)}`,
               )
               .join(" ")}
           </p>
@@ -173,6 +176,7 @@ export default function LessonPlayer({ lessonId }: { lessonId: string }) {
             : t("Не торопитесь. Я рядом.", "Take your time. I’m here.")
         }
       />
+      <LessonTranslator exercise={exercise} />
       {exercise ? (
         <>
           <ExerciseView

@@ -174,6 +174,57 @@
   margin: 12px;
   overflow-wrap: anywhere;
 }
+.qd-lesson-translator {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px;
+  margin: 18px 0;
+  display: grid;
+  gap: 10px;
+  box-shadow: 0 12px 28px #23325a0a;
+}
+.qd-lesson-translator > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.qd-lesson-translator b {
+  font-size: 15px;
+}
+.qd-lesson-translator select,
+.qd-lesson-translator input {
+  border: 1px solid #d9deec;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fbfcff;
+  color: var(--ink);
+}
+.qd-lesson-translator input {
+  width: 100%;
+}
+.qd-lesson-translator strong {
+  background: #eef0ff;
+  color: var(--purple);
+  border-radius: 14px;
+  padding: 12px;
+  overflow-wrap: anywhere;
+}
+.qd-lesson-translator > div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.qd-lesson-translator button {
+  border: 1px solid #dfe2f2;
+  background: white;
+  color: var(--purple);
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 11px;
+  cursor: pointer;
+}
 .qd-auth .loginCard {
   max-width: 520px;
 }
