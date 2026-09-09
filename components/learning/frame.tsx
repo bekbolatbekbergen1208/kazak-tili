@@ -22,6 +22,7 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
   const nav = [
     ["/learn", Home, t("Главная", "Home")],
     ["/kazakhstan", Compass, "Қазақстанға саяхат"],
+    ["/learn/national", Trophy, "Ұлттық ойындар"],
     ["/learn/map", Compass, t("Мой маршрут", "My path")],
     ["/learn/books", BookOpen, t("Произведения", "Literature")],
     ["/learn/review", RotateCcw, t("Повторение", "Review")],

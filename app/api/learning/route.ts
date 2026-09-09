@@ -51,6 +51,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
   const allowed = [
+    "national-buy",
+    "national-start",
+    "national-answer",
+    "national-shot",
+    "national-upgrade",
+    "national-daily",
+    "national-settings",
     "travel-visit",
     "travel-section",
     "travel-object",
@@ -107,11 +114,11 @@ export async function POST(req: Request) {
     );
   }
   const writer = createProgressWriter();
-  if (!writer && body.action.type.startsWith("travel-"))
+  if (!writer)
     return NextResponse.json(
       {
         error:
-          "Travel saving requires SUPABASE_SECRET_KEY on the server and migration 006.",
+          "Saving requires SUPABASE_SECRET_KEY on the server and migrations 006–007.",
       },
       { status: 503 },
     );

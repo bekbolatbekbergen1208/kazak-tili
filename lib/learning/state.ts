@@ -1,3 +1,5 @@
+import { applyNational, awardNational, statsFor } from "../national/state";
+import type { NationalAction } from "../national/types";
 import { applyTravel } from "../travel/state";
 import type { TravelAction } from "../travel/types";
 import {
@@ -287,6 +289,14 @@ export function applyAction(
         p.streak.days.push(today);
         reward(`return-${today}`, 5, coinRewards.activeDay, "daily-return");
       }
+      awardNational(s, {
+        id: `lesson-crystals-${lesson.id}`,
+        title: "Сабақ марапаты",
+        xp: statsFor(s).knowledge * 2,
+        coins: 0,
+        crystals: lesson.kind === "test" ? 2 : 1,
+        date: stamp,
+      });
       const section = courses
         .flatMap((c) => c.sections)
         .find((x) => x.id === lesson.sectionId)!;
@@ -308,6 +318,8 @@ export function applyAction(
       reward(`review-${e.id}`, 5, coinRewards.review, "review");
     } else m.count++;
   }
+  if (action.type.startsWith("national-"))
+    applyNational(s, action as NationalAction, now);
   if (action.type.startsWith("travel-"))
     applyTravel(s, action as TravelAction, stamp, reward);
   const complete = (id: string) =>

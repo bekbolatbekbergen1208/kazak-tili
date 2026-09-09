@@ -98,6 +98,12 @@ test("migrations execute; RLS isolates two users and protects curriculum", async
         "utf8",
       ),
     );
+    await db.exec(
+      readFileSync(
+        "supabase/migrations/202609090007_national_games.sql",
+        "utf8",
+      ),
+    );
     await db.exec(`set role authenticated; set request.jwt.claim.sub='${a}';`);
     assert.equal(
       (await db.query("select * from public.qd_learning_states")).rows.length,
@@ -108,7 +114,13 @@ test("migrations execute; RLS isolates two users and protects curriculum", async
         "update public.qd_learning_states set state=jsonb_set(state,'{progress,xp}','999999')",
       ),
     );
+    assert.equal(
+      (await db.query("select * from public.qd_wallet")).rows.length,
+      1,
+    );
+    await assert.rejects(db.exec("update public.qd_wallet set coins=999999"));
     await db.exec(`reset role; set role anon;`);
+    await assert.rejects(db.exec("select * from public.qd_wallet"));
     await assert.rejects(db.exec("select * from public.qd_learning_states"));
   } finally {
     await db.close();

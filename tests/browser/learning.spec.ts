@@ -45,6 +45,10 @@ test("onboarding → lesson → rewards → persisted progress → language and 
     .click();
   await page.getByRole("button", { name: "Keep in collection" }).click();
   await expect(
+    page.getByRole("heading", { name: "Сабақ аяқталды!" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Жалғастыру", exact: true }).click();
+  await expect(
     page.getByRole("heading", { name: "Lesson complete!" }),
   ).toBeVisible();
   await page.getByRole("link", { name: "Dashboard", exact: true }).click();

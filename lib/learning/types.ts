@@ -1,3 +1,4 @@
+import type { NationalAction, NationalProgress } from "../national/types";
 import type { TravelAction, TravelProgress } from "../travel/types";
 import type {
   CharacterCollection,
@@ -144,9 +145,11 @@ export type UserProgress = {
   inventory: string[];
   characters?: CharacterCollection;
   travel?: TravelProgress;
+  national?: NationalProgress;
 };
 export type LearningState = { profile: UserProfile; progress: UserProgress };
 export type LearningAction =
+  | NationalAction
   | TravelAction
   | { type: "profile"; profile: UserProfile }
   | { type: "start"; lessonId: string }

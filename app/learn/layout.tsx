@@ -1,3 +1,4 @@
+import "./national/national.css";
 import { LearningProvider } from "@/components/learning/provider";
 import { LearningFrame } from "@/components/learning/frame";
 export default function Layout({ children }: { children: React.ReactNode }) {

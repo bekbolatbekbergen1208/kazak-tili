@@ -1,5 +1,8 @@
 "use client";
 import Link from "next/link";
+import { pendingReveals } from "@/lib/characters/state";
+import { LessonReward } from "@/components/national/lesson-reward";
+import type { RewardEntry } from "@/lib/national/types";
 import { useEffect, useState } from "react";
 import { books, lessonById } from "@/lib/learning/content";
 import { accessible, isCorrect, nextLesson } from "@/lib/learning/state";
@@ -12,7 +15,8 @@ export default function LessonPlayer({ lessonId }: { lessonId: string }) {
     [index, setIndex] = useState(0),
     [retry, setRetry] = useState(0),
     [feedback, setFeedback] = useState<{ answer: string; correct: boolean }>(),
-    [started, setStarted] = useState(false);
+    [started, setStarted] = useState(false),
+    [earnedReward, setEarnedReward] = useState<RewardEntry | null>(null);
   const lp = state.progress.lessons[lessonId],
     book = books.find((b) => b.id === lesson?.bookId);
   useEffect(() => {
@@ -50,6 +54,9 @@ export default function LessonPlayer({ lessonId }: { lessonId: string }) {
   if (completed)
     return (
       <div className="page qd-result">
+        {earnedReward && pendingReveals(state).length === 0 && (
+          <LessonReward reward={earnedReward} />
+        )}
         <span className="qd-confetti">✦ 🎉 ✦</span>
         <Companion
           mood="celebration"
@@ -203,7 +210,20 @@ export default function LessonPlayer({ lessonId }: { lessonId: string }) {
           <button
             disabled={busy}
             className="btn primary"
-            onClick={() => void dispatch({ type: "finish", lessonId })}
+            onClick={async () => {
+              const next = await dispatch({ type: "finish", lessonId });
+              if (next)
+                setEarnedReward({
+                  id: `finish-${lessonId}`,
+                  title: "Сабақ марапаты",
+                  xp: next.progress.xp - state.progress.xp,
+                  coins: next.progress.coins - state.progress.coins,
+                  crystals:
+                    (next.progress.national?.crystals ?? 0) -
+                    (state.progress.national?.crystals ?? 0),
+                  date: new Date().toISOString(),
+                });
+            }}
           >
             {busy
               ? t("Сохраняем…", "Saving…")

@@ -1,0 +1,706 @@
+.ng-page {
+  --ng-ink: #272641;
+  --ng-purple: #7461d3;
+  max-width: 1180px;
+  margin: auto;
+  padding: 24px 32px 100px;
+  color: var(--ng-ink);
+  animation: ng-enter 0.35s ease-out;
+}
+.ng-top,
+.ng-heading,
+.ng-game-stats,
+.ng-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.ng-top {
+  font-weight: 700;
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+.ng-top a {
+  color: #6553ba;
+}
+.ng-heading {
+  margin: 24px 0 18px;
+  flex-wrap: wrap;
+}
+.ng-heading h1 {
+  font-size: clamp(26px, 4vw, 42px);
+  letter-spacing: -1px;
+  margin: 0;
+}
+.ng-settings,
+.ng-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ng-settings button,
+.ng-tabs a {
+  border: 1px solid #e2def3;
+  border-radius: 20px;
+  background: #fff;
+  padding: 9px 13px;
+  font-size: 12px;
+  color: #514672;
+}
+.ng-settings button[aria-pressed="true"] {
+  background: #eee8ff;
+  border-color: #9c88de;
+}
+.ng-tabs {
+  margin-bottom: 24px;
+}
+.ng-page button,
+.ng-page a {
+  transition:
+    transform 0.16s,
+    opacity 0.16s;
+}
+.ng-page button:not(:disabled):hover,
+.ng-page .btn:hover {
+  transform: translateY(-2px);
+}
+.ng-page button:active {
+  transform: scale(0.97);
+}
+.ng-page :focus-visible {
+  outline: 3px solid #396cb5;
+  outline-offset: 4px;
+}
+.ng-page button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.ng-village {
+  position: relative;
+  overflow: hidden;
+  min-height: 340px;
+  border-radius: 30px;
+  background: #d5efec;
+  margin-bottom: 24px;
+  isolation: isolate;
+}
+.ng-village-copy {
+  position: relative;
+  z-index: 2;
+  padding: 38px;
+  max-width: 65%;
+}
+.ng-village h2 {
+  font-size: clamp(28px, 4vw, 46px);
+  line-height: 1.13;
+  margin: 18px 0;
+}
+.ng-village p {
+  line-height: 1.6;
+  max-width: 360px;
+}
+.ng-village > .char-art {
+  position: absolute;
+  width: 260px;
+  right: 12px;
+  bottom: 0;
+  z-index: 2;
+}
+.ng-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #4c7176;
+}
+.ng-badge {
+  display: inline-block;
+  font-size: 12px;
+  border-radius: 20px;
+  padding: 8px 12px;
+  background: #ffffffbc;
+  font-weight: 700;
+}
+.ng-landscape {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ng-sun {
+  position: absolute;
+  right: 90px;
+  top: 30px;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  background: #ffe4a3;
+  box-shadow: 0 0 0 17px #ffe4a333;
+}
+.ng-cloud {
+  position: absolute;
+  left: 60%;
+  top: 12px;
+  color: #fff;
+  font-size: 90px;
+  animation: ng-cloud 15s ease-in-out infinite alternate;
+}
+.ng-mountain {
+  position: absolute;
+  bottom: 45px;
+  left: 45%;
+  width: 340px;
+  height: 230px;
+  background: #90c6bc;
+  clip-path: polygon(0 100%, 50% 5%, 100% 100%);
+}
+.ng-mountain.second {
+  left: 65%;
+  background: #abd6c6;
+  bottom: 20px;
+  transform: scale(1.4);
+}
+.ng-path {
+  position: absolute;
+  bottom: -110px;
+  left: -15%;
+  width: 130%;
+  height: 240px;
+  border-radius: 50%;
+  background: #bcd59c;
+}
+.ng-yurt {
+  position: absolute;
+  right: 220px;
+  bottom: 42px;
+  width: 120px;
+  height: 80px;
+  background: #fff3d8;
+  border-radius: 50% 50% 12% 12%;
+  z-index: 1;
+  border-bottom: 7px solid #ce9273;
+}
+.ng-yurt i {
+  position: absolute;
+  left: 45px;
+  bottom: 0;
+  width: 30px;
+  height: 38px;
+  background: #9e7272;
+  border-radius: 15px 15px 0 0;
+}
+.ng-yurt b {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 32px;
+  height: 8px;
+  border-top: 3px dashed #d99267;
+}
+.ng-grass {
+  position: absolute;
+  bottom: 15px;
+  left: 34%;
+  color: #688b62;
+  letter-spacing: 20px;
+}
+.ng-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.ng-card {
+  padding: 28px;
+  background: #fff;
+  border: 1px solid #eae5f4;
+  border-radius: 24px;
+  box-shadow: 0 8px 24px #51477708;
+}
+.ng-card h2 {
+  font-size: 23px;
+  margin: 14px 0;
+}
+.ng-card p {
+  color: #6f7082;
+  line-height: 1.65;
+}
+.ng-card .btn {
+  margin: 6px 6px 0 0;
+}
+.ng-game-card {
+  position: relative;
+  overflow: hidden;
+}
+.ng-game-card.ng-asyk {
+  background: linear-gradient(145deg, #fff6e4, #fff 65%);
+}
+.ng-game-card.ng-arqan {
+  background: linear-gradient(145deg, #ece7ff, #fff 65%);
+}
+.ng-game-icon {
+  display: block;
+  font-size: 66px;
+  margin-bottom: 20px;
+}
+.ng-game-card > .ng-badge {
+  position: absolute;
+  right: 22px;
+  top: 28px;
+}
+.ng-onboarding {
+  margin-bottom: 22px;
+  background: #f2efff;
+}
+.ng-resume {
+  display: block;
+  padding: 18px;
+  border-radius: 18px;
+  background: #fff0cf;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+.ng-game-stats {
+  padding: 15px 20px;
+  background: #fff;
+  border-radius: 18px;
+  margin-bottom: 18px;
+  font-weight: 700;
+  flex-wrap: wrap;
+}
+.ng-asyk-wrap {
+  position: relative;
+  max-width: 700px;
+  margin: auto;
+}
+.ng-asyk-wrap canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 24px;
+  touch-action: none;
+  border: 6px solid #fff;
+  box-shadow: 0 10px 30px #73583315;
+}
+.ng-board-companion {
+  position: absolute;
+  right: 4px;
+  top: 5px;
+  width: 100px;
+  pointer-events: none;
+}
+.ng-shot-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  background: #fff;
+  border-radius: 18px;
+  padding: 18px;
+  margin-top: 12px;
+}
+.ng-shot-controls label {
+  font-size: 13px;
+  flex: 1;
+  min-width: 120px;
+}
+.ng-shot-controls input {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  accent-color: #7862cf;
+}
+.ng-question {
+  margin: 16px auto;
+  max-width: 700px;
+}
+.ng-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ng-options .btn {
+  flex: 1;
+  min-width: 100px;
+  justify-content: center;
+}
+.ng-feedback,
+.ng-hint {
+  text-align: center;
+  min-height: 24px;
+  line-height: 1.6;
+}
+.ng-rope-arena {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  height: 340px;
+  border-radius: 25px;
+  background: #d6eee9;
+}
+.ng-team {
+  position: absolute;
+  width: 170px;
+  top: 90px;
+  z-index: 2;
+  text-align: center;
+  transition: transform 0.5s;
+}
+.ng-team-player {
+  left: 13%;
+}
+.ng-team-rival {
+  right: 13%;
+}
+.ng-team .char-art {
+  width: 100%;
+}
+.ng-rope {
+  height: 9px;
+  background: repeating-linear-gradient(45deg, #ba8651 0 5px, #e5bc7d 5px 9px);
+  position: absolute;
+  left: 26%;
+  right: 26%;
+  top: 231px;
+  z-index: 3;
+  transition: transform 0.5s;
+}
+.ng-rope span {
+  position: absolute;
+  left: 50%;
+  top: -12px;
+  color: #f36465;
+  font-size: 30px;
+}
+.ng-center-line {
+  position: absolute;
+  left: 50%;
+  height: 95px;
+  bottom: 30px;
+  border-left: 3px dashed #fff;
+}
+.ng-crowd {
+  position: absolute;
+  top: 25px;
+  left: 28%;
+  font-size: 35px;
+  letter-spacing: 14px;
+  animation: ng-cheer 1s ease-in-out infinite alternate;
+}
+.ng-rope-meter {
+  position: absolute;
+  bottom: 10px;
+  left: 20%;
+  right: 20%;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 4;
+}
+.ng-rope-meter meter {
+  flex: 1;
+  min-width: 40px;
+  transform: scaleX(-1);
+}
+.ng-character {
+  text-align: center;
+  background: radial-gradient(circle at 50% 30%, #eee7ff, #fff 70%);
+}
+.ng-character > .char-art {
+  width: 260px;
+  max-width: 100%;
+  margin: auto;
+}
+.ng-stat {
+  padding: 12px 0;
+  border-bottom: 1px solid #ece8f2;
+  flex-wrap: wrap;
+}
+.ng-stat p {
+  font-size: 13px;
+  margin: 6px 0;
+}
+.ng-page progress {
+  width: 100%;
+  height: 12px;
+  accent-color: #7862cf;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.ng-shop {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 20px 0;
+}
+.ng-shop-art {
+  display: grid;
+  place-items: center;
+  height: 110px;
+  border-radius: 15px;
+  font-size: 65px;
+}
+.ng-shop h2 {
+  font-size: 18px;
+}
+.ng-result {
+  text-align: center;
+  max-width: 700px;
+  margin: auto;
+}
+.ng-result > .char-art {
+  width: 180px;
+  margin: auto;
+}
+.ng-reward-presentation {
+  position: relative;
+  overflow: hidden;
+  padding: 15px;
+}
+.ng-chest {
+  font-size: 70px;
+  animation: ng-chest 0.65s ease-out both;
+}
+.ng-chest span {
+  display: inline-block;
+  color: #ffd366;
+  animation: ng-glow 2s infinite alternate;
+}
+.ng-reward-values {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+.ng-reward-values strong {
+  border-radius: 14px;
+  padding: 16px;
+  background: #fff5dc;
+  animation: ng-enter 0.5s 0.5s both;
+}
+.ng-reward-values strong:nth-child(2) {
+  background: #ece6ff;
+  animation-delay: 1s;
+}
+.ng-reward-values strong:nth-child(3) {
+  background: #e3f7f9;
+  animation-delay: 1.5s;
+}
+.ng-reward-presentation progress {
+  animation: ng-fill 1s 1s both;
+  transform-origin: left;
+}
+.ng-history {
+  overflow: auto;
+}
+.ng-history table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  white-space: nowrap;
+}
+.ng-history caption {
+  text-align: left;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+.ng-history td,
+.ng-history th {
+  padding: 15px 12px;
+  border-bottom: 1px solid #eee9f5;
+}
+.ng-streak {
+  font-size: 24px;
+}
+.ng-combo {
+  animation: ng-combo 0.3s ease-out;
+}
+.ng-light .ng-cloud,
+.ng-light .ng-crowd,
+.ng-light .ng-chest span {
+  animation: none;
+}
+.ng-light .ng-grass {
+  display: none;
+}
+@keyframes ng-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes ng-cloud {
+  to {
+    transform: translateX(50px);
+  }
+}
+@keyframes ng-cheer {
+  to {
+    transform: translateY(-5px);
+  }
+}
+@keyframes ng-chest {
+  from {
+    transform: scale(0.65) rotate(-10deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes ng-glow {
+  to {
+    transform: scale(1.2) rotate(25deg);
+    opacity: 0.5;
+  }
+}
+@keyframes ng-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes ng-combo {
+  50% {
+    transform: scale(1.025);
+  }
+}
+@media (max-width: 760px) {
+  .ng-page {
+    padding: 20px 16px 100px;
+  }
+  .ng-grid {
+    grid-template-columns: 1fr;
+  }
+  .ng-shop {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ng-card {
+    padding: 20px;
+  }
+  .ng-village-copy {
+    padding: 25px;
+    max-width: 75%;
+  }
+  .ng-village > .char-art {
+    width: 160px;
+    right: -20px;
+  }
+  .ng-village {
+    min-height: 350px;
+  }
+  .ng-village-copy p {
+    max-width: 220px;
+  }
+  .ng-team {
+    width: 125px;
+    top: 125px;
+  }
+  .ng-team-player {
+    left: 6%;
+  }
+  .ng-team-rival {
+    right: 6%;
+  }
+  .ng-crowd {
+    left: 15%;
+    font-size: 28px;
+  }
+  .ng-board-companion {
+    width: 65px;
+  }
+  .ng-settings button {
+    font-size: 11px;
+    padding: 8px;
+  }
+  .ng-shop h2 {
+    font-size: 15px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ng-page,
+  .ng-page * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+.qd-still .ng-page,
+.qd-still .ng-page * {
+  animation: none !important;
+  transition: none !important;
+}
+/* Scope navigation so the legacy sidebar grid does not affect game tabs. */
+.qd-shell .ng-tabs {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.qd-shell .ng-tabs a {
+  width: auto;
+  min-width: 0;
+  padding: 10px 14px;
+  font-size: 12px;
+  flex: 0 1 auto;
+  border-radius: 20px;
+}
+.ng-reward-particles {
+  position: absolute;
+  left: 50%;
+  top: 80px;
+  pointer-events: none;
+}
+.ng-reward-particles span {
+  position: absolute;
+  font-size: 22px;
+  animation: ng-fly 1.2s both;
+}
+@keyframes ng-fly {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--flight-x), var(--flight-y)) rotate(160deg)
+      scale(1.15);
+  }
+}
+.ng-light .ng-reward-particles span:nth-child(n + 4) {
+  display: none;
+}
+@media (max-width: 760px) {
+  .ng-reward-particles span:nth-child(n + 5) {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ng-reward-presentation * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .ng-reward-particles {
+    display: none;
+  }
+}
+.qd-still .ng-reward-presentation * {
+  animation: none !important;
+}
+.qd-still .ng-reward-particles {
+  display: none;
+}
+.ng-streak {
+  animation: ng-glow 2s ease-in-out infinite alternate;
+  transform-origin: left;
+}
