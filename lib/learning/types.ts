@@ -5,9 +5,10 @@ import type {
   CharacterId,
   EquipmentSlot,
 } from "../characters/types";
-export type InterfaceLanguage = "ru" | "en";
+export type InterfaceLanguage = "ru" | "en" | "zh" | "es" | "de" | "fr";
 export type LearningGoal = "tourism" | "work" | "study" | "daily" | "books";
-export type Localized = Record<InterfaceLanguage, string>;
+export type Localized = Record<"ru" | "en", string> &
+  Partial<Record<Exclude<InterfaceLanguage, "ru" | "en">, string>>;
 export type UserProfile = {
   nickname: string;
   language: InterfaceLanguage;

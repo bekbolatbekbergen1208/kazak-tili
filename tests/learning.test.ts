@@ -6,12 +6,14 @@ import {
   lessons,
   quests,
 } from "../lib/learning/content";
+import { interfaceLanguages } from "../lib/learning/languages";
 import {
   accessible,
   applyAction,
   initialState,
   isCorrect,
   levelFor,
+  validateProfile,
   weeklyXP,
 } from "../lib/learning/state";
 import type { LearningState } from "../lib/learning/types";
@@ -34,6 +36,13 @@ function finish(s: LearningState, id: string, now = date) {
     );
   return applyAction(s, { type: "finish", lessonId: id }, now);
 }
+test("all interface languages are accepted in learner profile", () => {
+  const base = initialState().profile;
+  const codes = interfaceLanguages.map((language) => language.code);
+  assert.deepEqual(codes, ["ru", "en", "zh", "es", "de", "fr"]);
+  for (const language of codes)
+    assert.doesNotThrow(() => validateProfile({ ...base, language }));
+});
 test("content covers all goals, sections, languages, kinds and unique IDs", () => {
   const ids = lessons.flatMap((l) => l.exercises.map((e) => e.id));
   assert.equal(new Set(ids).size, ids.length);

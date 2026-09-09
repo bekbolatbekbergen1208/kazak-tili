@@ -9,6 +9,7 @@ import {
   lessonById,
   quests,
 } from "./content";
+import { interfaceLanguageCodes } from "./languages";
 import { characterShop, coinRewards } from "../characters/config";
 import {
   awardAchievementCoins,
@@ -96,7 +97,7 @@ export function validateProfile(p: UserProfile) {
     typeof p.nickname !== "string" ||
     p.nickname.trim().length < 2 ||
     p.nickname.trim().length > 24 ||
-    !["ru", "en"].includes(p.language) ||
+    !interfaceLanguageCodes.includes(p.language) ||
     !courses.some((c) => c.id === p.goal) ||
     typeof p.onboarded !== "boolean" ||
     typeof p.animations !== "boolean" ||

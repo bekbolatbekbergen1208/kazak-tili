@@ -4,6 +4,7 @@ import { useLearning } from "@/components/learning/provider";
 import { equipmentFor, selectedCharacter } from "@/lib/characters/state";
 import { nextLesson } from "@/lib/learning/state";
 import { books, lessonById } from "@/lib/learning/content";
+import { localized } from "@/lib/learning/languages";
 import type { CharacterMood } from "@/lib/characters/types";
 import type { Exercise } from "@/lib/learning/types";
 import { CharacterArt } from "./character-art";
@@ -32,9 +33,9 @@ export function Companion({
   )
     actualMood = "running";
   if (c.id === "tilmash" && exercise && (mood === "thinking" || mood === "joy"))
-    extra = `${exercise.example} — ${exercise.translation[lang]}`;
+    extra = `${exercise.example} — ${localized(exercise.translation, lang)}`;
   if (c.id === "qyran" && context === "map")
-    extra = `${t("Следующая цель", "Next goal")}: ${lessonById(nextLesson(state))?.title[lang]}`;
+    extra = `${t("Следующая цель", "Next goal")}: ${localized(lessonById(nextLesson(state))?.title ?? { ru: "", en: "" }, lang)}`;
   if (
     c.id === "danaqulaq" &&
     (context === "books" || state.profile.goal === "books")
@@ -47,7 +48,13 @@ export function Companion({
             ? lessonById(exercise.id.replace(/-\d+$/, ""))?.bookId
             : undefined),
       ) ?? books[0]
-    ).summary[lang];
+    ).summary[lang] ?? (books.find(
+      (b) =>
+        b.id ===
+        (exercise
+          ? lessonById(exercise.id.replace(/-\d+$/, ""))?.bookId
+          : undefined),
+    ) ?? books[0]).summary.ru;
   const equipment = equipmentFor(state);
   if (c.id === "tilmash" && exercise && !equipment.hand)
     equipment.hand = "dictionary";
@@ -67,7 +74,7 @@ export function Companion({
           {c.name} <span>↗</span>
         </Link>
         <p>
-          {c.dialogueLines[actualMood][lang]}
+          {localized(c.dialogueLines[actualMood], lang)}
           {text && <span className="char-context">{text}</span>}
         </p>
         {extra && <small>{extra}</small>}
