@@ -1,4 +1,6 @@
 import { applyNational, awardNational, statsFor } from "../national/state";
+import { applyReading } from "../books/state";
+import type { ReadingAction } from "../books/types";
 import type { NationalAction } from "../national/types";
 import { applyTravel } from "../travel/state";
 import type { TravelAction } from "../travel/types";
@@ -321,6 +323,8 @@ export function applyAction(
   }
   if (action.type.startsWith("national-"))
     applyNational(s, action as NationalAction, now);
+  if (action.type.startsWith("book-"))
+    applyReading(s, action as ReadingAction, now);
   if (action.type.startsWith("travel-"))
     applyTravel(s, action as TravelAction, stamp, reward);
   const complete = (id: string) =>

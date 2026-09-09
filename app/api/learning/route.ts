@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { applyAction, initialState } from "@/lib/learning/state";
 import type { LearningAction, LearningState } from "@/lib/learning/types";
 import { hydrateCharacters } from "@/lib/characters/state";
+import { isSameOrigin } from "@/utils/request-origin";
 export async function GET() {
   const db = createClient(await cookies());
   const {
@@ -33,8 +34,7 @@ export async function GET() {
   });
 }
 export async function POST(req: Request) {
-  const origin = req.headers.get("origin");
-  if (origin && origin !== new URL(req.url).origin)
+  if (!isSameOrigin(req))
     return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
   const db = createClient(await cookies());
   const {
@@ -51,6 +51,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
   const allowed = [
+    "book-read",
+    "book-answer",
+    "book-battle-start",
+    "book-battle-answer",
+    "book-battle-finish",
     "national-buy",
     "national-start",
     "national-answer",

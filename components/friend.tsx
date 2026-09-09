@@ -1,12 +1,15 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, Fragment, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Mic, MicOff, Send, ShieldCheck, Sparkles } from "lucide-react";
 import { Mascot } from "./icons";
 import { Shell, StudentTop } from "./shell";
 import { interfaceLanguages, localized } from "@/lib/learning/languages";
 import { commonDictionary } from "@/components/learning/lesson-translator";
 import type { InterfaceLanguage } from "@/lib/learning/types";
+import { boundedHistory, parseChat, type ChatMessage } from "@/lib/friend/chat";
+import { friendSuggestions } from "@/lib/friend/knowledge";
 
 type Message = { me: boolean; text: string };
 type SpeechResultEvent = {
@@ -32,50 +35,137 @@ declare global {
   }
 }
 
-const replies: Record<string, string> = {
-  Сәлем: "Сәлем, Айбын! Бүгін қазақша сөйлесуге дайынсың ба?",
-  Саяхат:
-    "Саяхат — бір жерден басқа жерге бару. Мысалы: «Мен Астанаға саяхаттаймын». Сен қай қалаға барғың келеді?",
-  Ұшақ: "Ұшақ аспанда ұшады. «Мен ұшақпен барамын» деп айтып көр!",
-};
-
 const dictionary = commonDictionary;
-
-function answerFor(text: string) {
-  const key = Object.keys(replies).find((item) =>
-    text.toLowerCase().includes(item.toLowerCase()),
-  );
-  return key
-    ? replies[key]
-    : "Мен тек қазақ тілін үйренуге көмектесемін. «Саяхат» немесе «Ұшақ» туралы сұрап көрші 😊";
-}
-
-export default function Friend() {
-  const [msgs, setMsgs] = useState<Message[]>([
-    {
-      me: false,
-      text: "Сәлем, Айбын! 👋 Бүгінгі жаңа сөздерді бірге қайталайық. Қай сөзді таңдайсың?",
-    },
-  ]);
+const greeting: Message = {
+  me: false,
+  text: "Сәлем! Мен — Досша 👋 Қазақ тілі, грамматика, сөз мағынасы, аударма немесе әдебиет туралы сұрағыңды жаз. Бірге түсініп алайық!",
+};
+export default function Friend({ embedded = false }: { embedded?: boolean }) {
+  const Wrapper = embedded ? Fragment : Shell;
+  const [msgs, setMsgs] = useState<Message[]>([]);
   const [value, setValue] = useState("");
+  const [mode, setMode] = useState<"ai" | "reference">("reference");
+  const [language, setLanguage] = useState("kk");
+  const [pending, setPending] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [chatError, setChatError] = useState("");
+  const [saveNote, setSaveNote] = useState("");
+  const [signedIn, setSignedIn] = useState(false);
+  const [aiConfigured, setAiConfigured] = useState(false);
+  const lock = useRef(false);
+  const messagesRef = useRef<HTMLDivElement>(null);
+  const currentMessages = useRef(msgs);
+  const requestRef = useRef<AbortController | null>(null);
+  currentMessages.current = msgs;
   const [translatorLang, setTranslatorLang] = useState<InterfaceLanguage>("ru");
   const [translatorInput, setTranslatorInput] = useState("Саяхат");
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState("");
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
-  function send(text = value) {
+  async function send(text = value) {
     const message = text.trim();
-    if (!message) return;
-    setMsgs((current) => [
-      ...current,
-      { me: true, text: message },
-      { me: false, text: answerFor(message) },
-    ]);
+    if (!message || message.length > 2000 || lock.current || !ready) return;
+    lock.current = true;
+    setPending(true);
+    setChatError("");
+    const before = currentMessages.current;
+    const history: ChatMessage[] = boundedHistory(
+      before.map((m) => ({
+        role: m.me ? "user" : "assistant",
+        content: m.text,
+      })),
+    );
+    setMsgs([...before, { me: true, text: message }]);
     setValue("");
+    const controller = new AbortController();
+    requestRef.current = controller;
+    const timeout = window.setTimeout(() => controller.abort(), 40000);
+    try {
+      const response = await fetch("/api/ai-friend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, history, language }),
+        signal: controller.signal,
+      });
+      const data = await response.json();
+      if (!response.ok || typeof data.reply !== "string")
+        throw Error(data.error ?? "Жауапты алу мүмкін болмады.");
+      setMsgs(
+        [
+          ...before,
+          { me: true, text: message },
+          { me: false, text: data.reply },
+        ].slice(-40),
+      );
+      setMode(data.mode === "ai" ? "ai" : "reference");
+      setSaveNote(
+        data.saved
+          ? "Соңғы 20 хабарлама аккаунтыңда сақталды."
+          : "Бұл әңгіме әзірге осы бетте ғана сақталады.",
+      );
+    } catch (error) {
+      setMsgs(before);
+      setValue(message);
+      setChatError(
+        error instanceof Error && error.name !== "AbortError"
+          ? error.message
+          : "Жауапты күту уақыты аяқталды. Сұрағыңды қайта жіберіп көр.",
+      );
+    } finally {
+      window.clearTimeout(timeout);
+      lock.current = false;
+      setPending(false);
+      requestRef.current = null;
+    }
   }
-
-  useEffect(() => () => recognitionRef.current?.abort(), []);
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 12000);
+    void fetch("/api/ai-friend", {
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) throw Error();
+        const data = await response.json();
+        const history = parseChat({
+          message: "load",
+          history: data.history ?? [],
+        }).history;
+        setMsgs(
+          history.map((m) => ({ me: m.role === "user", text: m.content })),
+        );
+        setMode(data.mode === "ai" ? "ai" : "reference");
+        setSignedIn(!!data.signedIn);
+        setAiConfigured(!!data.aiConfigured);
+        setSaveNote(
+          data.persistence
+            ? "Соңғы 20 хабарлама аккаунтыңда сақталады."
+            : "Бұл әңгіме әзірге осы бетте ғана сақталады.",
+        );
+      })
+      .catch(() => {
+        if (!controller.signal.aborted)
+          setChatError(
+            "Чат тарихын жүктеу мүмкін болмады. Жаңа сұрақ қойып көр.",
+          );
+      })
+      .finally(() => {
+        window.clearTimeout(timeout);
+        setReady(true);
+      });
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+      recognitionRef.current?.abort();
+      requestRef.current?.abort();
+    };
+  }, []);
+  useEffect(() => {
+    const el = messagesRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [msgs, pending]);
 
   function toggleVoice() {
     if (isListening) {
@@ -135,7 +225,7 @@ export default function Friend() {
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    send();
+    void send();
   }
 
   const translatorWord = translatorInput.trim();
@@ -152,11 +242,11 @@ export default function Friend() {
       : "Қазақша сөз жаз";
 
   return (
-    <Shell>
+    <Wrapper>
       <div className="page friendPage">
         <StudentTop
           title="Досшамен сөйлесу"
-          sub="Қазақша еркін сөйлеп жаттық"
+          sub="Сұрағыңды қой · ережені түсін · қазақша сөйлес"
         />
         <div className="chat">
           <aside>
@@ -165,63 +255,109 @@ export default function Friend() {
               <i />
             </div>
             <h2>Досша</h2>
-            <span className="online">● Қазір осында</span>
-            <p>Сенің қазақ тілін үйренудегі қауіпсіз виртуалды досың.</p>
+            <span className="online">
+              ● {mode === "ai" ? "AI оқу көмекшісі" : "Анықтамалық режимі"}
+            </span>
+            <p>Грамматика, аударма, мәтін және әдебиет бойынша оқу серігің.</p>
             <div className="safe">
               <ShieldCheck />
               <span>
                 <b>Қауіпсіз кеңістік</b>
-                <small>Тек оқу тақырыптары</small>
+                <small>Түсінікті ереже · пайдалы мысал</small>
               </span>
             </div>
-            <div className="translatorPanel">
-              <b>Аудармашы</b>
-              <select
-                value={translatorLang}
-                onChange={(event) =>
-                  setTranslatorLang(event.target.value as InterfaceLanguage)
-                }
-                aria-label="Аударма тілі"
-              >
-                {interfaceLanguages.map((language) => (
-                  <option value={language.code} key={language.code}>
-                    {language.nativeName}
-                  </option>
-                ))}
-              </select>
-              <input
-                value={translatorInput}
-                onChange={(event) => setTranslatorInput(event.target.value)}
-                placeholder="Қазақша сөз"
-                aria-label="Қазақша сөз"
-              />
-              <strong>{translatorResult}</strong>
-              <div>
-                {(partialWords.length
-                  ? partialWords
-                  : dictionary.slice(0, 4)
-                ).map((entry) => (
-                  <button
-                    type="button"
-                    onClick={() => setTranslatorInput(entry.kk)}
-                    key={entry.kk}
-                  >
-                    {entry.kk}
-                  </button>
-                ))}
+            <Link className="dossha-books-link" href="/learn/books">
+              📚 Кітап әлеміне өту →
+            </Link>
+            <details className="dossha-dictionary">
+              <summary>Аудармашы · сөздікті ашу</summary>
+              <div className="translatorPanel">
+                <b>Аудармашы</b>
+                <select
+                  value={translatorLang}
+                  onChange={(event) =>
+                    setTranslatorLang(event.target.value as InterfaceLanguage)
+                  }
+                  aria-label="Аударма тілі"
+                >
+                  {interfaceLanguages.map((language) => (
+                    <option value={language.code} key={language.code}>
+                      {language.nativeName}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  value={translatorInput}
+                  onChange={(event) => setTranslatorInput(event.target.value)}
+                  placeholder="Қазақша сөз"
+                  aria-label="Қазақша сөз"
+                />
+                <strong>{translatorResult}</strong>
+                <div>
+                  {(partialWords.length
+                    ? partialWords
+                    : dictionary.slice(0, 4)
+                  ).map((entry) => (
+                    <button
+                      type="button"
+                      onClick={() => setTranslatorInput(entry.kk)}
+                      key={entry.kk}
+                    >
+                      {entry.kk}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            </details>
           </aside>
           <section>
             <div className="chatHead">
               <Sparkles />
               <div>
-                <b>Бүгінгі тақырып</b>
-                <span>Саяхат • Бастапқы деңгей</span>
+                <b>Досшадан сұра</b>
+                <span>
+                  {pending
+                    ? "Жауап дайындап жатыр…"
+                    : "Қазақ тілін бірге үйренеміз"}
+                </span>
               </div>
+              <select
+                className="dossha-language"
+                aria-label="Жауап тілі"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                disabled={pending}
+              >
+                <option value="kk">Қазақша</option>
+                {interfaceLanguages.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.nativeName}
+                  </option>
+                ))}
+              </select>
             </div>
-            <div className="messages" aria-live="polite">
-              {msgs.map((message, index) => (
+            {ready && mode === "reference" && (
+              <p className="dossha-mode-note">
+                {aiConfigured && !signedIn ? (
+                  <>
+                    Еркін AI жауаптары үшін{" "}
+                    <Link href="/login">аккаунтпен кір</Link>. Қазір қазақша
+                    анықтамалық жауаптары қолжетімді.
+                  </>
+                ) : (
+                  "Қазір қазақша анықтамалық режимі жұмыс істейді. Еркін сұрақтарға жауап беру, мәтін түзету және аударма үшін AI әлі қосылмаған."
+                )}
+              </p>
+            )}
+            <div
+              className="messages"
+              ref={messagesRef}
+              role="log"
+              aria-label="Досшамен әңгіме"
+              aria-live="polite"
+              aria-busy={pending}
+            >
+              {[greeting, ...msgs].map((message, index) => (
                 <div
                   className={`message ${message.me ? "mine" : ""}`}
                   key={index}
@@ -230,10 +366,23 @@ export default function Friend() {
                   <p>{message.text}</p>
                 </div>
               ))}
+              {(!ready || pending) && (
+                <div className="message dossha-typing">
+                  <Mascot />
+                  <p role="status">
+                    {ready ? "Досша ойланып жатыр…" : "Чат ашылуда…"}
+                  </p>
+                </div>
+              )}
             </div>
             <div className="quick">
-              {["Сәлем!", "Саяхат деген не?", "Ұшақ туралы айт"].map((text) => (
-                <button type="button" onClick={() => send(text)} key={text}>
+              {friendSuggestions.map((text) => (
+                <button
+                  disabled={pending || !ready}
+                  type="button"
+                  onClick={() => void send(text)}
+                  key={text}
+                >
                   {text}
                 </button>
               ))}
@@ -248,20 +397,39 @@ export default function Friend() {
                 {voiceError}
               </div>
             )}
+            {chatError && (
+              <div className="voiceError" role="alert">
+                {chatError}
+              </div>
+            )}
             <form onSubmit={submit}>
-              <input
+              <textarea
+                rows={2}
+                maxLength={2000}
+                disabled={pending || !ready}
                 value={value}
                 onChange={(event) => setValue(event.target.value)}
+                onKeyDown={(event) => {
+                  if (
+                    event.key === "Enter" &&
+                    !event.shiftKey &&
+                    !event.nativeEvent.isComposing
+                  ) {
+                    event.preventDefault();
+                    void send();
+                  }
+                }}
                 placeholder={
                   isListening
                     ? "Сөйлей бер…"
-                    : "Қазақша жаз немесе дауыспен айт..."
+                    : "Қазақ тілі туралы сұрағыңды жаз…"
                 }
                 aria-label="Хабарлама"
               />
               <button
                 className={`voiceButton ${isListening ? "listening" : ""}`}
                 type="button"
+                disabled={pending || !ready}
                 onClick={toggleVoice}
                 aria-label={
                   isListening ? "Дауысты жазуды тоқтату" : "Дауыстық хабарлама"
@@ -270,13 +438,21 @@ export default function Friend() {
               >
                 {isListening ? <MicOff /> : <Mic />}
               </button>
-              <button type="submit" aria-label="Жіберу">
+              <button
+                type="submit"
+                aria-label="Жіберу"
+                disabled={pending || !ready || !value.trim()}
+              >
                 <Send />
               </button>
             </form>
+            <p className="dossha-save-note">
+              {saveNote} {value.length}/2000 · Enter — жіберу, Shift+Enter —
+              жаңа жол.
+            </p>
           </section>
         </div>
       </div>
-    </Shell>
+    </Wrapper>
   );
 }

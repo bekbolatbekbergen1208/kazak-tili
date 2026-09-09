@@ -1,4 +1,4 @@
-import { BookCatalog } from "@/components/learning/extras";
+import { BookWorld } from "@/components/books/world";
 export default function Page() {
-  return <BookCatalog />;
+  return <BookWorld />;
 }

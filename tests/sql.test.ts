@@ -122,6 +122,95 @@ test("migrations execute; RLS isolates two users and protects curriculum", async
     await db.exec(`reset role; set role anon;`);
     await assert.rejects(db.exec("select * from public.qd_wallet"));
     await assert.rejects(db.exec("select * from public.qd_learning_states"));
+    await db.exec("reset role");
+    await db.exec(
+      readFileSync("supabase/migrations/202609090008_book_friends.sql", "utf8"),
+    );
+    await db.query(
+      "insert into public.qd_reading_members(user_id,invite_code) values ($1,'111111111111'),($2,'222222222222')",
+      [a, b],
+    );
+    await db.query(
+      "insert into public.qd_reading_friends(user_a,user_b) values ($1,$2)",
+      [a, b],
+    );
+    await assert.rejects(
+      db.query(
+        "insert into public.qd_reading_friends(user_a,user_b) values ($1,$2)",
+        [b, a],
+      ),
+    );
+    for (const role of ["authenticated", "anon"]) {
+      await db.exec(`set role ${role}`);
+      await assert.rejects(db.exec("select * from public.qd_reading_members"));
+      await assert.rejects(db.exec("select * from public.qd_reading_friends"));
+      await assert.rejects(db.exec("delete from public.qd_reading_friends"));
+      await db.exec("reset role");
+    }
+    await db.exec("set role service_role");
+    assert.equal(
+      (await db.query("select * from public.qd_reading_friends")).rows.length,
+      1,
+    );
+    await db.exec("reset role");
+    await db.query("delete from public.qd_reading_members where user_id=$1", [
+      b,
+    ]);
+    assert.equal(
+      (await db.query("select * from public.qd_reading_friends")).rows.length,
+      0,
+    );
+    await db.exec(
+      readFileSync("supabase/migrations/202609090009_friend_chat.sql", "utf8"),
+    );
+    await db.query(
+      "insert into public.qd_friend_conversations(user_id,messages) values ($1,'[]'),($2,'[]')",
+      [a, b],
+    );
+    await db.exec(`set role authenticated; set request.jwt.claim.sub='${a}'`);
+    assert.equal(
+      (await db.query("select * from public.qd_friend_conversations")).rows
+        .length,
+      1,
+    );
+    assert.equal(
+      (
+        await db.query(
+          "update public.qd_friend_conversations set messages='[]' where user_id=$1 returning user_id",
+          [b],
+        )
+      ).rows.length,
+      0,
+    );
+    assert.equal(
+      (
+        await db.query(
+          "delete from public.qd_friend_conversations where user_id=$1 returning user_id",
+          [b],
+        )
+      ).rows.length,
+      0,
+    );
+    await assert.rejects(
+      db.query(
+        "insert into public.qd_friend_conversations(user_id,messages) values ($1,'[]')",
+        [b],
+      ),
+    );
+    await db.query(
+      "update public.qd_friend_conversations set messages=$1 where user_id=$2",
+      [JSON.stringify([{ role: "user", content: "Септік деген не?" }]), a],
+    );
+    await assert.rejects(
+      db.query(
+        "update public.qd_friend_conversations set messages=$1 where user_id=$2",
+        [JSON.stringify(Array(21).fill({ role: "user", content: "hi" })), a],
+      ),
+    );
+    await db.exec("reset role; set role anon");
+    await assert.rejects(
+      db.exec("select * from public.qd_friend_conversations"),
+    );
   } finally {
     await db.close();
   }
