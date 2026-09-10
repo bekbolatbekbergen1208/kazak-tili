@@ -20,10 +20,12 @@ import {
 } from "@/lib/characters/state";
 import { CharacterReveal } from "@/components/characters/reveal";
 import { CharacterArt } from "@/components/characters/character-art";
+import { historyUi } from "@/lib/history/ui";
 const DEMO_KEY = "qazaqdos-learning-demo-v1";
 type Context = {
   state: LearningState;
   demo: boolean;
+  localOnly: boolean;
   busy: boolean;
   error: string;
   dispatch: (a: LearningAction) => Promise<LearningState | null>;
@@ -40,6 +42,7 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState(initialState),
     [ready, setReady] = useState(false),
     [demo, setDemo] = useState(false),
+    [localOnly, setLocalOnly] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [levelUp, setLevelUp] = useState(0);
@@ -47,9 +50,14 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
     path = usePathname(),
     current = useRef(state),
     revision = useRef(0),
+    storageKey = useRef(DEMO_KEY),
     lock = useRef(false);
   const t = (ru: string, en: string) =>
-    state.profile.language === "en" ? en : ru;
+    path.startsWith("/learn/history") && historyUi[ru]
+      ? historyUi[ru]
+      : state.profile.language === "en"
+        ? en
+        : ru;
   const load = useCallback(async () => {
     setError("");
     try {
@@ -58,7 +66,9 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
       if (mode === "0") sessionStorage.removeItem("qd-demo");
       const local = sessionStorage.getItem("qd-demo") === "1";
       setDemo(local);
+      setLocalOnly(false);
       if (local) {
+        storageKey.current = DEMO_KEY;
         const raw = localStorage.getItem(DEMO_KEY);
         let s = initialState();
         if (raw) {
@@ -81,6 +91,20 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
         const body = await res.json();
         if (!res.ok) throw new Error(body.error);
         current.current = hydrateCharacters(body.state);
+        if (body.writable === false) {
+          setLocalOnly(true);
+          storageKey.current = `qazaqdos-learning-local-${body.userId}`;
+          const raw = localStorage.getItem(storageKey.current);
+          if (raw) {
+            try {
+              const parsed = JSON.parse(raw);
+              if (parsed.progress?.version === 1 && parsed.profile)
+                current.current = hydrateCharacters(parsed);
+            } catch {
+              localStorage.removeItem(storageKey.current);
+            }
+          }
+        }
         setState(current.current);
         revision.current = body.revision;
       }
@@ -98,11 +122,11 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
   }, [ready, state.profile.onboarded, path, router]);
   useEffect(() => {
     const sync = (e: StorageEvent) => {
-      if (demo && e.key === DEMO_KEY) void load();
+      if ((demo || localOnly) && e.key === storageKey.current) void load();
     };
     window.addEventListener("storage", sync);
     return () => window.removeEventListener("storage", sync);
-  }, [demo, load]);
+  }, [demo, localOnly, load]);
   async function dispatch(action: LearningAction) {
     if (lock.current) return null;
     lock.current = true;
@@ -110,9 +134,9 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
     setError("");
     try {
       let next: LearningState;
-      if (demo) {
+      if (demo || localOnly) {
         next = applyAction(current.current, action);
-        localStorage.setItem(DEMO_KEY, JSON.stringify(next));
+        localStorage.setItem(storageKey.current, JSON.stringify(next));
       } else {
         const res = await fetch("/api/learning", {
           method: "POST",
@@ -157,27 +181,33 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
             <h1>QazaqDos</h1>
             <p role="alert">{error}</p>
             <button className="btn primary" onClick={() => void load()}>
-              Повторить / Retry
+              {path.startsWith("/learn/history")
+                ? "Қайта жүктеу"
+                : "Повторить / Retry"}
             </button>
             <a className="btn ghost" href="/login">
-              Войти / Sign in
+              {path.startsWith("/learn/history") ? "Кіру" : "Войти / Sign in"}
             </a>
           </>
         ) : (
           <>
             <div className="qd-skeleton" />
-            <p>Загрузка программы / Loading your course…</p>
+            <p>
+              {path.startsWith("/learn/history")
+                ? "Тарих әлемі дайындалып жатыр…"
+                : "Загрузка программы / Loading your course…"}
+            </p>
           </>
         )}
       </main>
     );
   return (
     <LearningContext.Provider
-      value={{ state, demo, busy, error, dispatch, t, logout }}
+      value={{ state, demo, localOnly, busy, error, dispatch, t, logout }}
     >
       <div
         className={`qd-app ${state.profile.animations ? "" : "qd-still"} ${state.profile.theme === "mint" ? "qd-mint" : ""}`}
-        lang={state.profile.language}
+        lang={path.startsWith("/learn/history") ? "kk" : state.profile.language}
       >
         {error && (
           <div className="qd-error" role="alert">

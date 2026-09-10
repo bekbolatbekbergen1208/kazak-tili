@@ -18,11 +18,12 @@ import { getCollection } from "@/lib/characters/state";
 import { useLearning } from "./provider";
 export { Companion } from "@/components/characters/companion";
 export function LearningFrame({ children }: { children: React.ReactNode }) {
-  const { state, t, demo, logout } = useLearning(),
+  const { state, t, demo, localOnly, logout } = useLearning(),
     path = usePathname();
   const nav = [
     ["/learn", Home, t("Главная", "Home")],
     ["/kazakhstan", Compass, "Қазақстанға саяхат"],
+    ["/learn/history", Compass, "Тарих"],
     ["/learn/national", Trophy, "Ұлттық ойындар"],
     ["/learn/map", Compass, t("Мой маршрут", "My path")],
     ["/learn/books", BookOpen, "Кітап әлемі"],
@@ -45,7 +46,12 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
               key={href}
               href={href}
               aria-label={label}
-              className={path === href ? "active" : ""}
+              className={
+                path === href ||
+                (href !== "/learn" && path.startsWith(href + "/"))
+                  ? "active"
+                  : ""
+              }
             >
               <Icon size={20} />
               <span>{label}</span>
@@ -68,12 +74,14 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
       <main>
         <header className="qd-bar">
           <span>
-            {demo
-              ? t(
-                  "Демо · хранится в этом браузере",
-                  "Demo · saved in this browser",
-                )
-              : t("Личный учебный кабинет", "Your learning space")}
+            {localOnly
+              ? "Прогресс осы браузерде сақталады"
+              : demo
+                ? t(
+                    "Демо · хранится в этом браузере",
+                    "Demo · saved in this browser",
+                  )
+                : t("Личный учебный кабинет", "Your learning space")}
           </span>
           <Link
             href="/learn/settings"

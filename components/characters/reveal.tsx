@@ -5,8 +5,10 @@ import { rarityLabels } from "@/lib/characters/config";
 import { CharacterArt } from "./character-art";
 import { CharacterModal } from "./modal";
 import { useLearning } from "@/components/learning/provider";
+import { usePathname } from "next/navigation";
 export function CharacterReveal() {
   const { state, dispatch, busy, t } = useLearning();
+  const historyMode = usePathname().startsWith("/learn/history");
   const character = pendingReveals(state)[0];
   if (!state.profile.onboarded || !character) return null;
   const acknowledge = (select: boolean) => {
@@ -36,11 +38,21 @@ export function CharacterReveal() {
         <CharacterArt characterId={character.id} mood="celebration" />
         <h3>{character.name}</h3>
         <span className={`char-rarity ${character.rarity}`}>
-          {rarityLabels[character.rarity][state.profile.language]} ·{" "}
-          {character.unlockXP} XP
+          {historyMode
+            ? "Саяхат серігі"
+            : rarityLabels[character.rarity][state.profile.language]}{" "}
+          · {character.unlockXP} XP
         </span>
-        <p>{character.personality[state.profile.language]}</p>
-        <p className="char-muted">{character.quirk[state.profile.language]}</p>
+        <p>
+          {historyMode
+            ? "Тарихты зерттеген сайын жаңа достар ашылады. Бұл кейіпкер енді коллекцияңда!"
+            : character.personality[state.profile.language]}
+        </p>
+        {!historyMode && (
+          <p className="char-muted">
+            {character.quirk[state.profile.language]}
+          </p>
+        )}
         {character.isLegendary && (
           <p className="char-legend-award">
             Аңыз деңгейі ·{" "}

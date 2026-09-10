@@ -18,7 +18,8 @@ export async function GET() {
     .select("state, revision")
     .eq("user_id", user.id)
     .maybeSingle();
-  if (error)
+  const missingTable = error?.code === "42P01" || error?.code === "PGRST205";
+  if (error && !missingTable)
     return NextResponse.json(
       { error: "Database setup required. Apply the QazaqDos migration." },
       { status: 503 },
@@ -31,6 +32,7 @@ export async function GET() {
     state: hydrateCharacters(data?.state ?? fresh),
     revision: data?.revision ?? 0,
     userId: user.id,
+    writable: !error && !!createProgressWriter(),
   });
 }
 export async function POST(req: Request) {
@@ -51,6 +53,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
   const allowed = [
+    "history-visit",
+    "history-intro",
+    "history-discover",
+    "history-answer",
+    "history-final-start",
+    "history-final-find",
+    "history-final-finish",
+    "history-position",
+    "history-night",
     "book-read",
     "book-answer",
     "book-battle-start",
