@@ -1,6 +1,8 @@
 import { applyNational, awardNational, statsFor } from "../national/state";
 import { applyReading } from "../books/state";
 import { applyHistory } from "../history/state";
+import { applyVision } from "../vision/state";
+import type { VisionAction } from "../vision/types";
 import type { HistoryAction } from "../history/types";
 import type { ReadingAction } from "../books/types";
 import type { NationalAction } from "../national/types";
@@ -329,6 +331,8 @@ export function applyAction(
     applyReading(s, action as ReadingAction, now);
   if (action.type.startsWith("history-"))
     applyHistory(s, action as HistoryAction, now);
+  if (action.type.startsWith("vision-"))
+    applyVision(s, action as VisionAction, now);
   if (action.type.startsWith("travel-"))
     applyTravel(s, action as TravelAction, stamp, reward);
   const complete = (id: string) =>

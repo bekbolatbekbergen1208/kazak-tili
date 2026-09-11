@@ -1,6 +1,7 @@
 import type { NationalAction, NationalProgress } from "../national/types";
 import type { ReadingAction, ReadingProgress } from "../books/types";
 import type { HistoryAction, HistoryProgress } from "../history/types";
+import type { VisionAction, VisionProgress } from "../vision/types";
 import type { TravelAction, TravelProgress } from "../travel/types";
 import type {
   CharacterCollection,
@@ -151,9 +152,11 @@ export type UserProgress = {
   national?: NationalProgress;
   reading?: ReadingProgress;
   history?: HistoryProgress;
+  vision?: VisionProgress;
 };
 export type LearningState = { profile: UserProfile; progress: UserProgress };
 export type LearningAction =
+  | VisionAction
   | HistoryAction
   | ReadingAction
   | NationalAction

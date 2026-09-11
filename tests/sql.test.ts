@@ -211,6 +211,52 @@ test("migrations execute; RLS isolates two users and protects curriculum", async
     await assert.rejects(
       db.exec("select * from public.qd_friend_conversations"),
     );
+    await db.exec("reset role");
+    await db.exec(
+      readFileSync(
+        "supabase/migrations/202609100010_friendships_vision.sql",
+        "utf8",
+      ),
+    );
+    await db.query(
+      "insert into public.qd_friend_profiles(user_id,friend_code,username) values ($1,'AAA11111','learner_a'),($2,'BBB22222','learner_b')",
+      [a, b],
+    );
+    await db.query(
+      "insert into public.qd_friend_requests(sender_id,receiver_id) values ($1,$2)",
+      [a, b],
+    );
+    await assert.rejects(
+      db.query(
+        "insert into public.qd_friend_requests(sender_id,receiver_id) values ($1,$2)",
+        [b, a],
+      ),
+    );
+    await db.query(
+      "insert into public.qd_friendships(user_a,user_b) values ($1,$2)",
+      [a, b],
+    );
+    await db.query(
+      "insert into public.qd_friend_events(id,user_a,user_b,kind,points) values ('shared-day:test',$1,$2,'shared-day',5)",
+      [a, b],
+    );
+    for (const role of ["authenticated", "anon"]) {
+      await db.exec(`set role ${role}`);
+      for (const table of [
+        "qd_friend_profiles",
+        "qd_friend_requests",
+        "qd_friendships",
+        "qd_friend_events",
+      ])
+        await assert.rejects(db.exec(`select * from public.${table}`));
+      await db.exec("reset role");
+    }
+    await db.exec("set role service_role");
+    assert.equal(
+      (await db.query("select * from public.qd_friend_events")).rows.length,
+      1,
+    );
+    await db.exec("reset role");
   } finally {
     await db.close();
   }

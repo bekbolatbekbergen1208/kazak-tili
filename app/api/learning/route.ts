@@ -53,6 +53,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
   const allowed = [
+    "vision-found",
+    "vision-answer",
     "history-visit",
     "history-intro",
     "history-discover",

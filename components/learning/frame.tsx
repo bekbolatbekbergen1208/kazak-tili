@@ -12,6 +12,8 @@ import {
   RotateCcw,
   PawPrint,
   MessageCircle,
+  Users,
+  ScanLine,
 } from "lucide-react";
 import { Logo } from "@/components/icons";
 import { getCollection } from "@/lib/characters/state";
@@ -28,6 +30,8 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
     ["/learn/map", Compass, t("Мой маршрут", "My path")],
     ["/learn/books", BookOpen, "Кітап әлемі"],
     ["/learn/friend", MessageCircle, "Досшамен чат"],
+    ["/learn/friends", Users, "Достық байланыс"],
+    ["/learn/vision", ScanLine, "Досша Vision"],
     ["/learn/review", RotateCcw, t("Повторение", "Review")],
     ["/learn/ranking", Trophy, t("Лиги", "Leagues")],
     ["/learn/characters", PawPrint, t("Персонажи", "Companions")],

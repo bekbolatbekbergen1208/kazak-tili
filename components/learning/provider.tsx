@@ -52,8 +52,11 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
     revision = useRef(0),
     storageKey = useRef(DEMO_KEY),
     lock = useRef(false);
+  const kazakhMode = ["/learn/history", "/learn/friends", "/learn/vision"].some(
+    (prefix) => path.startsWith(prefix),
+  );
   const t = (ru: string, en: string) =>
-    path.startsWith("/learn/history") && historyUi[ru]
+    kazakhMode && historyUi[ru]
       ? historyUi[ru]
       : state.profile.language === "en"
         ? en
@@ -181,19 +184,17 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
             <h1>QazaqDos</h1>
             <p role="alert">{error}</p>
             <button className="btn primary" onClick={() => void load()}>
-              {path.startsWith("/learn/history")
-                ? "Қайта жүктеу"
-                : "Повторить / Retry"}
+              {kazakhMode ? "Қайта жүктеу" : "Повторить / Retry"}
             </button>
             <a className="btn ghost" href="/login">
-              {path.startsWith("/learn/history") ? "Кіру" : "Войти / Sign in"}
+              {kazakhMode ? "Кіру" : "Войти / Sign in"}
             </a>
           </>
         ) : (
           <>
             <div className="qd-skeleton" />
             <p>
-              {path.startsWith("/learn/history")
+              {kazakhMode
                 ? "Тарих әлемі дайындалып жатыр…"
                 : "Загрузка программы / Loading your course…"}
             </p>
@@ -207,7 +208,7 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
     >
       <div
         className={`qd-app ${state.profile.animations ? "" : "qd-still"} ${state.profile.theme === "mint" ? "qd-mint" : ""}`}
-        lang={path.startsWith("/learn/history") ? "kk" : state.profile.language}
+        lang={kazakhMode ? "kk" : state.profile.language}
       >
         {error && (
           <div className="qd-error" role="alert">

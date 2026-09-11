@@ -1,0 +1,334 @@
+.vs-page,
+.fs-page {
+  max-width: 1220px;
+  margin: auto;
+  padding: 28px;
+  color: #26304b;
+}
+.vs-hero,
+.fs-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px;
+  border-radius: 26px;
+  background: linear-gradient(120deg, #675de8, #39b8c3);
+  color: #fff;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.vs-hero h1,
+.fs-hero h1 {
+  font-size: clamp(30px, 4vw, 48px);
+  margin: 6px 0;
+  line-height: 1.1;
+}
+.vs-hero span,
+.fs-hero span {
+  font-size: 11px;
+  letter-spacing: 2px;
+  font-weight: 800;
+}
+.vs-hero .mascot,
+.fs-hero .mascot {
+  width: 140px;
+  height: 150px;
+  object-fit: contain;
+  pointer-events: none;
+}
+.vs-privacy {
+  display: flex;
+  gap: 14px;
+  padding: 15px 18px;
+  border: 1px solid #cbe8e2;
+  background: #eefaf7;
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+.vs-privacy p {
+  margin: 0;
+}
+.vs-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(290px, 0.65fr);
+  gap: 20px;
+}
+.vs-camera {
+  position: relative;
+  aspect-ratio: 4/3;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #1f2541;
+  color: #fff;
+  display: grid;
+  place-items: center;
+}
+.vs-camera video,
+.vs-camera > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.vs-guide {
+  position: absolute;
+  inset: 18%;
+  border: 3px solid #ffffffc9;
+  border-radius: 24px;
+  z-index: 2;
+  pointer-events: none;
+}
+.vs-guide span:before,
+.vs-guide span:after {
+  content: "";
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  border: 5px solid #6be3d4;
+}
+.vs-guide span:before {
+  left: -5px;
+  top: -5px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.vs-guide span:after {
+  right: -5px;
+  bottom: -5px;
+  border-left: 0;
+  border-top: 0;
+}
+.vs-guide p {
+  position: absolute;
+  bottom: -48px;
+  width: 100%;
+  text-align: center;
+  text-shadow: 0 1px 4px #000;
+}
+.vs-placeholder {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  background: #222a4acc;
+  padding: 25px;
+  border-radius: 18px;
+}
+.vs-spinner {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #fff5;
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: vs-spin 1s linear infinite;
+}
+.vs-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 13px 0;
+}
+.vs-result {
+  padding: 22px;
+  background: #fff;
+  border: 1px solid #e5e7f1;
+  border-radius: 23px;
+  box-shadow: 0 15px 40px #44425d0d;
+}
+.vs-dossha {
+  display: flex;
+  gap: 10px;
+  background: #f0edff;
+  padding: 13px;
+  border-radius: 15px;
+}
+.vs-dossha .mascot {
+  width: 52px;
+  height: 64px;
+  object-fit: contain;
+}
+.vs-dossha p {
+  margin: 3px 0;
+}
+.vs-kicker {
+  font-size: 10px;
+  letter-spacing: 1.6px;
+  color: #7664d3;
+  font-weight: 800;
+}
+.vs-word {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.vs-word h2 {
+  font-size: 38px;
+  margin: 0;
+}
+.vs-word button,
+.vs-input button {
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: #e6f7f4;
+  color: #278a87;
+}
+.vs-example {
+  border-left: 4px solid #ff9a61;
+  background: #fff6ef;
+  padding: 10px 14px;
+  margin: 14px 0;
+}
+.vs-result label,
+.fs-page label {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+  margin: 12px 0;
+}
+.vs-result select,
+.vs-result textarea,
+.vs-manual input,
+.fs-page input,
+.fs-page select {
+  width: 100%;
+  border: 1px solid #dcdfea;
+  border-radius: 12px;
+  padding: 11px;
+  background: #fff;
+  font: inherit;
+}
+.vs-input {
+  display: flex;
+  gap: 8px;
+}
+.vs-input textarea {
+  min-height: 86px;
+  resize: vertical;
+}
+.vs-manual {
+  margin: 14px 0;
+  border: 1px solid #e0d9f4;
+  border-radius: 12px;
+  padding: 10px;
+}
+.vs-manual summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.vs-manual > div {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  max-height: 145px;
+  overflow: auto;
+  margin-top: 8px;
+}
+.vs-manual button {
+  border: 0;
+  background: #eeeafd;
+  padding: 7px 10px;
+  border-radius: 9px;
+}
+.vs-error,
+.fs-error {
+  padding: 14px;
+  background: #fff0ed;
+  color: #9a4438;
+  border-radius: 13px;
+}
+.vs-collection {
+  margin-top: 28px;
+}
+.vs-collection > div {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.vs-collection > div > strong {
+  margin-left: auto;
+  font-size: 22px;
+}
+.vs-collection > div span {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #7562c8;
+}
+.vs-collection h2 {
+  margin: 2px 0;
+}
+.vs-collection article {
+  display: grid;
+  grid-template-columns: 160px 1fr 50px;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid #e8e8ef;
+  padding: 15px 0;
+}
+.vs-collection article > div {
+  grid-column: 2/4;
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.vs-collection article span {
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: #f0f1f6;
+  color: #9297a6;
+  font-size: 12px;
+}
+.vs-collection article span.found {
+  background: #e5f7ee;
+  color: #27805c;
+}
+.vs-collection progress,
+.fs-friend progress,
+.fs-mission progress {
+  width: 100%;
+  accent-color: #6e65dd;
+}
+@keyframes vs-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 760px) {
+  .vs-page,
+  .fs-page {
+    padding: 15px;
+  }
+  .vs-hero,
+  .fs-hero {
+    padding: 22px 18px;
+  }
+  .vs-hero .mascot,
+  .fs-hero .mascot {
+    width: 85px;
+    height: 100px;
+  }
+  .vs-layout {
+    grid-template-columns: 1fr;
+  }
+  .vs-camera {
+    aspect-ratio: 3/4;
+  }
+  .vs-guide {
+    inset: 22% 12%;
+  }
+  .vs-collection article {
+    grid-template-columns: 100px 1fr 35px;
+  }
+  .vs-collection article > div {
+    grid-column: 1/4;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vs-page *,
+  .fs-page * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
