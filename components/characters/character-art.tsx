@@ -181,6 +181,7 @@ export function CharacterArt({
             </g>
           )}
           <ellipse
+            className="char-foot char-foot-left"
             cx="127"
             cy="292"
             rx="24"
@@ -188,6 +189,7 @@ export function CharacterArt({
             fill={bird || owl ? "#e7b75d" : primary}
           />
           <ellipse
+            className="char-foot char-foot-right"
             cx="193"
             cy="292"
             rx="24"

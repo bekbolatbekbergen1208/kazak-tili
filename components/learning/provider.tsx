@@ -52,9 +52,12 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
     revision = useRef(0),
     storageKey = useRef(DEMO_KEY),
     lock = useRef(false);
-  const kazakhMode = ["/learn/history", "/learn/friends", "/learn/vision"].some(
-    (prefix) => path.startsWith(prefix),
-  );
+  const kazakhMode = [
+    "/learn/history",
+    "/learn/friends",
+    "/learn/vision",
+    "/learn/national",
+  ].some((prefix) => path.startsWith(prefix));
   const t = (ru: string, en: string) =>
     kazakhMode && historyUi[ru]
       ? historyUi[ru]

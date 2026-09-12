@@ -1,4 +1,4 @@
-import { NationalHub } from "@/components/national/hub";
+import { WorldVillage } from "@/components/national/village";
 export default function Page() {
-  return <NationalHub />;
+  return <WorldVillage />;
 }

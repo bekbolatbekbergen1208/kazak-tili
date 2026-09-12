@@ -1,4 +1,5 @@
 import { applyNational, awardNational, statsFor } from "../national/state";
+import { applyWorld, type WorldAction } from "../national/world-state";
 import { applyReading } from "../books/state";
 import { applyHistory } from "../history/state";
 import { applyVision } from "../vision/state";
@@ -327,6 +328,8 @@ export function applyAction(
   }
   if (action.type.startsWith("national-"))
     applyNational(s, action as NationalAction, now);
+  if (action.type.startsWith("village-"))
+    applyWorld(s, action as WorldAction, now);
   if (action.type.startsWith("book-"))
     applyReading(s, action as ReadingAction, now);
   if (action.type.startsWith("history-"))

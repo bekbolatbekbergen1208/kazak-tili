@@ -134,6 +134,7 @@ export type Book = {
   source: string;
 };
 export type UserProgress = {
+  village?: import("../national/world-state").WorldProgress;
   version: 1;
   xp: number;
   coins: number;
@@ -156,6 +157,7 @@ export type UserProgress = {
 };
 export type LearningState = { profile: UserProfile; progress: UserProgress };
 export type LearningAction =
+  | import("../national/world-state").WorldAction
   | VisionAction
   | HistoryAction
   | ReadingAction

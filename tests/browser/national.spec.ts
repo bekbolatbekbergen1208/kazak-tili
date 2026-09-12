@@ -31,20 +31,15 @@ async function correctAnswer(page: Page) {
     .getByRole("button", { name: q.options[q.answer], exact: true })
     .click();
 }
-test("village onboarding, locked game and responsive pages", async ({
+test("village links and existing economy screens remain responsive", async ({
   page,
 }) => {
   await seed(page);
   await page.goto("/learn/national");
   await expect(
-    page.getByRole("heading", { name: "Ұлттық ойындар", exact: true }),
+    page.getByRole("heading", { name: "Ұлттық ойындар әлемі", exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Түсіндім, бастайық!" }).click();
-  await page.reload();
-  await expect(
-    page.getByRole("button", { name: "Түсіндім, бастайық!" }),
-  ).toHaveCount(0);
-  await expect(page.getByText("🔒 2-деңгейде ашылады")).toBeVisible();
+  await expect(page.locator(".vw-game-list>a")).toHaveCount(18);
   await page.screenshot({
     path: `test-results/national-village-${test.info().project.name}.png`,
     fullPage: true,
@@ -70,7 +65,7 @@ test("asyk keyboard shot persists after reload and finishes with result", async 
   page,
 }) => {
   await seed(page);
-  await page.goto("/learn/national/asyk");
+  await page.goto("/learn/national/classic-asyk");
   await page.getByRole("button", { name: "Бастау", exact: true }).click();
   await correctAnswer(page);
   const slider = page.getByRole("slider").last();
@@ -95,7 +90,7 @@ test("arqan wins through knowledge and records reward once", async ({
   page,
 }) => {
   await seed(page, 210);
-  await page.goto("/learn/national/arqan");
+  await page.goto("/learn/national/classic-arqan");
   await page.getByRole("button", { name: "Бастау", exact: true }).click();
   for (let i = 0; i < 4; i++) {
     await correctAnswer(page);
@@ -133,7 +128,7 @@ test("shop confirmation and crystal upgrades persist", async ({ page }) => {
 
 test("saka supports actual mouse/touch dragging", async ({ page }, info) => {
   await seed(page);
-  await page.goto("/learn/national/asyk");
+  await page.goto("/learn/national/classic-asyk");
   await page.getByRole("button", { name: "Бастау", exact: true }).click();
   await correctAnswer(page);
   const canvas = page.locator("canvas");

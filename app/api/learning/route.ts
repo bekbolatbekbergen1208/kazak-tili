@@ -47,7 +47,7 @@ export async function POST(req: Request) {
   let body;
   try {
     const raw = await req.text();
-    if (raw.length > 12000) throw new Error();
+    if (raw.length > 150000) throw new Error();
     body = JSON.parse(raw);
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
@@ -71,6 +71,8 @@ export async function POST(req: Request) {
     "book-battle-finish",
     "national-buy",
     "national-start",
+    "village-start",
+    "village-save",
     "national-answer",
     "national-shot",
     "national-upgrade",

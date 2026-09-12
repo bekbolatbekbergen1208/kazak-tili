@@ -1,0 +1,655 @@
+.vw-intro {
+  padding: 20px 8px 28px;
+}
+.vw-intro > span {
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  font-weight: 800;
+  color: #8061b0;
+}
+.vw-intro h2 {
+  font-size: clamp(28px, 4.5vw, 52px);
+  line-height: 1.12;
+  margin: 14px 0;
+  color: #49346d;
+}
+.vw-intro p,
+.vw-section-title p {
+  color: #796d89;
+}
+.vw-map {
+  position: relative;
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px #6b538823;
+  border: 5px solid #fff8ee;
+  isolation: isolate;
+}
+.vw-map > svg {
+  width: 100%;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.vw-map.vw-zoom > svg {
+  transform: scale(1.12);
+}
+.vw-places {
+  position: absolute;
+  inset: 0;
+}
+.vw-places a {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  transform: translate(-20%, -20%);
+  text-decoration: none;
+  transition: transform 0.35s;
+  color: #403155;
+  width: 100px;
+}
+.vw-places a:hover,
+.vw-places a:focus-visible {
+  transform: translate(-20%, -20%) scale(1.15);
+  z-index: 5;
+}
+.vw-places span {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: #8062b5;
+  border: 3px solid #fff3d4;
+  border-radius: 50%;
+  color: white;
+  font-weight: 800;
+  box-shadow:
+    0 4px 0 #544077,
+    0 0 20px #fff5b999;
+}
+.vw-places b {
+  background: #fffaf0eb;
+  border-radius: 10px;
+  padding: 4px 7px;
+  font-size: 11px;
+  text-align: center;
+  box-shadow: 0 3px 8px #564d6833;
+}
+.vw-map > .vw-companion {
+  position: absolute;
+  width: 15%;
+  left: 37%;
+  top: 30%;
+  pointer-events: none;
+}
+.vw-section-title {
+  margin: 30px 0 16px;
+}
+.vw-game-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.vw-game-link {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #e5dcf0;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #fffdf8, #f5f0ff);
+  text-decoration: none;
+  color: #493566;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+.vw-game-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px #77569522;
+}
+.vw-game-link h3 {
+  margin: 0 0 5px;
+  font-size: 18px;
+}
+.vw-game-link p {
+  margin: 0 0 7px;
+  font-size: 13px;
+  color: #806b94;
+}
+.vw-game-link small {
+  font-size: 11px;
+  color: #777;
+}
+.vw-number {
+  min-width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: #eee4ff;
+  color: #94713b;
+  font-weight: 900;
+  border: 2px solid #e5d3b0;
+}
+.vw-game-link > span:last-child {
+  margin-left: auto;
+}
+.vw-note {
+  padding: 20px;
+  color: #7e7287;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.vw-rules,
+.vw-tutorial {
+  background: #fffaf1;
+  border: 1px solid #e8ddce;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 16px;
+  line-height: 1.7;
+}
+.vw-rules summary {
+  font-weight: 800;
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.vw-rules h3 {
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+.vw-rules p {
+  font-size: 14px;
+  margin-top: 0;
+}
+.vw-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 18px 0;
+  font-size: 13px;
+  color: #72617f;
+}
+.vw-toolbar select {
+  padding: 12px;
+  border: 1px solid #d8c9e6;
+  border-radius: 12px;
+  background: white;
+}
+.vw-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
+.vw-toolbar input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+}
+.vw-start {
+  background: radial-gradient(circle at 50% 20%, #d6eff0, #f2e8fa 70%);
+  border-radius: 30px;
+  text-align: center;
+  padding: 24px;
+}
+.vw-start .vw-companion {
+  max-width: 230px;
+  margin: auto;
+}
+.vw-score {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 18px 22px;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  border: 1px solid #e8dff0;
+  color: #72617f;
+}
+.vw-score b {
+  display: block;
+  font-size: 26px;
+  color: #5a3f87;
+  font-variant-numeric: tabular-nums;
+}
+.vw-stage {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0 26px 26px;
+  background: #d9e8d3;
+  isolation: isolate;
+}
+.vw-scene {
+  display: block;
+  width: 100%;
+  font-family: inherit;
+}
+.vw-stage > .vw-companion {
+  position: absolute;
+  width: 17%;
+  left: 2%;
+  bottom: 2%;
+  pointer-events: none;
+}
+.vw-feedback {
+  min-height: 54px;
+  text-align: center;
+  padding: 16px;
+  border-radius: 16px;
+  background: #f0e9fa;
+  font-weight: 650;
+  color: #5b4282;
+}
+.vw-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #fffaf2;
+  border-radius: 22px;
+  padding: 20px;
+  margin-bottom: 14px;
+}
+.vw-game button,
+.vw-game a.btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+.vw-controls label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+}
+.vw-controls input[type="range"] {
+  min-height: 44px;
+  max-width: 60%;
+  accent-color: #8660b4;
+}
+.vw-timing {
+  width: 100%;
+  height: 24px;
+  background: #e7ddf3;
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+  margin: 8px 0;
+}
+.vw-timing > span {
+  position: absolute;
+  left: 40%;
+  width: 26%;
+  height: 100%;
+  background: #f6c567;
+  border-left: 2px solid #b68423;
+  border-right: 2px solid #b68423;
+}
+.vw-timing i {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 7px;
+  background: #514271;
+  border: 1px solid white;
+}
+.vw-pause {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #332e5377;
+  color: white;
+  font-size: 32px;
+  backdrop-filter: blur(3px);
+}
+.vw-paused * {
+  animation-play-state: paused !important;
+}
+.vw-result {
+  text-align: center;
+  background: linear-gradient(145deg, #fff7e5, #ede4fb);
+  border: 2px solid #dfc8a4;
+  border-radius: 28px;
+  padding: 30px;
+  margin-top: 20px;
+  animation: vw-reveal 0.5s both;
+}
+.vw-result h2 {
+  font-size: 32px;
+  color: #674493;
+}
+.vw-result .btn {
+  margin: 6px;
+}
+.vw-reward {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 25px 0;
+}
+.vw-reward span {
+  padding: 15px;
+  background: #fff;
+  border: 1px solid #e7cd94;
+  border-radius: 18px;
+  color: #7e5b25;
+  font-weight: 800;
+}
+.vw-reward small {
+  width: 100%;
+  color: #8a7694;
+}
+.vw-win .vw-reward span {
+  animation: vw-reveal 0.8s both;
+}
+.vw-win .vw-reward span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.vw-win .vw-reward span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.vw-error {
+  color: #953e51;
+  background: #fcebef;
+  border-radius: 15px;
+  padding: 15px;
+}
+.vw-board {
+  background: linear-gradient(120deg, #b88255, #d9af77);
+  padding: 24px 16px;
+  border: 6px solid #90603e;
+  border-radius: 24px;
+  color: #fff9dc;
+}
+.vw-pits {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(44px, 1fr));
+  overflow-x: auto;
+  padding-bottom: 8px;
+  gap: 8px;
+}
+.vw-pits button {
+  border: 2px solid #916142;
+  border-radius: 30px;
+  background: #f9e3bc;
+  color: #63472f;
+  padding: 8px 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 105px;
+  box-shadow: inset 0 4px 7px #85513233;
+  overflow: hidden;
+}
+.vw-pits strong {
+  font-size: 22px;
+}
+.vw-pits small {
+  font-size: 10px;
+}
+.vw-pits span {
+  max-width: 40px;
+  word-break: break-all;
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 4px;
+}
+.vw-pits button:disabled {
+  opacity: 0.72;
+}
+.vw-pits .vw-sown {
+  animation: vw-sow 0.6s both;
+}
+.vw-board p {
+  font-size: 14px;
+}
+.vw-clouds {
+  animation: vw-cloud 18s ease-in-out infinite alternate;
+}
+.vw-birds {
+  animation: vw-cloud 12s ease-in-out infinite alternate;
+}
+.vw-smoke {
+  animation: vw-smoke 5s infinite;
+}
+.vw-flag {
+  transform-box: fill-box;
+  transform-origin: left;
+  animation: vw-sway 2s ease-in-out infinite alternate;
+}
+.vw-grasses {
+  transform-origin: bottom;
+  animation: vw-sway 3s ease-in-out infinite alternate;
+}
+.vw-leg {
+  transform-box: fill-box;
+  transform-origin: top;
+  animation: vw-gallop 0.48s infinite alternate;
+}
+.vw-leg:nth-child(even) {
+  animation-delay: -0.24s;
+}
+.vw-tail {
+  transform-box: fill-box;
+  transform-origin: right;
+  animation: vw-sway 0.6s infinite alternate;
+}
+.vw-wing {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: vw-flap 0.45s infinite alternate;
+}
+@keyframes vw-flap {
+  to {
+    transform: scaleY(0.55);
+  }
+}
+.vw-spark circle {
+  animation: vw-spark 0.7s both;
+}
+.vw-soft circle {
+  fill: #c9b1d9;
+  animation-duration: 1s;
+}
+.vw-companion .char-tail {
+  animation: vw-sway 1.3s infinite alternate;
+  transform-origin: bottom;
+}
+.vw-companion .char-ear {
+  animation: vw-sway 2s infinite alternate;
+  transform-origin: bottom;
+}
+.vw-run .char-foot,
+.vw-run .char-paw,
+.vw-run .char-wing {
+  animation: vw-gallop 0.4s infinite alternate;
+  transform-origin: top;
+  transform-box: fill-box;
+}
+.vw-prepare .char-paw,
+.vw-prepare .char-wing {
+  animation: vw-prepare 1.3s infinite alternate;
+  transform-box: fill-box;
+  transform-origin: top;
+}
+.vw-action .char-paw,
+.vw-action .char-wing {
+  animation: vw-throw 0.5s both;
+  transform-box: fill-box;
+  transform-origin: top;
+}
+.vw-celebrate .char-body {
+  animation: vw-jump 0.7s 3;
+}
+.vw-lose .char-body {
+  transform: rotate(-4deg);
+  transform-origin: center;
+}
+.vw-quality-medium .vw-smoke,
+.vw-quality-medium .vw-birds {
+  animation: none;
+}
+.vw-reduced * {
+  animation: none !important;
+  transition: none !important;
+}
+.vw-reduced .vw-spark {
+  display: none;
+}
+@keyframes vw-cloud {
+  to {
+    transform: translateX(90px);
+  }
+}
+@keyframes vw-smoke {
+  from {
+    opacity: 0.5;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-28px);
+  }
+}
+@keyframes vw-sway {
+  to {
+    transform: skewX(5deg);
+  }
+}
+@keyframes vw-gallop {
+  from {
+    transform: rotate(-16deg);
+  }
+  to {
+    transform: rotate(18deg);
+  }
+}
+@keyframes vw-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(25px) scale(0.93);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes vw-spark {
+  from {
+    opacity: 1;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-45px);
+  }
+}
+@keyframes vw-sow {
+  50% {
+    background: #ffd880;
+    box-shadow: 0 0 15px #ffe694;
+  }
+}
+@keyframes vw-prepare {
+  to {
+    transform: rotate(-20deg);
+  }
+}
+@keyframes vw-throw {
+  50% {
+    transform: rotate(50deg);
+  }
+}
+@keyframes vw-jump {
+  50% {
+    transform: translateY(-15px) scale(0.97, 1.03);
+  }
+}
+@media (max-width: 650px) {
+  .vw-game-list {
+    grid-template-columns: 1fr;
+  }
+  .vw-map {
+    border-radius: 20px;
+  }
+  .vw-map > svg {
+    min-height: 440px;
+    object-fit: cover;
+  }
+  .vw-places a {
+    width: 70px;
+  }
+  .vw-places b {
+    font-size: 9px;
+    padding: 3px;
+  }
+  .vw-places a span {
+    width: 44px;
+    height: 44px;
+    font-size: 12px;
+  }
+  .vw-places a {
+    top: auto;
+  }
+  .vw-game-link {
+    padding: 16px;
+  }
+  .vw-toolbar {
+    gap: 8px;
+  }
+  .vw-score {
+    gap: 10px;
+    font-size: 12px;
+  }
+  .vw-controls {
+    padding: 14px 10px;
+  }
+  .vw-controls .btn {
+    padding: 12px 15px;
+  }
+  .vw-stage .vw-scene {
+    min-height: 240px;
+  }
+  .vw-pits {
+    gap: 3px;
+  }
+  .vw-pits button {
+    min-height: 90px;
+    border-radius: 15px;
+    padding: 3px 0;
+  }
+  .vw-pits strong {
+    font-size: 16px;
+  }
+  .vw-pits small {
+    font-size: 8px;
+  }
+  .vw-board {
+    padding: 14px 5px;
+    border-width: 3px;
+  }
+  .vw-result {
+    padding: 22px 14px;
+  }
+  .vw-stage > .vw-companion {
+    width: 21%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vw-map *,
+  .vw-game * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
