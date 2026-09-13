@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLearning } from "@/components/learning/provider";
 import { CharacterArt } from "@/components/characters/character-art";
 import { equipmentFor, selectedCharacter } from "@/lib/characters/state";
@@ -72,9 +72,19 @@ export function Dossha({ children }: { children: React.ReactNode }) {
 }
 export function Traveler({ point }: { point: Point }) {
   const { state } = useLearning();
+  const [moving, setMoving] = useState(false);
+  const previous = useRef(point);
+  useEffect(() => {
+    if (previous.current.x === point.x && previous.current.y === point.y)
+      return;
+    previous.current = point;
+    setMoving(true);
+    const timer = setTimeout(() => setMoving(false), 260);
+    return () => clearTimeout(timer);
+  }, [point.x, point.y]);
   return (
     <div
-      className="hs-traveler"
+      className={`hs-traveler ${moving ? "hs-traveler-moving" : ""}`}
       data-testid="history-traveler"
       style={{ left: `${point.x}%`, top: `${point.y}%` }}
       aria-hidden="true"
@@ -82,7 +92,8 @@ export function Traveler({ point }: { point: Point }) {
       <CharacterArt
         characterId={selectedCharacter(state).id}
         equipped={equipmentFor(state)}
-        mood="joy"
+        mood="waiting"
+        lighting
         decorative
       />
       <Mascot />

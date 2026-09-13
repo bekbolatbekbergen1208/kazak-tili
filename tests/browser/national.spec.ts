@@ -99,9 +99,9 @@ test("arqan wins through knowledge and records reward once", async ({
   await expect(
     page.getByRole("heading", { name: "Жарайсың! Жеңіске жеттің!" }),
   ).toBeVisible();
-  const wallet = await page.locator(".ng-top span").innerText();
+  const wallet = await page.getByLabel("Баланс", { exact: true }).innerText();
   await page.reload();
-  await expect(page.locator(".ng-top span")).toHaveText(wallet);
+  await expect(page.getByLabel("Баланс", { exact: true })).toHaveText(wallet);
 });
 test("shop confirmation and crystal upgrades persist", async ({ page }) => {
   await seed(page);
@@ -111,10 +111,10 @@ test("shop confirmation and crystal upgrades persist", async ({ page }) => {
   });
   await card.getByRole("button", { name: "Сатып алу" }).click();
   await page.getByRole("button", { name: "Бас тарту", exact: true }).click();
-  await expect(page.locator(".ng-top span")).toContainText("💎 10");
+  await expect(page.locator('.qa-wallet [title="Кристалл"]')).toHaveText("10");
   await card.getByRole("button", { name: "Сатып алу" }).click();
   await page.getByRole("button", { name: "Растау", exact: true }).click();
-  await expect(page.locator(".ng-top span")).toContainText("💎 4");
+  await expect(page.locator('.qa-wallet [title="Кристалл"]')).toHaveText("4");
   await expect(
     card.getByRole("button", { name: "✓ Сатып алынды" }),
   ).toBeDisabled();
@@ -123,7 +123,7 @@ test("shop confirmation and crystal upgrades persist", async ({ page }) => {
   await page.getByRole("button", { name: "Растау", exact: true }).click();
   await page.reload();
   await expect(page.getByText("Күш · 1 / 5")).toBeVisible();
-  await expect(page.locator(".ng-top span")).toContainText("💎 1");
+  await expect(page.locator('.qa-wallet [title="Кристалл"]')).toHaveText("1");
 });
 
 test("saka supports actual mouse/touch dragging", async ({ page }, info) => {
@@ -133,6 +133,21 @@ test("saka supports actual mouse/touch dragging", async ({ page }, info) => {
   await correctAnswer(page);
   const canvas = page.locator("canvas");
   await canvas.scrollIntoViewIfNeeded();
+  const pixels = await canvas.evaluate((canvas: HTMLCanvasElement) => {
+    const data = canvas
+      .getContext("2d")!
+      .getImageData(0, 0, canvas.width, canvas.height).data;
+    const colors = new Set<string>();
+    for (let i = 0; i < data.length; i += 400)
+      colors.add(`${data[i]}:${data[i + 1]}:${data[i + 2]}`);
+    return {
+      colors: colors.size,
+      ratio: canvas.width / canvas.clientWidth,
+      target: Math.min(2, devicePixelRatio),
+    };
+  });
+  expect(pixels.colors).toBeGreaterThan(30);
+  expect(pixels.ratio).toBeCloseTo(pixels.target, 1);
   const box = (await canvas.boundingBox())!,
     x = box.x + box.width * 0.5,
     y = box.y + box.height * 0.88,

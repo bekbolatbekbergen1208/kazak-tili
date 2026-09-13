@@ -1019,3 +1019,23 @@
 .travel-world-object:focus-visible .travel-icon {
   transform: translateY(-5px);
 }
+.travel-game-panorama {
+  overflow: hidden;
+  border-radius: 8px;
+  margin: 16px 0;
+  aspect-ratio: 30 / 13;
+  background: #82a677;
+}
+.travel-game-panorama > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.motion-off .travel-game-panorama *,
+.motion-light .travel-game-panorama .qa-cloud,
+.motion-light .travel-game-panorama .qa-smoke {
+  animation: none !important;
+}
+.motion-paused .travel-game-panorama * {
+  animation-play-state: paused !important;
+}

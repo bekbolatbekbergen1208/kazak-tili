@@ -13,6 +13,7 @@ export type CharacterArtProps = {
   className?: string;
   label?: string;
   decorative?: boolean;
+  lighting?: boolean;
 };
 /** Layered vector renderer. External image/animation adapters can replace it without changing learning state. */
 export function CharacterArt({
@@ -23,6 +24,7 @@ export function CharacterArt({
   className = "",
   label,
   decorative = false,
+  lighting = false,
 }: CharacterArtProps) {
   const c = characterById(characterId)!,
     uid = useId().replaceAll(":", ""),
@@ -59,8 +61,23 @@ export function CharacterArt({
       >
         <defs>
           <linearGradient id={`${uid}-fur`} x1="0" y1="0" x2=".85" y2="1">
-            <stop stopColor={primary} />
-            <stop offset="1" stopColor={primary} stopOpacity=".86" />
+            <stop
+              stopColor={
+                lighting
+                  ? `color-mix(in srgb, ${primary}, #fff4cc 30%)`
+                  : primary
+              }
+            />
+            {lighting && <stop offset=".45" stopColor={primary} />}
+            <stop
+              offset="1"
+              stopColor={
+                lighting
+                  ? `color-mix(in srgb, ${primary}, #25443d 32%)`
+                  : primary
+              }
+              stopOpacity={lighting ? 1 : 0.86}
+            />
           </linearGradient>
           <linearGradient id={`${uid}-cream`} x2="0" y2="1">
             <stop stopColor="#fff9ee" />

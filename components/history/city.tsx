@@ -16,7 +16,7 @@ import {
 } from "@/lib/history/state";
 import { useLearning } from "@/components/learning/provider";
 import { selectedCharacter } from "@/lib/characters/state";
-import { Atmosphere, HistoryArt } from "./art";
+import { CityScenery, HistoryArt } from "./art";
 import { Dossha, HistoryHeader, HistoryModal, Traveler } from "./shared";
 import { MovementPad, useMovement } from "./movement";
 import { HistoryTaskGame } from "./task";
@@ -226,21 +226,11 @@ export function HistoryCityLevel({ city }: { city: HistoryCity }) {
             role="region"
             aria-label={`${city.name} қаласын зерттеу`}
           >
-            <Atmosphere />
-            <div
-              className="hs-backdrop"
-              aria-hidden="true"
-              style={{
-                transform: `translate3d(${(50 - movement.point.x) / 5}px, ${(50 - movement.point.y) / 12}px, 0)`,
-              }}
-            >
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
-            <div className="hs-road" aria-hidden="true" />
+            <CityScenery
+              night={historyProgress(state).night}
+              x={movement.point.x}
+              y={movement.point.y}
+            />
             {city.objects.map((o) => (
               <button
                 key={o.id}

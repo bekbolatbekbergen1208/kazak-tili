@@ -349,13 +349,13 @@
   width: 100%;
   color: #8a7694;
 }
-.vw-win .vw-reward span {
+.vw-reward.qa-reward-earned span {
   animation: vw-reveal 0.8s both;
 }
-.vw-win .vw-reward span:nth-child(2) {
+.vw-reward.qa-reward-earned span:nth-child(2) {
   animation-delay: 0.15s;
 }
-.vw-win .vw-reward span:nth-child(3) {
+.vw-reward.qa-reward-earned span:nth-child(3) {
   animation-delay: 0.3s;
 }
 .vw-error {
@@ -404,6 +404,11 @@
   font-size: 13px;
   line-height: 1;
   letter-spacing: 4px;
+}
+.qa-pit-seeds {
+  width: 40px;
+  height: 44px;
+  flex-shrink: 0;
 }
 .vw-pits button:disabled {
   opacity: 0.72;
@@ -651,5 +656,205 @@
   .vw-game * {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+/* Game surfaces share the same jade, chalk and vermilion materials as the field. */
+.vw-game {
+  --qa-ink: #294d48;
+  --qa-accent: #237e71;
+  color: var(--qa-ink);
+}
+.vw-game .vw-rules {
+  background: #f4f8f5;
+  border: 0;
+  border-bottom: 1px solid #d2e1d9;
+  border-radius: 0;
+  padding: 12px 0;
+}
+.vw-game .vw-toolbar {
+  margin: 12px 0;
+  color: #526b64;
+}
+.vw-toolbar select {
+  border-color: #cbdad2;
+  border-radius: 6px;
+}
+.vw-game .vw-score {
+  border-radius: 8px 8px 0 0;
+  border-color: #b9d2c4;
+  background: #f8fcf9;
+  padding: 12px 18px;
+  color: #4b6760;
+}
+.vw-game .vw-score > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.vw-game .vw-score b {
+  font-size: 24px;
+  color: #245b50;
+  min-width: 2ch;
+  text-align: right;
+}
+.qa-score-change {
+  animation: qa-score 350ms ease-out;
+}
+.qa-objective {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  background: #2e6257;
+  color: #f6f7df;
+  min-height: 38px;
+  padding: 8px 18px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.qa-objective > svg {
+  flex-shrink: 0;
+  color: #efcf81;
+}
+.vw-game .vw-stage {
+  border-radius: 0 0 8px 8px;
+  background: #82a677;
+}
+.vw-game .vw-stage .vw-scene {
+  min-height: 0;
+}
+.vw-game .vw-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #edf5ef;
+  color: #315e51;
+  min-height: 48px;
+  font-size: 14px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin: 12px 0;
+}
+.vw-game .vw-controls {
+  border-radius: 0;
+  background: #f5f8f5;
+  border-top: 1px solid #dce7df;
+  border-bottom: 1px solid #dce7df;
+  padding: 12px 16px;
+}
+.vw-game .vw-controls label {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.vw-game .vw-controls input[type="range"] {
+  accent-color: #367f70;
+  flex: 1;
+  max-width: 370px;
+  min-width: 70px;
+}
+.vw-game .btn {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition:
+    background-color 150ms,
+    transform 100ms;
+}
+.vw-game .btn.primary {
+  background: #277e6d;
+  color: #fff;
+  border: 1px solid #226353;
+  box-shadow: 0 3px 0 #205849;
+}
+.vw-game .btn.ghost {
+  color: #315f54;
+  background: #f7faf6;
+  border: 1px solid #c8dacf;
+}
+.vw-game .btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+.vw-game .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.vw-game button:focus-visible,
+.vw-game input:focus-visible,
+.vw-game select:focus-visible {
+  outline: 3px solid #c58532;
+  outline-offset: 3px;
+}
+.vw-game .vw-timing {
+  height: 18px;
+  background: #d9e4db;
+  border: 1px solid #b4c7b8;
+  border-radius: 4px;
+  margin: 4px 0;
+}
+.vw-game .vw-timing > span {
+  background: #e4bd5b;
+  border-color: #ba933a;
+}
+.vw-game .vw-timing i {
+  background: #245e54;
+  border: 1px solid #fff;
+  width: 6px;
+  transform: translateX(-50%);
+}
+.vw-game .vw-result {
+  background: #f4f9f3;
+  border: 1px solid #bfd5c5;
+  border-radius: 8px;
+  padding: 24px;
+}
+.vw-game .vw-result h2 {
+  font-size: 28px;
+  color: #32604d;
+}
+.vw-game .vw-reward span {
+  border-radius: 6px;
+  border-color: #d7c586;
+  color: #675831;
+}
+.vw-game .vw-start {
+  background: #e7f3eb;
+  border-radius: 8px;
+}
+@keyframes qa-score {
+  45% {
+    color: #b47626;
+    transform: translateY(-2px);
+  }
+}
+@media (max-width: 650px) {
+  .vw-game .vw-score {
+    padding: 10px 12px;
+    gap: 8px 14px;
+  }
+  .vw-game .vw-score > span:last-child {
+    font-size: 11px;
+  }
+  .vw-game .vw-score b {
+    font-size: 20px;
+  }
+  .qa-objective {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+  .vw-game .vw-controls {
+    gap: 10px;
+    padding: 12px 8px;
+  }
+  .vw-game .vw-controls .btn {
+    flex: 1 1 auto;
+    font-size: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qa-score-change {
+    animation: none;
   }
 }

@@ -582,7 +582,7 @@
   position: relative;
   aspect-ratio: 1.85;
   min-height: 370px;
-  border-radius: 26px;
+  border-radius: 8px;
   border: 1px solid #e6d6bd;
   overflow: hidden;
   isolation: isolate;
@@ -593,6 +593,40 @@
     #ecd2a6 44%,
     #f4e3c6 100%
   );
+}
+.hs-painted-world {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.hs-painted-parallax {
+  transition: transform 260ms ease-out;
+}
+.hs-city-scene .hs-hotspot:hover,
+.hs-city-scene .hs-hotspot:focus-visible {
+  filter: drop-shadow(0 2px 2px #fff7d4);
+}
+.hs-city-scene .hs-hotspot-mark {
+  background: #2c7c70;
+  box-shadow: 0 0 0 3px #f0e6bc88;
+  animation: none;
+}
+.hs-traveler-moving .char-foot-left {
+  animation: qa-step 180ms infinite alternate;
+}
+.hs-traveler-moving .char-foot-right {
+  animation: qa-step 180ms -180ms infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hs-painted-parallax {
+    transform: none !important;
+    transition: none;
+  }
+  .hs-traveler-moving * {
+    animation: none !important;
+  }
 }
 .hs-city-scene .hs-atmosphere {
   z-index: 0;
@@ -1344,7 +1378,9 @@
   .hs-pin strong {
     padding: 2px 4px;
   }
-  .hs-pin:nth-of-type(n) { margin: 0; }
+  .hs-pin:nth-of-type(n) {
+    margin: 0;
+  }
   .hs-map .hs-traveler {
     width: 55px;
     height: 55px;

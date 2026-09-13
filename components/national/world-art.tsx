@@ -1,5 +1,15 @@
 "use client";
-import { useId, useEffect, useState, useRef } from "react";
+import { useId, useEffect, useState, useRef, type RefObject } from "react";
+import type { CharacterArtProps } from "@/components/characters/character-art";
+import {
+  AsykGround,
+  Foreground,
+  RopeTeams,
+  SceneCharacter,
+  SteppeBackdrop,
+} from "./scene-art";
+import { worldGame } from "@/lib/national/world-catalog";
+export { YurtArt as Yurt } from "./scene-art";
 import { launch, step } from "@/lib/national/physics";
 import { replayWorld } from "@/lib/national/world-engine";
 import {
@@ -11,27 +21,79 @@ import {
   type WorldSession,
 } from "@/lib/national/world-engine";
 import { flyingWords, teamQuestions } from "@/lib/national/world-catalog";
+export const BONE_SHAPE =
+  "M-11-13C-6-18 1-16 3-10C10-15 17-11 16-5C15 0 10 0 9 5C14 9 13 16 7 17C2 19-1 12-5 12C-11 17-17 12-15 6L-10-1C-15-5-16-10-11-13Z";
 export function BoneArt({
   x,
   y,
   gold = false,
   size = 1,
+  saka = false,
+  angle = 0,
 }: {
   x: number;
   y: number;
   gold?: boolean;
   size?: number;
+  saka?: boolean;
+  angle?: number;
 }) {
+  const id = useId().replaceAll(":", "");
   return (
-    <g transform={`translate(${x} ${y}) scale(${size})`}>
-      <ellipse cy="14" rx="15" ry="5" fill="#654252" opacity=".15" />
-      <path
-        d="M-12-12Q-3-20 3-10Q16-18 18-7L10 3Q20 14 9 18L0 10Q-15 20-17 8L-9 0Z"
-        fill={gold ? "#ffc94e" : "#fff2d6"}
-        stroke="#b07853"
-        strokeWidth="2"
-      />
-      <path d="M-5-5Q3 0 5 7" fill="none" stroke="#bf9870" />
+    <g
+      transform={`translate(${x} ${y}) scale(${size})`}
+      data-bone-kind={saka ? "saka" : "asyk"}
+    >
+      <defs>
+        <linearGradient id={`${id}-bone`} x1="0" y1="0" x2=".85" y2="1">
+          <stop stopColor={saka ? "#d4d7ff" : gold ? "#fff3b3" : "#fffef0"} />
+          <stop
+            offset=".42"
+            stopColor={saka ? "#9587df" : gold ? "#f4cb55" : "#ede0c3"}
+          />
+          <stop
+            offset="1"
+            stopColor={saka ? "#584899" : gold ? "#b98331" : "#b6a782"}
+          />
+        </linearGradient>
+      </defs>
+      <ellipse cx="5" cy="15" rx="18" ry="7" fill="#584d36" opacity=".2" />
+      <ellipse cx="2" cy="10" rx="12" ry="4" fill="#4f493a" opacity=".2" />
+      <g transform={`rotate(${angle})`}>
+        <path
+          d={BONE_SHAPE}
+          transform="translate(1 3)"
+          fill={saka ? "#42356e" : gold ? "#8e6a2e" : "#97886b"}
+        />
+        <path
+          d={BONE_SHAPE}
+          fill={`url(#${id}-bone)`}
+          stroke={saka ? "#5e528d" : "#9b8962"}
+          strokeWidth="1.1"
+        />
+        <path
+          d="M-10-10q5-6 10 2M6-7q7-4 8 1M-11 7q-1 6 6 3"
+          stroke={saka ? "#e4e8ff" : "#fff9dc"}
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path
+          d="M-4-6Q-8 0-1 4T5 12"
+          stroke={saka ? "#584391" : "#a58a57"}
+          strokeWidth="2"
+          fill="none"
+          opacity=".65"
+        />
+        <path
+          d="M-2-6q-3 5 2 7"
+          stroke="#fffae4"
+          strokeWidth="1.3"
+          fill="none"
+          opacity=".7"
+        />
+        {saka && <path d="M5 1l3-3 3 3-3 3Z" fill="#f9d77a" />}
+      </g>
     </g>
   );
 }
@@ -39,46 +101,135 @@ export function Horse({
   x,
   y,
   color = "#9c674b",
+  running = false,
+  rider,
 }: {
   x: number;
   y: number;
   color?: string;
+  running?: boolean;
+  rider?: Pick<CharacterArtProps, "characterId" | "equipped"> & {
+    action?: string;
+  };
 }) {
+  const id = useId().replaceAll(":", "");
   return (
-    <g className="vw-horse" transform={`translate(${x} ${y})`}>
-      <ellipse cy="46" rx="65" ry="9" fill="#362c57" opacity=".13" />
-      {[-35, -17, 25, 40].map((a, i) => (
+    <g className={`vw-horse ${running ? "qa-horse-running" : "qa-horse-idle"}`}>
+      <g
+        className="qa-horse-move"
+        style={{ transform: `translate(${x}px, ${y}px)` }}
+      >
+        <defs>
+          <linearGradient id={`${id}-coat`} x2=".8" y2="1">
+            <stop stopColor={`color-mix(in srgb, ${color}, #fff2c6 35%)`} />
+            <stop offset=".5" stopColor={color} />
+            <stop
+              offset="1"
+              stopColor={`color-mix(in srgb, ${color}, #263f39 35%)`}
+            />
+          </linearGradient>
+        </defs>
+        <ellipse className="qa-horse-shadow" cx="8" cy="47" rx="73" ry="9" />
+        {[-35, -17, 25, 40].map((a, i) => (
+          <g key={a} className={`vw-leg leg-${i}`}>
+            <path
+              d={`M${a} 6q-8 20 2 35h12`}
+              fill="none"
+              stroke={
+                i < 2 ? `color-mix(in srgb, ${color}, #273d34 25%)` : color
+              }
+              strokeWidth="9"
+              strokeLinecap="round"
+            />
+            <path
+              d={`M${a + 1} 41h12`}
+              stroke="#404b40"
+              strokeWidth="7"
+              strokeLinecap="round"
+            />
+          </g>
+        ))}
         <path
-          key={a}
-          className={`vw-leg leg-${i}`}
-          d={`M${a} 6q-8 20 2 35h12`}
-          fill="none"
-          stroke={color}
-          strokeWidth="10"
-          strokeLinecap="round"
+          className="vw-tail"
+          d="M-53-7Q-90-20-82 32Q-70 12-52 7"
+          fill="#473348"
         />
-      ))}
-      <path
-        className="vw-tail"
-        d="M-53-7Q-90-20-82 32Q-70 12-52 7"
-        fill="#473348"
-      />
-      <ellipse cx="-5" rx="58" ry="29" fill={color} />
-      <path d="M25 0L37-55Q48-73 65-58L83-36Q85-22 62-26L48-5" fill={color} />
-      <path d="M40-52Q37-80 54-70L59-60M36-51Q24-42 27-17" fill="#44314c" />
-      <circle cx="64" cy="-46" r="3" fill="#242338" />
-      <path
-        d="M-30-21Q-10-5 17-20L16 9H-25Z"
-        fill="#6752ba"
-        stroke="#ffdc8a"
-        strokeWidth="3"
-      />
-      <path
-        d="M-18-12l8 8 8-8 8 8"
-        fill="none"
-        stroke="#ffe4a5"
-        strokeWidth="3"
-      />
+        <path
+          d="M-57-6Q-60-31-31-29L11-27Q31-29 42-10L31 18Q12 33-34 23Q-54 19-57-6Z"
+          fill={`url(#${id}-coat)`}
+        />
+        <path
+          d="M25 0L37-55Q48-73 65-58L83-36Q85-22 62-26L48 12"
+          fill={`url(#${id}-coat)`}
+        />
+        <path
+          d="M-49-13q10-11 22-9m61-7 7-22"
+          stroke="#efd3a0"
+          strokeWidth="3"
+          strokeLinecap="round"
+          opacity=".55"
+        />
+        <path
+          d="M-42 14q28 16 64-3M28-7q-3 13-10 17"
+          stroke="#614d3b"
+          opacity=".25"
+          strokeWidth="3"
+          fill="none"
+        />
+        <path
+          d="M54-56q-5 18 12 22l9-1"
+          stroke="#f6dab0"
+          strokeWidth="3"
+          fill="none"
+          opacity=".6"
+        />
+        <path d="M40-52Q37-80 54-70L59-60M36-51Q24-42 27-17" fill="#44314c" />
+        <circle cx="64" cy="-46" r="3" fill="#242338" />
+        <circle cx="65" cy="-47" r="1" fill="#fff8de" />
+        <path
+          d="M62-59l9 24-8 8m10-11-12 4Q32-20 5-31"
+          fill="none"
+          stroke="#54473c"
+          strokeWidth="2"
+        />
+        <path
+          d="M-30-21Q-10-5 17-20L16 9H-25Z"
+          fill="#b84e49"
+          stroke="#ffdc8a"
+          strokeWidth="3"
+        />
+        <path
+          d="M-22-19Q-10-29 11-21"
+          stroke="#674e39"
+          strokeWidth="6"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path
+          d="M-18-12l8 8 8-8 8 8"
+          fill="none"
+          stroke="#ffe4a5"
+          strokeWidth="3"
+        />
+        {rider && (
+          <g className={running ? "qa-ride" : ""}>
+            <SceneCharacter
+              x={-6}
+              ground={-17}
+              width={82}
+              characterId={rider.characterId}
+              equipped={rider.equipped}
+              action={rider.action ?? "ride"}
+            />
+          </g>
+        )}
+        {running && (
+          <g className="qa-hoof-dust" fill="#dcc795" opacity=".38">
+            <ellipse cx="-53" cy="42" rx="18" ry="5" />
+            <ellipse cx="-78" cy="36" rx="10" ry="4" />
+          </g>
+        )}
+      </g>
     </g>
   );
 }
@@ -192,115 +343,62 @@ function FlyingObject({ index }: { index: number }) {
   );
 }
 export function WorldBackdrop({ night = false }: { night?: boolean }) {
-  const id = useId().replaceAll(":", "");
-  return (
-    <g aria-hidden="true">
-      <defs>
-        <linearGradient id={id} x2="0" y2="1">
-          <stop stopColor={night ? "#24254e" : "#bedff4"} />
-          <stop offset="1" stopColor={night ? "#736998" : "#fdf0d3"} />
-        </linearGradient>
-      </defs>
-      <rect width="900" height="540" fill={`url(#${id})`} />
-      <circle cx="750" cy="85" r="37" fill={night ? "#f9edd5" : "#ffe2a0"} />
-      <g className="vw-clouds" fill="#fff" opacity=".65">
-        <path d="M80 90q-25-20 0-32q5-34 35-18q32-8 33 23q30 8 12 27Z" />
-        <path d="M460 74q-30-20 0-30q15-40 40-10q42-10 42 30Z" />
-      </g>
-      <path
-        d="M0 290L120 100l108 120L340 86l177 200L670 124l230 177v160H0Z"
-        fill={night ? "#45486a" : "#99b2c9"}
-      />
-      <path
-        d="M91 144l29-44 44 70-42-18-15 13ZM307 130l33-44 50 56-35-12-15 14Z"
-        fill="#e7f0ed"
-      />
-      <path
-        d="M0 304Q180 205 410 307T900 283V540H0Z"
-        fill={night ? "#384e5c" : "#93bdb0"}
-      />
-      <path
-        d="M0 400Q240 280 480 370T900 331V540H0Z"
-        fill={night ? "#415f60" : "#c4dca5"}
-      />
-      <path
-        d="M0 493Q260 340 455 425T900 385"
-        stroke="#e5caa1"
-        strokeWidth="50"
-        fill="none"
-      />
-      <g className="vw-grasses" stroke="#688f70" fill="none" strokeWidth="3">
-        {Array.from({ length: 18 }, (_, i) => (
-          <path key={i} d={`M${i * 53} 526q-12-20-3-28m3 28q8-27 17-24`} />
-        ))}
-      </g>
-      <g className="vw-birds" fill="none" stroke="#596382" strokeWidth="3">
-        <path d="M450 120q12-15 23 0q12-15 23 0M500 100q8-12 15 0q8-12 15 0" />
-      </g>
-    </g>
-  );
-}
-export function Yurt({
-  x,
-  y,
-  scale = 1,
-}: {
-  x: number;
-  y: number;
-  scale?: number;
-}) {
-  return (
-    <g transform={`translate(${x} ${y}) scale(${scale})`}>
-      <ellipse cy="46" rx="73" ry="12" fill="#3d3c57" opacity=".12" />
-      <g
-        className="vw-smoke"
-        fill="none"
-        stroke="#fff"
-        strokeWidth="7"
-        opacity=".5"
-      >
-        <path d="M0-60q-20-22 0-40t0-40" />
-      </g>
-      <path
-        d="M-65-3Q-55-42 0-56Q55-42 65-3V40Q0 57-65 40Z"
-        fill="#fffae7"
-        stroke="#b4a49d"
-        strokeWidth="2"
-      />
-      <path
-        d="M-65 0Q0 14 65 0M-65 28Q0 42 65 28"
-        fill="none"
-        stroke="#8965b5"
-        strokeWidth="8"
-      />
-      <path
-        d="M-14 43V5q14-12 28 0v38"
-        fill="#926046"
-        stroke="#e5b95e"
-        strokeWidth="4"
-      />
-      <path d="M-46 14l8-6 8 6-8 6ZM31 15l8-6 8 6-8 6Z" fill="#e2b05f" />
-    </g>
-  );
+  return <SteppeBackdrop night={night} />;
 }
 export function GameDrawing({
   s,
   time,
   aim,
   paused = false,
+  reduced = false,
+  clock,
+  characterId = "tilmash",
+  equipped,
+  onShotActive,
 }: {
   s: WorldSession;
   time: number;
   aim: number;
   paused?: boolean;
-}) {
+  reduced?: boolean;
+  clock?: RefObject<number>;
+  onShotActive?: (active: boolean) => void;
+} & Pick<CharacterArtProps, "characterId" | "equipped">) {
+  const [sceneTime, setSceneTime] = useState(time);
+  useEffect(() => {
+    if (!clock || paused || s.finished || s.kind === "asyk") return;
+    let frame = 0;
+    const update = () => {
+      setSceneTime(clock.current);
+      frame = requestAnimationFrame(update);
+    };
+    frame = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(frame);
+  }, [clock, paused, s.finished, s.id, s.kind]);
+  time = clock ? (s.finished ? s.lastAt : sceneTime) : time;
   const pausedRef = useRef(paused);
   pausedRef.current = paused;
   const [movingBones, setMovingBones] = useState(s.bones);
+  const [inFlight, setInFlight] = useState(false);
+  const [impacts, setImpacts] = useState<
+    { x: number; y: number; id: number }[]
+  >([]);
+  const rotations = useRef(new Map<number, number>());
+  const seenShot = useRef(s.events.length);
   useEffect(() => {
     const event = s.events.at(-1);
-    if (s.kind !== "asyk" || event?.key !== "shoot") {
+    const fresh = seenShot.current !== s.events.length;
+    seenShot.current = s.events.length;
+    if (
+      s.kind !== "asyk" ||
+      event?.key !== "shoot" ||
+      !fresh ||
+      reduced ||
+      s.finished
+    ) {
       setMovingBones(s.bones);
+      setInFlight(false);
+      onShotActive?.(false);
       return;
     }
     const previous = replayWorld(s, s.events.slice(0, -1));
@@ -311,72 +409,232 @@ export function GameDrawing({
       Math.sin(rad) * force,
       -Math.cos(rad) * force,
     );
+    setInFlight(true);
+    onShotActive?.(true);
+    rotations.current.clear();
+    const emitted = new Set<number>();
     let raf = 0,
-      count = 0;
-    const draw = () => {
+      count = 0,
+      last = 0,
+      accumulator = 0;
+    const draw = (now: number) => {
       if (document.hidden || pausedRef.current) {
+        last = now;
         raf = requestAnimationFrame(draw);
         return;
       }
-      let active = false;
-      for (let i = 0; i < 3; i++) {
+      accumulator += last ? Math.min(now - last, 100) : 1000 / 60;
+      last = now;
+      let active = true;
+      const hits: { x: number; y: number; id: number }[] = [];
+      while (accumulator >= 1000 / 60 && active && count < 720) {
+        const previousSpeeds = bones.map((b) => Math.hypot(b.vx, b.vy));
         active = step(bones);
+        bones.forEach((b, i) => {
+          const speed = Math.hypot(b.vx, b.vy);
+          rotations.current.set(
+            b.id,
+            (rotations.current.get(b.id) ?? 0) + speed * 1.8,
+          );
+          if (
+            b.id !== -1 &&
+            !emitted.has(b.id) &&
+            previousSpeeds[i] < 0.1 &&
+            speed > 0.4
+          ) {
+            emitted.add(b.id);
+            hits.push({ x: b.x, y: b.y, id: b.id });
+          }
+        });
+        accumulator -= 1000 / 60;
         count++;
       }
+      if (hits.length) setImpacts((old) => [...old, ...hits].slice(-6));
       setMovingBones(bones.map((b) => ({ ...b })));
       if (active && count < 720) raf = requestAnimationFrame(draw);
+      else {
+        setMovingBones(s.bones);
+        setInFlight(false);
+        onShotActive?.(false);
+      }
     };
-    draw();
+    setImpacts([]);
+    raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-  }, [s.kind, s.events.length]);
+  }, [s.kind, s.events.length, s.id, reduced, s.finished, onShotActive]);
   const p = phaseAt(s, time),
     family = s.kind,
     dt = time - s.lastAt;
   const isHorse = ["tenge", "baige", "qyzquu", "audaryspaq"].includes(family);
+  const isGrid = ["aqsuiek", "soqyrteke", "kokpar"].includes(family);
+  const night = ["aqsuiek", "soqyrteke"].includes(family);
+  const action = s.finished
+    ? s.won
+      ? "celebrate"
+      : "lose"
+    : s.events.length && dt < 650
+      ? s.good
+        ? "action"
+        : "lose"
+      : "idle";
   return (
     <svg
       viewBox="0 0 900 540"
-      className="vw-scene"
+      className={`vw-scene qa-scene qa-scene-${family}`}
+      data-shot-active={inFlight}
       role="img"
-      aria-label={`${family}: ойын алаңы`}
+      aria-label={`${worldGame(family)?.name}: ойын алаңы`}
     >
-      <WorldBackdrop night={["aqsuiek", "soqyrteke"].includes(family)} />
-      {family === "asyk" && (
-        <g transform="translate(180 30)">
-          <ellipse
-            cx="300"
-            cy="220"
-            rx="155"
-            ry="155"
-            fill="#ead2a2"
-            stroke="#fff3d2"
-            strokeWidth="9"
+      {family === "asyk" ? (
+        <>
+          <rect width="900" height="540" fill="#638d60" />
+          <g transform="scale(1 .67)">
+            <SteppeBackdrop />
+          </g>
+          <path d="M0 348Q430 293 900 351V540H0Z" fill="#73925e" />
+        </>
+      ) : isGrid ? (
+        <>
+          <rect width="900" height="540" fill={night ? "#31584f" : "#70945f"} />
+          <g transform="scale(1 .5)">
+            <SteppeBackdrop night={night} />
+          </g>
+          <path
+            d="M0 270Q400 239 900 271V540H0Z"
+            fill={night ? "#31584f" : "#70945f"}
           />
+        </>
+      ) : (
+        <g
+          style={{
+            transform:
+              isHorse && !reduced
+                ? `translateX(${-Math.min(26, s.distance * 0.1)}px) scaleX(1.03)`
+                : undefined,
+            transition: "transform 600ms ease-out",
+          }}
+        >
+          <SteppeBackdrop night={night} region={isHorse ? "altai" : "steppe"} />
+        </g>
+      )}
+      {family === "asyk" && (
+        <g transform="translate(150 150) scale(1 .74)">
+          <AsykGround />
           {movingBones
             .filter((b) => !b.out)
             .map((b) => (
-              <BoneArt key={b.id} x={b.x} y={b.y} gold={b.special} />
+              <g key={b.id}>
+                {inFlight && !reduced && Math.hypot(b.vx, b.vy) > 1 && (
+                  <path
+                    d={`M${b.x} ${b.y}l${-b.vx * 2.4} ${-b.vy * 2.4}`}
+                    stroke="#fff2cd"
+                    opacity=".4"
+                    strokeWidth="9"
+                    strokeLinecap="round"
+                  />
+                )}
+                <BoneArt
+                  x={b.x}
+                  y={b.y}
+                  gold={b.special}
+                  saka={b.id === -1}
+                  size={b.radius / 15}
+                  angle={rotations.current.get(b.id) ?? b.id * 29}
+                />
+              </g>
             ))}
-          <path
-            d={`M300 440l${Math.sin((aim * Math.PI) / 180) * 130} ${-Math.cos((aim * Math.PI) / 180) * 130}`}
-            stroke="#6550b7"
-            strokeWidth="4"
-            strokeDasharray="8 7"
-          />
-          <BoneArt x={300} y={440} gold size={1.4} />
+          {!inFlight && !s.finished && (
+            <>
+              <circle
+                cx="300"
+                cy="440"
+                r="30"
+                fill="none"
+                stroke="#fff9d8"
+                strokeWidth="2"
+              />
+              <circle
+                cx="300"
+                cy="440"
+                r="34"
+                fill="none"
+                stroke="#6454a1"
+                strokeWidth="4"
+                strokeDasharray="22 6"
+              />
+              <path
+                d={`M300 440l${Math.sin((aim * Math.PI) / 180) * 130} ${-Math.cos((aim * Math.PI) / 180) * 130}`}
+                stroke="#51458b"
+                strokeWidth="4"
+                strokeDasharray="8 7"
+              />
+              <BoneArt x={300} y={440} saka size={1.2} />
+            </>
+          )}
+          {!reduced &&
+            impacts.map((hit) => (
+              <g
+                className="qa-impact"
+                key={`${s.turn}-${hit.id}`}
+                transform={`translate(${hit.x} ${hit.y})`}
+              >
+                <g className="qa-impact-ring">
+                  <circle r="21" stroke="#fff7d4" strokeWidth="3" fill="none" />
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <path
+                      key={i}
+                      transform={`rotate(${i * 72})`}
+                      d="M0-24v-8"
+                      stroke="#ead9ac"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+                  ))}
+                </g>
+              </g>
+            ))}
         </g>
+      )}
+      {family === "asyk" && (
+        <SceneCharacter
+          x={138}
+          ground={436}
+          width={155}
+          characterId={characterId}
+          equipped={equipped}
+          action={inFlight ? "action" : s.finished ? action : "prepare"}
+        />
       )}
       {isHorse && (
         <>
           <Horse
             x={family === "tenge" ? 340 : 180 + Math.min(300, s.distance * 1.8)}
             y={380}
+            running={
+              !s.finished &&
+              !paused &&
+              !reduced &&
+              (family === "tenge" || (s.events.length > 0 && dt < 650))
+            }
+            rider={{
+              characterId,
+              equipped,
+              action: s.finished ? action : "ride",
+            }}
           />
           {family !== "tenge" && (
             <Horse
               x={230 + Math.min(350, s.rival * 1.8)}
               y={280}
               color="#c7a284"
+              running={
+                !s.finished &&
+                !paused &&
+                !reduced &&
+                s.events.length > 0 &&
+                dt < 650
+              }
+              rider={{ characterId: "qonyr" }}
             />
           )}
           {family === "tenge" && (
@@ -398,26 +656,14 @@ export function GameDrawing({
         </>
       )}
       {family === "arqan" && (
-        <>
-          <path
-            d={`M130 350Q450 ${365 + Math.sin(time / 200) * 5} 770 350`}
-            fill="none"
-            stroke="#ad8150"
-            strokeWidth="12"
-          />
-          <path
-            d={`M${450 - s.distance} 340v45l23-10-23-10`}
-            fill="#be5f85"
-            stroke="#fff2dd"
-            strokeWidth="3"
-          />
-          <path
-            d="M450 320v100"
-            stroke="#fff"
-            strokeDasharray="5 8"
-            strokeWidth="4"
-          />
-        </>
+        <RopeTeams
+          advantage={s.distance}
+          time={reduced ? 0 : time}
+          active={!s.finished && !paused}
+          reaction={s.events.length > 0 && dt < 450 && !reduced}
+          characterId={characterId}
+          equipped={equipped}
+        />
       )}
       {family === "altybaqan" && (
         <>
@@ -473,6 +719,16 @@ export function GameDrawing({
       )}
       {["aqsuiek", "soqyrteke", "kokpar"].includes(family) && (
         <g transform="translate(145 155)">
+          <rect
+            x="-10"
+            y="-10"
+            width="618"
+            height="344"
+            rx="14"
+            fill={night ? "#34554d" : "#86a16c"}
+            stroke={night ? "#739076" : "#d1cb99"}
+            strokeWidth="2"
+          />
           {Array.from({ length: 40 }, (_, i) => (
             <rect
               key={i}
@@ -480,26 +736,12 @@ export function GameDrawing({
               y={Math.floor(i / 8) * 65}
               width="72"
               height="62"
-              rx="16"
+              rx="6"
               fill="#f5f8dc"
-              opacity=".18"
+              opacity=".1"
               stroke="#fff"
             />
           ))}
-          <circle
-            cx={s.x * 75 + 36}
-            cy={s.y * 65 + 30}
-            r="23"
-            fill="#8b67ca"
-            stroke="#fff"
-            strokeWidth="4"
-          />
-          <path
-            d={`M${s.x * 75 + 28} ${s.y * 65 + 32}l8-12 8 12`}
-            stroke="#fff"
-            strokeWidth="3"
-            fill="none"
-          />
           {family === "kokpar" && (
             <>
               {!s.carrying && (
@@ -515,20 +757,52 @@ export function GameDrawing({
               {[0, 1].map((i) => {
                 const d = defenderAt(s.turn, i);
                 return (
-                  <circle
+                  <g
                     key={i}
-                    cx={d.x * 75 + 36}
-                    cy={d.y * 65 + 30}
-                    r="22"
-                    fill="#bf7782"
-                    stroke="#fff"
-                    strokeWidth="4"
-                  />
+                    className="qa-grid-player"
+                    style={{
+                      transform: `translate(${d.x * 75 + 36}px, ${d.y * 65 + 42}px)`,
+                    }}
+                  >
+                    <SceneCharacter
+                      x={0}
+                      ground={0}
+                      width={65}
+                      characterId={i ? "aibar" : "qonyr"}
+                    />
+                  </g>
                 );
               })}
               <path d="M595 5v300" stroke="#ffe27d" strokeWidth="10" />
             </>
           )}
+          <g
+            className="qa-grid-player"
+            style={{
+              transform: `translate(${s.x * 75 + 36}px, ${s.y * 65 + 43}px)`,
+            }}
+          >
+            <ellipse
+              cy="1"
+              rx="27"
+              ry="13"
+              fill="none"
+              stroke="#f5df91"
+              strokeWidth="2"
+            />
+            <SceneCharacter
+              x={0}
+              ground={0}
+              width={72}
+              characterId={characterId}
+              equipped={equipped}
+              action={
+                dt < 240 && s.events.length && !s.finished && !paused
+                  ? "run"
+                  : action
+              }
+            />
+          </g>
         </g>
       )}
       {family === "saqina" && (
@@ -665,17 +939,27 @@ export function GameDrawing({
           >
             {teamQuestions[Math.min(s.turn, 7)][0]}
           </text>
-          {[0, 1, 2].map((i) => (
-            <circle
-              key={i}
-              cx={220 + s.score * 3 + i * 38}
-              cy="370"
-              r="20"
-              fill="#8866bd"
-              stroke="#fff"
-              strokeWidth="3"
+          <g
+            className="qa-grid-player"
+            style={{ transform: `translateX(${Math.min(230, s.score * 2)}px)` }}
+          >
+            <path
+              d="M250 371h160"
+              stroke="#cfab7b"
+              strokeWidth="8"
+              strokeLinecap="round"
             />
-          ))}
+            {(["aqbota", "qonyr", "aibar"] as const).map((id, i) => (
+              <SceneCharacter
+                key={id}
+                x={250 + i * 80}
+                ground={409}
+                width={94}
+                characterId={id}
+                action={action}
+              />
+            ))}
+          </g>
         </>
       )}
       {family === "audaryspaq" && (
@@ -683,21 +967,37 @@ export function GameDrawing({
           Қарсылас: {randomAt(s.seed, s.turn + 20) > 0.5 ? "Оңға" : "Солға"}
         </text>
       )}
-      <g
-        className={`vw-spark ${s.good ? "" : "vw-soft"}`}
-        key={s.events.length}
-      >
-        {Array.from({ length: 8 }, (_, i) => (
-          <circle
-            key={i}
-            cx={420 + Math.cos(i) * 75}
-            cy={300 + Math.sin(i) * 75}
-            r="5"
-            fill="#ffd66a"
-            style={{ animationDelay: `${i * 30}ms` }}
+      {!isHorse &&
+        !["asyk", "arqan", "aqsuiek", "soqyrteke", "kokpar"].includes(
+          family,
+        ) && (
+          <SceneCharacter
+            x={120}
+            ground={449}
+            width={145}
+            characterId={characterId}
+            equipped={equipped}
+            action={action}
           />
-        ))}
-      </g>
+        )}
+      {s.events.length > 0 && !s.finished && !reduced && family !== "asyk" && (
+        <g
+          className={`vw-spark ${s.good ? "" : "vw-soft"}`}
+          key={s.events.length}
+        >
+          {Array.from({ length: 8 }, (_, i) => (
+            <circle
+              key={i}
+              cx={420 + Math.cos(i) * 75}
+              cy={300 + Math.sin(i) * 75}
+              r="5"
+              fill="#ffd66a"
+              style={{ animationDelay: `${i * 30}ms` }}
+            />
+          ))}
+        </g>
+      )}
+      <Foreground />
     </svg>
   );
 }

@@ -7,9 +7,11 @@ import { CharacterArt } from "@/components/characters/character-art";
 import { selectedCharacter, equipmentFor } from "@/lib/characters/state";
 import { national, statsFor } from "@/lib/national/state";
 import { nationalGames, questionFor } from "@/lib/national/catalog";
-import { ARENA, launch, step } from "@/lib/national/physics";
+import { launch, step } from "@/lib/national/physics";
 import type { Bone, GameKind, GameSession } from "@/lib/national/types";
-import { NationalFrame, Landscape, useGameSound } from "./shared";
+import { NationalFrame, useGameSound } from "./shared";
+import { Foreground, RopeTeams, SteppeBackdrop } from "./scene-art";
+import { paintAsykGround, paintBone } from "./canvas-art";
 export function NationalGame({ kind }: { kind: GameKind }) {
   const { state, dispatch, busy } = useLearning(),
     n = national(state),
@@ -174,7 +176,7 @@ export function NationalGame({ kind }: { kind: GameKind }) {
             : `${session.turn + 1} / 12 сұрақ`}
         </span>
         <span className={session.combo >= 3 ? "ng-combo" : ""}>
-          🔥 Combo ×{session.combo}
+          Қатарынан: {session.combo}
         </span>
       </div>
       {kind === "asyk" ? (
@@ -183,42 +185,23 @@ export function NationalGame({ kind }: { kind: GameKind }) {
         <div
           className={`ng-rope-arena ${session.combo >= 3 ? "ng-combo" : ""}`}
         >
-          <Landscape />
-          <div className="ng-crowd" aria-hidden="true">
-            🐻 🦊 🦉 🐪
-          </div>
-          <div
-            className="ng-team ng-team-player"
-            style={{ transform: `translateX(${-session.rope * 0.35}px)` }}
+          <svg
+            className="qa-scene"
+            viewBox="0 0 900 540"
+            role="img"
+            aria-label="Арқан тартыс алаңы"
           >
-            <CharacterArt
+            <SteppeBackdrop />
+            <RopeTeams
+              advantage={session.rope}
+              time={0}
+              active={!session.finished}
+              reaction={false}
               characterId={selectedCharacter(state).id}
               equipped={equipmentFor(state)}
-              mood={session.combo ? "joy" : "thinking"}
             />
-            <b>Сен</b>
-          </div>
-          <div
-            className="ng-team ng-team-rival"
-            style={{ transform: `translateX(${-session.rope * 0.35}px)` }}
-          >
-            <CharacterArt
-              characterId={
-                selectedCharacter(state).id === "qonyr" ? "aibar" : "qonyr"
-              }
-              mood="thinking"
-            />
-            <b>Қарсылас</b>
-          </div>
-          <div
-            className="ng-rope"
-            style={{
-              transform: `translateX(${-session.rope * 0.35}px) rotate(${session.combo % 2 ? 1 : -1}deg)`,
-            }}
-          >
-            <span>⚑</span>
-          </div>
-          <span className="ng-center-line" />
+            <Foreground />
+          </svg>
           <div className="ng-rope-meter">
             <span>Сен</span>
             <meter
@@ -287,28 +270,28 @@ function AsykBoard({ session }: { session: GameSession }) {
     aim = useRef({ dx: 0, dy: -80 }),
     sound = useGameSound(n.settings.sound);
   const disabled = busy || animating || !session.answered;
+  const ground = useRef<HTMLCanvasElement | null>(null);
+  const rotations = useRef(new Map<number, number>());
+  const finishAnimation = useRef<(() => void) | null>(null);
   function paint(bones: Bone[], line = true) {
     const ctx = canvas.current?.getContext("2d");
     if (!ctx) return;
-    ctx.clearRect(0, 0, 600, 500);
-    const bg = ctx.createLinearGradient(0, 0, 0, 500);
-    bg.addColorStop(0, "#e6cb91");
-    bg.addColorStop(1, "#f7e8c5");
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, 600, 500);
-    ctx.strokeStyle = "#ad8250";
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.arc(ARENA.cx, ARENA.cy, ARENA.radius, 0, Math.PI * 2);
-    ctx.stroke();
-    if (!n.settings.light) {
-      ctx.fillStyle = "#c5a56f";
-      for (let i = 0; i < 36; i++) {
-        ctx.beginPath();
-        ctx.arc((i * 127) % 600, (i * 73) % 500, 1.5, 0, 7);
-        ctx.fill();
-      }
+    const target = canvas.current!;
+    const ratio = Math.min(2, window.devicePixelRatio || 1);
+    const width = Math.round((target.clientWidth || 600) * ratio);
+    const height = Math.round((width * 5) / 6);
+    if (target.width !== width || target.height !== height) {
+      target.width = width;
+      target.height = height;
     }
+    ctx.setTransform(width / 600, 0, 0, height / 500, 0, 0);
+    if (!ground.current) {
+      ground.current = document.createElement("canvas");
+      ground.current.width = 600;
+      ground.current.height = 500;
+      paintAsykGround(ground.current.getContext("2d")!);
+    }
+    ctx.drawImage(ground.current, 0, 0);
     for (const b of bones) {
       if (b.out) continue;
       if (!n.settings.light && Math.hypot(b.vx, b.vy) > 1) {
@@ -325,50 +308,28 @@ function AsykBoard({ session }: { session: GameSession }) {
           ctx.fill();
         }
       }
-      ctx.save();
-      ctx.translate(b.x, b.y);
-      ctx.rotate((b.x + b.y) * 0.012);
-      ctx.fillStyle =
-        b.id === -1
-          ? "#7662d5"
-          : b.special
-            ? "#e6a321"
-            : ["#e4776b", "#69b6b1", "#9e86d2", "#f49c56", "#67a5c4"][b.id % 5];
-      ctx.shadowColor = "#6b503a44";
-      ctx.shadowBlur = 7;
-      ctx.shadowOffsetY = 4;
-      ctx.beginPath();
-      ctx.moveTo(-b.radius, -b.radius * 0.5);
-      ctx.bezierCurveTo(
-        -b.radius * 1.2,
-        -b.radius * 1.3,
-        b.radius * 1.2,
-        -b.radius * 1.3,
-        b.radius,
-        -b.radius * 0.5,
-      );
-      ctx.quadraticCurveTo(b.radius * 0.5, 0, b.radius, b.radius * 0.6);
-      ctx.bezierCurveTo(
-        b.radius,
-        b.radius * 1.2,
-        -b.radius,
-        b.radius * 1.2,
-        -b.radius,
-        b.radius * 0.6,
-      );
-      ctx.quadraticCurveTo(-b.radius * 0.5, 0, -b.radius, -b.radius * 0.5);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.strokeStyle = "#ffffff99";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.restore();
+      paintBone(ctx, b, rotations.current.get(b.id) ?? b.id * 29);
     }
     if (!bones.some((b) => b.id === -1)) {
-      ctx.fillStyle = "#7662d5";
+      ctx.strokeStyle = "#6554a1";
+      ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.arc(300, 440, 18, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.arc(300, 440, 29, 0, Math.PI * 2);
+      ctx.stroke();
+      paintBone(
+        ctx,
+        {
+          id: -1,
+          x: 300,
+          y: 440,
+          vx: 0,
+          vy: 0,
+          radius: 18,
+          out: false,
+          special: false,
+        },
+        0,
+      );
     }
     if (line && session.answered) {
       const v = aim.current,
@@ -389,11 +350,22 @@ function AsykBoard({ session }: { session: GameSession }) {
     return () => {
       mounted.current = false;
       cancelAnimationFrame(frame.current);
+      finishAnimation.current?.();
+      ground.current = null;
     };
   }, []);
   useEffect(() => {
     if (!animating) paint(session.bones);
   }, [session, angle, power, animating, n.settings.light, state]);
+  const repaint = useRef(() => paint(session.bones));
+  repaint.current = () => {
+    if (!locked.current) paint(session.bones);
+  };
+  useEffect(() => {
+    const observer = new ResizeObserver(() => repaint.current());
+    if (canvas.current) observer.observe(canvas.current);
+    return () => observer.disconnect();
+  }, []);
   function update(a: number, p: number) {
     setAngle(a);
     setPower(p);
@@ -415,6 +387,7 @@ function AsykBoard({ session }: { session: GameSession }) {
     locked.current = true;
     setAnimating(true);
     sound(true);
+    rotations.current.clear();
     const { dx, dy } = aim.current,
       physical = launch(session.bones, dx, dy, session.bonus);
 
@@ -422,6 +395,7 @@ function AsykBoard({ session }: { session: GameSession }) {
       matchMedia("(prefers-reduced-motion: reduce)").matches ||
       !state.profile.animations;
     await new Promise<void>((resolve) => {
+      finishAnimation.current = resolve;
       let count = 0,
         last = 0,
         accumulator = 0;
@@ -435,6 +409,13 @@ function AsykBoard({ session }: { session: GameSession }) {
         let moving = true;
         while (accumulator >= 1000 / 60 && moving && count < 720) {
           moving = step(physical);
+          physical.forEach((b) =>
+            rotations.current.set(
+              b.id,
+              (rotations.current.get(b.id) ?? b.id * 29) +
+                Math.hypot(b.vx, b.vy) * 1.8,
+            ),
+          );
           accumulator -= 1000 / 60;
           count++;
         }
@@ -444,6 +425,7 @@ function AsykBoard({ session }: { session: GameSession }) {
       };
       frame.current = requestAnimationFrame(tick);
     });
+    finishAnimation.current = null;
     if (!mounted.current) return;
     const next = await dispatch({
       type: "national-shot",
@@ -464,7 +446,8 @@ function AsykBoard({ session }: { session: GameSession }) {
         <CharacterArt
           characterId={selectedCharacter(state).id}
           equipped={equipmentFor(state)}
-          mood={animating ? "joy" : "waiting"}
+          mood={animating ? "thinking" : "waiting"}
+          lighting
         />
       </div>
       <canvas

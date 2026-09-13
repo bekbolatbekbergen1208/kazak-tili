@@ -3,6 +3,15 @@ import Link from "next/link";
 import { useEffect, useRef, type ReactNode } from "react";
 import { useLearning } from "@/components/learning/provider";
 import { national } from "@/lib/national/state";
+import {
+  ArrowLeft,
+  Coins,
+  Gem,
+  Sparkles,
+  Volume2,
+  Music2,
+  Leaf,
+} from "lucide-react";
 export function NationalFrame({
   title,
   children,
@@ -18,9 +27,19 @@ export function NationalFrame({
       className={`ng-page ${n.settings.light ? "ng-light" : ""}`}
     >
       <div className="ng-top">
-        <Link href="/learn/national">← Ойын ауылы</Link>
-        <span aria-label="Баланс">
-          🪙 {state.progress.coins} · 💎 {n.crystals} · ✦ {state.progress.xp} XP
+        <Link href="/learn/national">
+          <ArrowLeft size={16} aria-hidden="true" /> Ойын ауылы
+        </Link>
+        <span aria-label="Баланс" className="qa-wallet">
+          <span title="Тиын">
+            <Coins size={16} aria-hidden="true" /> {state.progress.coins}
+          </span>
+          <span title="Кристалл">
+            <Gem size={16} aria-hidden="true" /> {n.crystals}
+          </span>
+          <span title="Тәжірибе">
+            <Sparkles size={16} aria-hidden="true" /> {state.progress.xp} XP
+          </span>
         </span>
       </div>
       <div className="ng-heading">
@@ -37,6 +56,8 @@ export function NationalFrame({
               key={key}
               disabled={busy}
               aria-pressed={n.settings[key]}
+              aria-label={label}
+              title={`${label}: ${n.settings[key] ? "қосулы" : "өшірулі"}`}
               onClick={() =>
                 void dispatch({
                   type: "national-settings",
@@ -44,7 +65,13 @@ export function NationalFrame({
                 })
               }
             >
-              {label}: {n.settings[key] ? "қосулы" : "өшірулі"}
+              {key === "sound" ? (
+                <Volume2 size={17} />
+              ) : key === "music" ? (
+                <Music2 size={17} />
+              ) : (
+                <Leaf size={17} />
+              )}
             </button>
           ))}
         </div>

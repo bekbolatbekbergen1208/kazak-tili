@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { Crosshair, Flag, Pause, Play, Trophy } from "lucide-react";
 import { useLearning } from "@/components/learning/provider";
 import { CharacterArt } from "@/components/characters/character-art";
 import { selectedCharacter, equipmentFor } from "@/lib/characters/state";
@@ -61,9 +62,13 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
     [aim, setAim] = useState(0),
     [quality, setQuality] = useState("high"),
     [reduced, setReduced] = useState(false),
+    [systemReduced, setSystemReduced] = useState(false),
     [fps, setFps] = useState(0),
     [tutorial, setTutorial] = useState(false),
     [board, setBoard] = useState(newBoard);
+  const [shotActive, setShotActive] = useState(false);
+  const reduceMotion = reduced || systemReduced || !state.profile.animations;
+  const timingRef = useRef<HTMLElement>(null);
   const clock = useRef(time),
     snap = useRef(session),
     pauseRef = useRef(paused),
@@ -113,6 +118,7 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
   }, [saved, kind]);
   useEffect(() => {
     const media = matchMedia("(prefers-reduced-motion: reduce)");
+    setSystemReduced(media.matches);
     try {
       const prefs = JSON.parse(
         localStorage.getItem("qd-world-visual-v1") ?? "{}",
@@ -125,7 +131,7 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
     } catch {
       setReduced(media.matches);
     }
-    const change = () => setReduced(media.matches);
+    const change = () => setSystemReduced(media.matches);
     media.addEventListener("change", change);
     return () => media.removeEventListener("change", change);
   }, []);
@@ -140,7 +146,8 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
       last = now;
       if (!pauseRef.current && !document.hidden) {
         clock.current += delta;
-        setTime(clock.current);
+        if (timingRef.current && snap.current)
+          timingRef.current.style.left = `${phaseAt(snap.current, clock.current) * 100}%`;
         frames++;
         if (now - mark >= 2000) {
           setFps(Math.round((frames * 1000) / (now - mark)));
@@ -186,7 +193,14 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
   }
   function act(key: string, value?: number) {
     const current = snap.current;
-    if (!current || current.finished || paused || busy) return;
+    if (
+      !current ||
+      current.finished ||
+      paused ||
+      busy ||
+      (kind === "asyk" && shotActive && key !== "retire")
+    )
+      return;
     try {
       const next = advanceWorld(current, {
         t: Math.floor(clock.current),
@@ -253,17 +267,24 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
       <button
         className="btn primary"
         key={`${key}-${value ?? label}`}
-        disabled={paused || busy}
+        disabled={paused || busy || (kind === "asyk" && shotActive)}
         onClick={() => act(key, value)}
       >
         {label}
       </button>
     ));
   const occupied = saved && !saved.finished && saved.kind !== kind;
+  const roundReward = session
+    ? national(state).rewards.find(
+        (r) =>
+          r.id === `village-first-${kind}` &&
+          Date.parse(r.date) >= Date.parse(session.startedAt),
+      )
+    : undefined;
   return (
     <NationalFrame title={g.name}>
       <div
-        className={`vw-game ${reduced || quality === "low" ? "vw-reduced" : ""} vw-quality-${quality}`}
+        className={`vw-game ${reduceMotion || quality === "low" ? "vw-reduced" : ""} vw-quality-${quality}`}
       >
         <details className="vw-rules" open={!session}>
           <summary>Ойын нұсқаулығы</summary>
@@ -306,7 +327,7 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
           <label>
             <input
               type="checkbox"
-              checked={reduced}
+              checked={reduceMotion}
               onChange={(e) => preferences(quality, e.target.checked)}
             />{" "}
             Анимацияны азайту
@@ -321,7 +342,13 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
                 setPaused(!paused);
                 if (!paused) void save(session);
               }}
+              title={paused ? "Жалғастыру" : "Үзіліс / сақтау"}
             >
+              {paused ? (
+                <Play size={16} aria-hidden="true" />
+              ) : (
+                <Pause size={16} aria-hidden="true" />
+              )}
               {paused ? "Жалғастыру" : "Үзіліс / сақтау"}
             </button>
           )}
@@ -351,7 +378,13 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
           <>
             <div className="vw-score">
               <span>
-                Ұпай <b>{session.score}</b>
+                <Trophy size={16} aria-hidden="true" /> Ұпай{" "}
+                <b
+                  key={session.score}
+                  className={session.turn ? "qa-score-change" : ""}
+                >
+                  {session.score}
+                </b>
               </span>
               <span>
                 Әрекет <b>{session.turn}</b>
@@ -367,6 +400,24 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
                   : paused
                     ? "Үзіліс"
                     : "Ойын жүріп жатыр"}
+              </span>
+            </div>
+            <div className="qa-objective">
+              <Flag size={16} aria-hidden="true" />
+              <span>
+                {(
+                  {
+                    asyk: "Асықтарды шеңберден шығар · 5 соққы",
+                    arqan: "Алтын аймақта тарт · 12 әрекет",
+                    baige: "Қарсыластан оз · төзімділікті сақта",
+                    qyzquu: "Мәреге бірінші жет",
+                    tenge: "Ат үстінен теңгені жина",
+                    aqsuiek: "Ақсүйекті іздеп тап",
+                    soqyrteke: "Дыбыс пен бағытқа сүйеніп ізде",
+                    kokpar: "Салымды алып, қарсы жаққа жеткіз",
+                    jamby: "Нысананы көздеп, жебені ат",
+                  } as Partial<Record<WorldKind, string>>
+                )[kind] ?? g.words.join(" · ")}
               </span>
             </div>
             {kind === "togyz" ? (
@@ -400,9 +451,44 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
                             ? "Тұздық"
                             : session.board.pits[i]}
                         </strong>
-                        <span aria-hidden="true">
-                          {"•".repeat(Math.min(12, session.board.pits[i]))}
-                        </span>
+                        <svg
+                          className="qa-pit-seeds"
+                          viewBox="0 0 48 53"
+                          aria-hidden="true"
+                        >
+                          {Array.from(
+                            { length: Math.min(12, session.board.pits[i]) },
+                            (_, j) => (
+                              <g
+                                key={j}
+                                transform={`translate(${8 + (j % 3) * 15} ${8 + Math.floor(j / 3) * 13})`}
+                              >
+                                <ellipse
+                                  cx="1"
+                                  cy="2"
+                                  rx="6"
+                                  ry="5"
+                                  fill="#6f5139"
+                                  opacity=".35"
+                                />
+                                <ellipse
+                                  rx="5"
+                                  ry="4.5"
+                                  fill={j % 3 ? "#f0d3a0" : "#d5a66d"}
+                                  stroke="#9a733f"
+                                  strokeWidth=".6"
+                                />
+                                <ellipse
+                                  cx="-1.5"
+                                  cy="-1.5"
+                                  rx="2"
+                                  ry="1.2"
+                                  fill="#fff0c3"
+                                />
+                              </g>
+                            ),
+                          )}
+                        </svg>
                       </button>
                     ))}
                 </div>
@@ -414,46 +500,20 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
                   controls([["draw", "Үш қайталау: тең ойын"]])}
               </div>
             ) : (
-              <div className={`vw-stage ${paused ? "vw-paused" : ""}`}>
+              <div
+                className={`vw-stage ${paused ? "vw-paused" : ""}`}
+                data-finished={session.finished}
+              >
                 <GameDrawing
                   s={session}
                   time={time}
                   aim={aim}
                   paused={paused}
-                />
-                <Companion
-                  style={
-                    ["aqsuiek", "soqyrteke", "kokpar"].includes(kind)
-                      ? {
-                          left: `${(145 + session.x * 75) / 9}%`,
-                          top: `${(115 + session.y * 65) / 5.4}%`,
-                          width: "8%",
-                          bottom: "auto",
-                        }
-                      : ["tenge", "baige", "qyzquu", "audaryspaq"].includes(
-                            kind,
-                          )
-                        ? {
-                            left: `${((kind === "tenge" ? 340 : 180 + Math.min(300, session.distance * 1.8)) - 43) / 9}%`,
-                            top: "52%",
-                            width: "9%",
-                            bottom: "auto",
-                          }
-                        : undefined
-                  }
-                  action={
-                    session.finished
-                      ? session.won
-                        ? "celebrate"
-                        : "lose"
-                      : time - session.lastAt < 650
-                        ? session.good
-                          ? "action"
-                          : "lose"
-                        : ["baige", "qyzquu", "tenge", "kokpar"].includes(kind)
-                          ? "run"
-                          : "prepare"
-                  }
+                  reduced={reduceMotion || quality === "low"}
+                  clock={clock}
+                  characterId={selectedCharacter(state).id}
+                  equipped={equipmentFor(state)}
+                  onShotActive={setShotActive}
                 />
                 {paused && <div className="vw-pause">Үзіліс</div>}
               </div>
@@ -466,6 +526,7 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
                 <div className="vw-controls">
                   {["asyk", "jamby"].includes(kind) && (
                     <label>
+                      <Crosshair size={16} aria-hidden="true" />
                       Бағыт: {aim}°
                       <input
                         aria-label="Бағыт"
@@ -487,7 +548,10 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
                   ].includes(kind) && (
                     <div className="vw-timing" aria-label="Ырғақ индикаторы">
                       <span />
-                      <i style={{ left: `${phaseAt(session, time) * 100}%` }} />
+                      <i
+                        ref={timingRef}
+                        style={{ left: `${phaseAt(session, time) * 100}%` }}
+                      />
                     </div>
                   )}
                   {kind === "asyk" && controls([["shoot", "Сақаны ат", aim]])}
@@ -591,18 +655,16 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
                 <p>{g.words.join(" · ")}</p>
                 <p>
                   {session.claimed
-                    ? session.won
+                    ? roundReward
                       ? "Нәтиже сақталды. Алғашқы жеңіс марапаты балансқа қосылды; қайталауға қайта берілмейді."
                       : "Нәтиже сақталды."
                     : "Нәтиже сақталуда…"}
                 </p>
-                <div className="vw-reward">
+                <div
+                  className={`vw-reward ${roundReward ? "qa-reward-earned" : ""}`}
+                >
                   {(() => {
-                    const reward = national(state).rewards.find(
-                      (r) =>
-                        r.id === `village-first-${kind}` &&
-                        Date.parse(r.date) >= Date.parse(session.startedAt),
-                    );
+                    const reward = roundReward;
                     return (
                       <>
                         <span>{reward?.xp ?? 0} XP</span>

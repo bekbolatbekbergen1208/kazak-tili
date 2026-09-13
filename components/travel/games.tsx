@@ -4,6 +4,12 @@ import { useLearning } from "@/components/learning/provider";
 import type { Region, Word } from "@/lib/travel/types";
 import { travelOf } from "@/lib/travel/state";
 import { TravelIcon } from "./art";
+import {
+  SceneCharacter,
+  SteppeBackdrop,
+  type SceneRegion,
+} from "@/components/national/scene-art";
+import { equipmentFor, selectedCharacter } from "@/lib/characters/state";
 export function VocabularyCards({ region }: { region: Region }) {
   const { state, dispatch, busy } = useLearning();
   const [active, setActive] = useState<Word | null>(null),
@@ -124,11 +130,36 @@ export function VocabularyCards({ region }: { region: Region }) {
   );
 }
 export function RegionGames({ region }: { region: Region }) {
+  const { state } = useLearning();
   const [tab, setTab] = useState<"quiz" | "matching" | "sentence">("quiz");
+  const scenery: SceneRegion =
+    region.id === "turkistan"
+      ? "city"
+      : region.id === "mangystau" || region.theme === "sea"
+        ? "coast"
+        : region.theme === "mountain"
+          ? "altai"
+          : "steppe";
   return (
     <section id="games" className="travel-panel">
       <small>ҮЙРЕНГЕНІҢДІ ҚОЛДАН</small>
       <h2>Саяхат тапсырмалары</h2>
+      <div className={`travel-game-panorama travel-panorama-${scenery}`}>
+        <svg
+          viewBox="0 0 900 390"
+          role="img"
+          aria-label={`${region.nameKk}: саяхат алаңы`}
+        >
+          <SteppeBackdrop region={scenery} />
+          <SceneCharacter
+            x={440}
+            ground={373}
+            width={125}
+            characterId={selectedCharacter(state).id}
+            equipped={equipmentFor(state)}
+          />
+        </svg>
+      </div>
       <div className="travel-tabs">
         {(["quiz", "matching", "sentence"] as const).map((id, i) => (
           <button key={id} aria-pressed={tab === id} onClick={() => setTab(id)}>

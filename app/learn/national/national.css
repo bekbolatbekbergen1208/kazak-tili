@@ -276,9 +276,9 @@
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 24px;
+  border-radius: 8px;
   touch-action: none;
-  border: 6px solid #fff;
+  border: 2px solid #b9cbb0;
   box-shadow: 0 10px 30px #73583315;
 }
 .ng-board-companion {
@@ -333,9 +333,15 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  height: 340px;
-  border-radius: 25px;
+  height: auto;
+  aspect-ratio: 5 / 3;
+  border-radius: 8px;
   background: #d6eee9;
+}
+.ng-rope-arena > svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 .ng-team {
   position: absolute;
@@ -703,4 +709,48 @@
 .ng-streak {
   animation: ng-glow 2s ease-in-out infinite alternate;
   transform-origin: left;
+}
+.ng-top > a,
+.qa-wallet,
+.qa-wallet > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.qa-wallet {
+  gap: 14px;
+  flex-wrap: wrap;
+  font-variant-numeric: tabular-nums;
+  color: #345b50;
+}
+.qa-wallet > span:nth-child(1) svg {
+  color: #b58a32;
+}
+.qa-wallet > span:nth-child(2) svg {
+  color: #329ba0;
+}
+.qa-wallet > span:nth-child(3) svg {
+  color: #b26249;
+}
+.ng-page .ng-settings button {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 6px;
+  background: #eff5f0;
+  border: 1px solid #c7d8ca;
+  color: #4e7164;
+}
+.ng-page .ng-settings button[aria-pressed="true"] {
+  background: #d1e8da;
+  border-color: #438b70;
+  color: #23583f;
+}
+@media (max-width: 650px) {
+  .qa-wallet {
+    gap: 9px;
+    font-size: 12px;
+  }
 }
