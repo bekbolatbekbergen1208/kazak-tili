@@ -36,7 +36,7 @@ test("onboarding → lesson → rewards → persisted progress → language and 
   await page.getByRole("radio", { name: "Сәлеметсіз бе", exact: true }).check();
   await page.getByRole("button", { name: "Check answer" }).click();
   await page.getByRole("button", { name: "Next", exact: true }).click();
-  const selects = page.getByRole("combobox");
+  const selects = page.locator(".qd-matches").getByRole("combobox");
   for (let i = 0; i < 3; i++) await selects.nth(i).selectOption(String(i));
   await page.getByRole("button", { name: "Check answer" }).click();
   await page.getByRole("button", { name: "Next", exact: true }).click();
