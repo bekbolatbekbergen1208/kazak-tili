@@ -29,7 +29,7 @@
   background:
     radial-gradient(ellipse at 100% 0, #eeedff80, transparent 55%), #f8f9fd;
 }
-.appShell aside {
+.appShell > aside {
   box-shadow: 8px 0 36px #303c6904;
 }
 .appShell nav a {
