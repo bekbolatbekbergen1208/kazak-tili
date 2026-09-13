@@ -1,6 +1,8 @@
 # Досшамен чат
 
-Available at `/student/friend` and `/learn/friend`, with a link in the learning navigation. Users can ask free-form Kazakh language, literature, translation, grammar and writing questions; the chat carries the most recent 20 messages (maximum 24,000 characters) as context. Replies use plain text. Users can choose Kazakh, Russian, English, Chinese, Spanish, German or French as the explanation language. The existing small dictionary and browser microphone input remain available.
+Available at `/student/friend` and `/learn/friend`, with a link in the learning navigation. Live AI supports Kazakh language, literature, translation, grammar, writing, everyday conversation, science and general questions without forcing every topic back to language learning. The chat carries the most recent 20 messages (maximum 24,000 characters) as context. Replies use plain text. Users can choose Kazakh, Russian, English, Chinese, Spanish, German or French as the explanation language. The existing small dictionary and browser microphone input remain available.
+
+The reference catalog now includes participles, converbs, infinitives, voice, moods, negation, interjections, sentence members, compound sentences, direct address, parenthetical words and spelling topics. Retrieval ranks specific phrases first and includes multiple matching topics for comparison requests. This is a finite, Kazakh-only fallback, not an all-knowing model. Live instructions address mixed Kazakh/Russian input, word analysis, step-by-step exercises and uncertainty. No web search tool is enabled: current news/prices/weather must not be presented as verified.
 
 ## Enable live answers
 

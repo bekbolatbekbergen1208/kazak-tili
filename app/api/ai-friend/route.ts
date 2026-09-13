@@ -9,6 +9,7 @@ import {
 } from "@/lib/friend/chat";
 import { referenceAnswer } from "@/lib/friend/knowledge";
 import { isSameOrigin } from "@/utils/request-origin";
+import { boundedJson } from "@/utils/bounded-body";
 const limits = new Map<string, { timestamps: number[]; busy: boolean }>();
 const json = (body: unknown, status = 200) =>
   NextResponse.json(body, {
@@ -39,9 +40,7 @@ export async function POST(req: Request) {
   if (!isSameOrigin(req)) return json({ error: "Жарамсыз сұрау." }, 403);
   let input;
   try {
-    const raw = await req.text();
-    if (raw.length > 40000) throw Error();
-    input = parseChat(JSON.parse(raw));
+    input = parseChat(await boundedJson(req, 160000));
   } catch {
     return json(
       {
@@ -96,6 +95,7 @@ export async function POST(req: Request) {
           key: key!,
           model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
           ...input,
+          signal: req.signal,
           context: reference.topic ? reference.reply : undefined,
         })
       : reference.reply;

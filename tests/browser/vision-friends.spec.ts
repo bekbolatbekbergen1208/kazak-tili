@@ -10,6 +10,165 @@ async function localLearning(page: import("@playwright/test").Page) {
     }),
   );
 }
+test("Vision shows uncatalogued objects, switches vocabulary and resizes large photos (mocked AI)", async ({
+  page,
+}) => {
+  await localLearning(page);
+  await page.route("**/api/vision", async (route) => {
+    if (route.request().method() === "GET")
+      return route.fulfill({ json: { configured: true, signedIn: true } });
+    expect(route.request().postDataJSON().image.length).toBeLessThan(4_500_000);
+    return route.fulfill({
+      json: {
+        quality: "clear",
+        summary: "Үстелде домбыра мен кітап тұр.",
+        tip: "",
+        word: null,
+        confidence: 0.9,
+        alternatives: [{ id: "book", kk: "кітап" }],
+        objects: [
+          {
+            id: null,
+            kk: "домбыра",
+            ru: "домбра",
+            en: "dombra",
+            plural: "домбыралар",
+            example: "Мен домбыра тартамын.",
+            description: "Екі ішекті аспап.",
+            confidence: 0.9,
+          },
+          {
+            id: "book",
+            kk: "кітап",
+            ru: "книга",
+            en: "book",
+            plural: "кітаптар",
+            example: "Мен кітап оқимын.",
+            description: "Үстелдегі кітап.",
+            confidence: 0.85,
+          },
+        ],
+      },
+    });
+  });
+  await page.goto("/learn/vision?demo=0");
+  const png = await page.evaluate(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 2200;
+    canvas.height = 1000;
+    const context = canvas.getContext("2d")!;
+    context.fillStyle = "#dfede6";
+    context.fillRect(0, 0, 2200, 1000);
+    context.fillStyle = "#ae4234";
+    context.fillRect(500, 200, 400, 600);
+    return canvas.toDataURL("image/png").split(",")[1];
+  });
+  await page.locator('input[type="file"]').setInputFiles({
+    name: "objects.png",
+    mimeType: "image/png",
+    buffer: Buffer.from(png, "base64"),
+  });
+  await expect(
+    page.getByRole("heading", { name: "домбыра", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Мен домбыра тартамын.", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Жауапты тексеру" }),
+  ).toHaveCount(0);
+  const preview = page.getByAltText("Таңдалған кадр");
+  await expect
+    .poll(() => preview.evaluate((img: HTMLImageElement) => img.naturalWidth))
+    .toBe(1600);
+  await page.getByRole("combobox", { name: "Кадрдағы зат" }).selectOption("1");
+  await expect(
+    page.getByRole("heading", { name: "кітап", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Жауапты тексеру" }),
+  ).toBeVisible();
+  await page.getByRole("combobox", { name: "Кадрдағы зат" }).selectOption("0");
+  await expect(
+    page.getByRole("heading", { name: "домбыра", exact: true }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: `test-results/vision-multi-${test.info().project.name}.png`,
+    fullPage: true,
+  });
+  const panel = await page.locator(".vs-result").boundingBox();
+  const manual = await page.locator(".vs-manual").boundingBox();
+  const collection = await page.locator(".vs-collection").boundingBox();
+  expect(manual!.y + manual!.height).toBeLessThanOrEqual(
+    panel!.y + panel!.height,
+  );
+  expect(collection!.y).toBeGreaterThanOrEqual(panel!.y + panel!.height);
+});
+test("Vision cancels stale results, retries and rejects a broken image (mocked AI)", async ({
+  page,
+}) => {
+  await localLearning(page);
+  let calls = 0;
+  let finish: (() => void) | undefined;
+  const held = new Promise<void>((resolve) => {
+    finish = resolve;
+  });
+  await page.route("**/api/vision", async (route) => {
+    if (route.request().method() === "GET")
+      return route.fulfill({ json: { configured: true, signedIn: true } });
+    calls++;
+    if (calls === 1) await held;
+    await route
+      .fulfill({
+        json: {
+          word: { id: "book", kk: "кітап" },
+          confidence: 0.9,
+          alternatives: [],
+        },
+      })
+      .catch(() => {});
+  });
+  await page.goto("/learn/vision?demo=0");
+  const file = page.locator('input[type="file"]');
+  await file.setInputFiles({
+    name: "broken.png",
+    mimeType: "image/png",
+    buffer: Buffer.from("broken-image"),
+  });
+  await expect(page.locator(".vs-result")).not.toContainText(
+    "Сурет өңделіп жатыр",
+  );
+  expect(calls).toBe(0);
+  await file.setInputFiles({
+    name: "book.png",
+    mimeType: "image/png",
+    buffer: Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Z9QAAAABJRU5ErkJggg==",
+      "base64",
+    ),
+  });
+  await expect.poll(() => calls).toBe(1);
+  await page.getByRole("button", { name: "Тоқтату", exact: true }).click();
+  await expect(page.locator(".vs-result")).toContainText("Тану тоқтатылды.");
+  finish!();
+  await page.getByRole("button", { name: "Қайта тану", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "кітап", exact: true }),
+  ).toBeVisible();
+  expect(calls).toBe(2);
+  await page
+    .getByRole("button", { name: "Басқа затты қарау", exact: true })
+    .click();
+  await expect(page.getByAltText("Таңдалған кадр")).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "кітап", exact: true }),
+  ).toHaveCount(0);
+});
 test("Vision uses upload fallback, confirms uncertain object, speaks and saves a valid sentence", async ({
   page,
 }) => {
@@ -18,7 +177,7 @@ test("Vision uses upload fallback, confirms uncertain object, speaks and saves a
     if (r.request().method() === "GET")
       return r.fulfill({ json: { configured: true } });
     const body = r.request().postDataJSON();
-    expect(body.image).toMatch(/^data:image\/png;base64,/);
+    expect(body.image).toMatch(/^data:image\/jpeg;base64,/);
     return r.fulfill({
       json: {
         word: { id: "book", kk: "кітап" },

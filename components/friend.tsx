@@ -38,7 +38,7 @@ declare global {
 const dictionary = commonDictionary;
 const greeting: Message = {
   me: false,
-  text: "Сәлем! Мен — Досша 👋 Қазақ тілі, грамматика, сөз мағынасы, аударма немесе әдебиет туралы сұрағыңды жаз. Бірге түсініп алайық!",
+  text: "Сәлем! Мен — Досша 👋 Ережені түсіндірейін бе, сөйлеміңді тексерейін бе? Күнделікті сұрағыңды да қоя бер. Бірге ойланып көрейік!",
 };
 export default function Friend({ embedded = false }: { embedded?: boolean }) {
   const Wrapper = embedded ? Fragment : Shell;
@@ -243,7 +243,12 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
 
   return (
     <Wrapper>
-      <div className="page friendPage">
+      <div
+        className="page friendPage"
+        data-dossha-state={
+          isListening ? "listening" : pending ? "thinking" : "idle"
+        }
+      >
         <StudentTop
           title="Досшамен сөйлесу"
           sub="Сұрағыңды қой · ережені түсін · қазақша сөйлес"
@@ -371,6 +376,11 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
                   <Mascot />
                   <p role="status">
                     {ready ? "Досша ойланып жатыр…" : "Чат ашылуда…"}
+                    <span className="dossha-dots" aria-hidden="true">
+                      <i />
+                      <i />
+                      <i />
+                    </span>
                   </p>
                 </div>
               )}
@@ -422,7 +432,7 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
                 placeholder={
                   isListening
                     ? "Сөйлей бер…"
-                    : "Қазақ тілі туралы сұрағыңды жаз…"
+                    : "Сұрағыңды немесе тексеретін мәтініңді жаз…"
                 }
                 aria-label="Хабарлама"
               />

@@ -8,6 +8,41 @@ import {
 } from "../lib/friend/chat";
 import { referenceAnswer } from "../lib/friend/knowledge";
 import { isSameOrigin } from "../utils/request-origin";
+import { dosshaInstructions } from "../lib/friend/chat";
+test("extended grammar resolves specific rules and comparisons", () => {
+  assert.match(referenceAnswer("Есимше деген не?").reply, /Есімше/);
+  assert.match(referenceAnswer("септик жалгаулары").reply, /7 септік/);
+  assert.match(
+    referenceAnswer("Есімше мен көсемшенің айырмасы қандай?").reply,
+    /Есімше/,
+  );
+  assert.match(
+    referenceAnswer("Есімше мен көсемшенің айырмасы қандай?").reply,
+    /Көсемше/,
+  );
+  assert.match(referenceAnswer("Шартты рай деген не?").reply, /-са\/-се/);
+  assert.match(referenceAnswer("Қаратпа сөз қалай жазылады?").reply, /үтір/);
+  assert.match(
+    referenceAnswer("Үндестік заңы және буын туралы айт").reply,
+    /Үндестік[\s\S]*Буын/,
+  );
+  assert.match(dosshaInstructions, /жалпы сұрақтарға жауап/);
+  assert.match(dosshaInstructions, /Интернетке тікелей қолжетімділігің жоқ/);
+});
+test("chat strips untrusted extra history fields before forwarding to provider", () => {
+  const parsed = parseChat({
+    message: "Сәлем",
+    history: [
+      {
+        role: "user",
+        content: "Сәлем",
+        type: "function_call",
+        name: "injected",
+      },
+    ],
+  });
+  assert.deepEqual(parsed.history, [{ role: "user", content: "Сәлем" }]);
+});
 test("origin validation supports Next internal hostnames and HTTPS proxy, rejects foreign origins", () => {
   const req = (origin: string, host: string, protocol = "http") =>
     new Request("http://localhost:3016/api/ai-friend", {

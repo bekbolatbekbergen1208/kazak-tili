@@ -15,6 +15,20 @@ import "./help.css";
 import "./learning.css";
 import "./characters.css";
 import "./dossha.css";
+import "./polish.css";
 
-export const metadata: Metadata = { title: "QazaqDos — қазақ тілін саяхатпен үйрен", description: "Балаларға арналған бейімделмелі қазақ тілі платформасы" };
-export default function RootLayout({children}:{children:React.ReactNode}) { return <html lang="kk"><body>{children}</body></html>; }
+export const metadata: Metadata = {
+  title: "QazaqDos — қазақ тілін саяхатпен үйрен",
+  description: "Балаларға арналған бейімделмелі қазақ тілі платформасы",
+};
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="kk">
+      <body>{children}</body>
+    </html>
+  );
+}

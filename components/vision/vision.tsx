@@ -8,6 +8,7 @@ import {
   Volume2,
   Mic,
   BookOpen,
+  Square,
 } from "lucide-react";
 import { useLearning } from "@/components/learning/provider";
 import {
@@ -19,6 +20,8 @@ import {
 } from "@/lib/vision/words";
 import { visionOf } from "@/lib/vision/state";
 import { Mascot } from "@/components/icons";
+import { prepareVisionImage } from "@/lib/vision/image";
+import type { DetectedObject, VisionResult } from "@/lib/vision/recognize";
 type RecognitionLike = {
   lang: string;
   interimResults: boolean;
@@ -35,6 +38,15 @@ export function VisionLab() {
     video = useRef<HTMLVideoElement>(null),
     stream = useRef<MediaStream | null>(null),
     file = useRef<HTMLInputElement>(null);
+  const request = useRef<AbortController | null>(null);
+  const imageVersion = useRef(0);
+  const cameraVersion = useRef(0);
+  const recognition = useRef<{ stop(): void } | null>(null);
+  const [identifying, setIdentifying] = useState(false);
+  const [analysis, setAnalysis] = useState<VisionResult | null>(null);
+  const [selected, setSelected] = useState<DetectedObject | null>(null);
+  const [manual, setManual] = useState(false);
+  const [availability, setAvailability] = useState("");
   const [status, setStatus] = useState<
       "idle" | "requesting" | "ready" | "captured" | "denied" | "error"
     >("idle"),
@@ -49,13 +61,21 @@ export function VisionLab() {
   const word = visionWord(wordId),
     progress = visionOf(state);
   const stop = () => {
+    cameraVersion.current++;
     stream.current?.getTracks().forEach((t) => t.stop());
     stream.current = null;
   };
   async function camera(face = facing) {
+    imageVersion.current++;
+    cancelIdentification();
+    setImage("");
+    setWordId("");
+    setAnalysis(null);
+    setSelected(null);
     setStatus("requesting");
     setMessage("");
     stop();
+    const version = cameraVersion.current;
     try {
       const s = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -65,57 +85,103 @@ export function VisionLab() {
         },
         audio: false,
       });
+      if (version !== cameraVersion.current) {
+        s.getTracks().forEach((t) => t.stop());
+        return;
+      }
       stream.current = s;
       if (video.current) {
         video.current.srcObject = s;
         await video.current.play();
       }
+      if (version !== cameraVersion.current) return;
       setStatus("ready");
     } catch (e) {
+      if (version !== cameraVersion.current) return;
+      stop();
       setStatus(
         (e as DOMException).name === "NotAllowedError" ? "denied" : "error",
       );
     }
   }
   useEffect(() => {
+    const controller = new AbortController();
+    void fetch("/api/vision", { cache: "no-store", signal: controller.signal })
+      .then((r) => {
+        if (!r.ok) throw Error();
+        return r.json();
+      })
+      .then((b) =>
+        setAvailability(
+          !b.configured
+            ? "Автоматты AI тануы әлі қосылмаған. Қолмен сөз таңдауға болады."
+            : b.signedIn === false
+              ? "AI арқылы тану үшін аккаунтпен кір."
+              : "",
+        ),
+      )
+      .catch(() => {});
     const hidden = () => {
       if (document.hidden) {
         stop();
-        setStatus((s) => (s === "ready" ? "idle" : s));
+        setStatus((s) => (s === "ready" || s === "requesting" ? "idle" : s));
       }
     };
     document.addEventListener("visibilitychange", hidden);
     return () => {
       document.removeEventListener("visibilitychange", hidden);
       stop();
+      controller.abort();
+      request.current?.abort();
+      request.current = null;
+      imageVersion.current++;
+      recognition.current?.stop();
     };
   }, []);
   function capture() {
     const v = video.current;
     if (!v?.videoWidth) return setMessage("Камера кадры әлі дайын емес.");
+    imageVersion.current++;
     const c = document.createElement("canvas"),
-      max = 960,
-      scale = Math.min(1, max / v.videoWidth);
+      max = 1600,
+      scale = Math.min(1, max / Math.max(v.videoWidth, v.videoHeight));
     c.width = Math.round(v.videoWidth * scale);
     c.height = Math.round(v.videoHeight * scale);
     c.getContext("2d")!.drawImage(v, 0, 0, c.width, c.height);
-    const data = c.toDataURL("image/jpeg", 0.78);
+    const data = c.toDataURL("image/jpeg", 0.9);
     setImage(data);
     setStatus("captured");
     stop();
     void identify(data);
   }
   async function identify(data = image) {
+    if (!data) return;
+    request.current?.abort();
+    const controller = new AbortController();
+    request.current = controller;
+    const timeout = window.setTimeout(() => controller.abort(), 55000);
+    setIdentifying(true);
     setMessage("Досша затты қарап жатыр…");
     setWordId("");
+    setAnalysis(null);
+    setSelected(null);
+    setAnswer("");
+    setManual(false);
+    setConfidence(0);
     try {
       const r = await fetch("/api/vision", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image: data }),
+          signal: controller.signal,
         }),
         b = await r.json();
+      if (request.current !== controller) return;
       if (!r.ok) throw Error(b.error);
+      if (Array.isArray(b.objects)) {
+        setAnalysis(b);
+        setSelected(b.objects[0] ?? null);
+      }
       if (b.word) {
         setWordId(b.word.id);
         setConfidence(b.confidence);
@@ -124,27 +190,65 @@ export function VisionLab() {
             ? `Меніңше, бұл — ${b.word.kk}. Дұрыс па?`
             : "Зат анықталды. Енді нәтижені растап, тапсырманы орында.",
         );
-      } else setMessage("Нәтиже сенімсіз. Төменнен дұрыс сөзді таңда.");
+      } else
+        setMessage(
+          b.objects?.[0]
+            ? `Меніңше, бұл — ${b.objects[0].kk}. Дұрыс па?`
+            : "Нәтиже сенімсіз. Төменнен дұрыс сөзді таңда.",
+        );
     } catch (e) {
-      setMessage(e instanceof Error ? e.message : "Затты тану мүмкін болмады.");
+      if (request.current === controller)
+        setMessage(
+          controller.signal.aborted
+            ? "Тану уақыты аяқталды. Қайта байқап көр."
+            : e instanceof Error
+              ? e.message
+              : "Затты тану мүмкін болмады.",
+        );
+    } finally {
+      window.clearTimeout(timeout);
+      if (request.current === controller) {
+        setIdentifying(false);
+        request.current = null;
+      }
     }
   }
-  function upload(f: File) {
-    if (!/^image\/(jpeg|png|webp)$/.test(f.type) || f.size > 4_000_000)
-      return setMessage("JPG, PNG немесе WebP суреті 4 МБ-тан аспасын.");
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImage(String(reader.result));
+  function cancelIdentification() {
+    request.current?.abort();
+    request.current = null;
+    setIdentifying(false);
+  }
+  async function upload(f: File) {
+    const version = ++imageVersion.current;
+    cancelIdentification();
+    stop();
+    setImage("");
+    setWordId("");
+    setSelected(null);
+    setAnalysis(null);
+    setStatus("idle");
+    setMessage("Сурет өңделіп жатыр…");
+    try {
+      const data = await prepareVisionImage(f);
+      if (version !== imageVersion.current) return;
+      setImage(data);
       setStatus("captured");
-      void identify(String(reader.result));
-    };
-    reader.readAsDataURL(f);
+      void identify(data);
+    } catch (error) {
+      if (version === imageVersion.current)
+        setMessage(
+          error instanceof Error
+            ? error.message
+            : "Сурет ашылмады. Басқа файлды таңда.",
+        );
+    }
   }
   function speak() {
-    if (!word || !("speechSynthesis" in window))
+    const name = word?.kk ?? selected?.kk;
+    if (!name || !("speechSynthesis" in window))
       return setMessage("Бұл браузер дыбыстауды қолдамайды.");
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(word.kk);
+    const u = new SpeechSynthesisUtterance(name);
     u.lang = "kk-KZ";
     u.rate = 0.82;
     speechSynthesis.speak(u);
@@ -159,7 +263,9 @@ export function VisionLab() {
       return setMessage(
         "Дауыспен енгізу бұл браузерде жоқ. Жауапты мәтінмен жаз.",
       );
+    recognition.current?.stop();
     const r = new R();
+    recognition.current = r;
     r.lang = "kk-KZ";
     r.interimResults = false;
     r.onresult = (e) => setAnswer(e.results[0][0].transcript);
@@ -169,7 +275,12 @@ export function VisionLab() {
       setMessage("Дауысты тану мүмкін болмады.");
     };
     setListening(true);
-    r.start();
+    try {
+      r.start();
+    } catch {
+      setListening(false);
+      setMessage("Дауысты тану іске қосылмады.");
+    }
   }
   async function submit() {
     if (!word) return;
@@ -194,6 +305,13 @@ export function VisionLab() {
     }
   }
   function reset() {
+    imageVersion.current++;
+    cancelIdentification();
+    stop();
+    recognition.current?.stop();
+    setAnalysis(null);
+    setSelected(null);
+    setManual(false);
     setImage("");
     setWordId("");
     setAnswer("");
@@ -214,14 +332,19 @@ export function VisionLab() {
       <div className="vs-privacy">
         <strong>🔒 Құпиялық</strong>
         <p>
-          Камера тек рұқсатыңнан кейін қосылады. Бір кадр «Затты анықтау»
-          батырмасы басылғанда ғана өңделеді; сурет базаға, логқа немесе
-          аналитикаға сақталмайды.
+          Камера тек рұқсатыңмен қосылады. Түсірілген немесе жүктелген кадр AI
+          талдауы үшін OpenAI-ға жіберіледі. Сайт суретті базаға, логқа немесе
+          аналитикаға сақтамайды. Жеке құжаттарды жүктеме.
         </p>
       </div>
+      {availability && (
+        <p className="vs-availability" role="status">
+          {availability}
+        </p>
+      )}
       <div className="vs-layout">
         <div>
-          <div className={`vs-camera ${status}`}>
+          <div className={`vs-camera ${status}`} data-identifying={identifying}>
             <video
               ref={video}
               playsInline
@@ -229,10 +352,13 @@ export function VisionLab() {
               aria-label="Камераның тікелей көрінісі"
             />
             <>{image && <img src={image} alt="Таңдалған кадр" />}</>
-            <div className="vs-guide">
-              <span />
-              <p>Затты жақтаудың ортасына орналастыр</p>
-            </div>
+            {identifying && <div className="vs-scan" aria-hidden="true" />}
+            {!image && (
+              <div className="vs-guide">
+                <span />
+                <p>Затты жақтаудың ортасына орналастыр</p>
+              </div>
+            )}
             {status === "idle" && (
               <div className="vs-placeholder">
                 <Camera size={52} />
@@ -277,12 +403,32 @@ export function VisionLab() {
             <button className="btn ghost" onClick={() => file.current?.click()}>
               <ImagePlus /> Сурет жүктеу
             </button>
+            {image && !identifying && (
+              <button className="btn ghost" onClick={() => void identify()}>
+                <RefreshCcw /> Қайта тану
+              </button>
+            )}
+            {identifying && (
+              <button
+                className="btn ghost"
+                onClick={() => {
+                  cancelIdentification();
+                  setMessage("Тану тоқтатылды.");
+                }}
+              >
+                <Square /> Тоқтату
+              </button>
+            )}
             <input
               ref={file}
               hidden
               type="file"
               accept="image/jpeg,image/png,image/webp"
-              onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                e.target.value = "";
+                if (f) void upload(f);
+              }}
             />
           </div>
           {status === "denied" && (
@@ -297,22 +443,84 @@ export function VisionLab() {
             </p>
           )}
         </div>
-        <aside className="vs-result">
+        <aside className="vs-result" aria-busy={identifying}>
           <div className="vs-dossha">
             <Mascot />
             <div>
               <strong>Досша</strong>
               <p aria-live="polite">
-                {message ||
-                  "Камераны қос немесе сурет жүкте. Мен күнделікті 30 заттың қазақша атауын үйретемін."}
+                {message || "Сәлем! Бүгін айналаңнан қандай жаңа сөз табамыз?"}
               </p>
             </div>
           </div>
-          {image && !word && (
+          {analysis && (
+            <div className="vs-analysis">
+              <p>{analysis.summary}</p>
+              {analysis.tip && <p className="vs-tip">{analysis.tip}</p>}
+              {analysis.objects.length > 1 && (
+                <label>
+                  Кадрдағы зат
+                  <select
+                    aria-label="Кадрдағы зат"
+                    value={selected ? analysis.objects.indexOf(selected) : -1}
+                    onChange={(e) => {
+                      const object = analysis.objects[Number(e.target.value)];
+                      if (!object) return;
+                      setSelected(object);
+                      setWordId(object.id ?? "");
+                      setConfidence(object.confidence);
+                      setManual(false);
+                      setAnswer("");
+                      setMessage(`Меніңше, бұл — ${object.kk}. Дұрыс па?`);
+                    }}
+                  >
+                    <option value={-1} disabled>
+                      Затты таңда
+                    </option>
+                    {analysis.objects.map((object, i) => (
+                      <option key={i} value={i}>
+                        {object.kk}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+            </div>
+          )}
+          {selected && !word && (
+            <div className="vs-discovery">
+              <p className="vs-kicker">
+                {selected.confidence < 0.7
+                  ? "БОЛЖАМ · ТЕКСЕР"
+                  : "AI ҰСЫНҒАН АТАУ"}
+              </p>
+              <div className="vs-word">
+                <h2>{selected.kk}</h2>
+                <button
+                  aria-label={`${selected.kk} сөзін дыбыстау`}
+                  onClick={speak}
+                >
+                  <Volume2 />
+                </button>
+              </div>
+              <p>
+                {selected.ru} · {selected.en}
+              </p>
+              <p>Көпше түрі: {selected.plural}</p>
+              <p>{selected.description}</p>
+              <div className="vs-example">
+                <small>Сөйлем үлгісі</small>
+                <p>{selected.example}</p>
+              </div>
+            </div>
+          )}
+          {image && !word && !identifying && (
             <ManualWords
               onSelect={(id) => {
                 setWordId(id);
-                setConfidence(1);
+                setSelected(null);
+                setAnswer("");
+                setManual(true);
                 setMessage("Сөзді растадың. Енді қазақша тапсырманы орында!");
               }}
             />
@@ -320,9 +528,11 @@ export function VisionLab() {
           {word && (
             <>
               <p className="vs-kicker">
-                {confidence < 0.7
-                  ? "СЕНІМСІЗ НӘТИЖЕ · РАСТА"
-                  : "АНЫҚТАЛҒАН ЗАТ"}
+                {manual
+                  ? "ӨЗІҢ РАСТАҒАН ЗАТ"
+                  : confidence < 0.7
+                    ? "СЕНІМСІЗ НӘТИЖЕ · РАСТА"
+                    : "AI ҰСЫНҒАН АТАУ"}
               </p>
               <div className="vs-word">
                 <div>
@@ -341,7 +551,17 @@ export function VisionLab() {
               <p>
                 🇷🇺 {word.ru} · 🇬🇧 {word.en}
               </p>
-              {confidence < 0.7 && <ManualWords onSelect={setWordId} />}
+              {selected && <p>{selected.description}</p>}
+              <ManualWords
+                onSelect={(id) => {
+                  setWordId(id);
+                  setSelected(null);
+                  setManual(true);
+                  setAnswer("");
+                  setMessage("Сөзді растадың.");
+                }}
+                initiallyOpen={!manual && confidence < 0.7}
+              />
               <div className="vs-example">
                 <small>Сөйлем үлгісі</small>
                 <p>{word.easy}</p>
@@ -393,10 +613,16 @@ export function VisionLab() {
     </section>
   );
 }
-function ManualWords({ onSelect }: { onSelect: (id: string) => void }) {
+function ManualWords({
+  onSelect,
+  initiallyOpen = true,
+}: {
+  onSelect: (id: string) => void;
+  initiallyOpen?: boolean;
+}) {
   const [q, setQ] = useState("");
   return (
-    <details className="vs-manual" open>
+    <details className="vs-manual" open={initiallyOpen}>
       <summary>Дұрыс затты қолмен растау</summary>
       <input
         aria-label="Затты іздеу"

@@ -1,10 +1,12 @@
 import { readingBooks } from "../books/catalog";
+import { grammarTopics } from "./grammar";
 export const friendSuggestions = [
   "Қазақ тілінде неше септік бар?",
   "Зат есім деген не?",
   "Менің сөйлемімді тексер",
-  "«Менің атым Қожа» туралы айт",
+  "Есімше мен көсемшенің айырмасы қандай?",
   "Ағылшыншадан қазақшаға аудар",
+  "Неге аспан көк?",
 ];
 const topics: {
   keys: string[];
@@ -221,11 +223,46 @@ export function referenceAnswer(
       reply: `${book.title} — ${book.author}.\n\n${book.summary}\n\n${book.chapters.map((c) => `${c.title}: ${c.text}`).join("\n\n")}\n\nКейіпкерлер: ${book.characters.map((c) => c.name).join(", ")}.\n\nОқу шолуы мен ойындар: /learn/books/${book.id}`,
       topic: book.title,
     };
-  const topic = topics.find((t) => t.keys.some((key) => text.includes(key)));
-  if (topic)
+  const letters: Record<string, string> = {
+    ә: "а",
+    ғ: "г",
+    қ: "к",
+    ң: "н",
+    ө: "о",
+    ұ: "у",
+    ү: "у",
+    һ: "х",
+    і: "и",
+  };
+  const keyboardForm = (value: string) =>
+    value.replace(/[әғқңөұүһі]/g, (letter) => letters[letter]);
+  const search = keyboardForm(text);
+  // Prefer specific phrases and tolerate keyboards without Kazakh letters.
+  const matches = [...grammarTopics, ...topics]
+    .map((topic) => ({
+      topic,
+      score: Math.max(
+        0,
+        ...topic.keys.map((key) =>
+          search.includes(keyboardForm(key)) ? key.length : 0,
+        ),
+      ),
+    }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score);
+  const selected = matches.slice(
+    0,
+    /айырма|салыстыр|разниц|сравни| мен | және /.test(text) ? 3 : 1,
+  );
+  if (selected.length)
     return {
-      reply: `${topic.title}\n\n${topic.text}\n\nМысал және жаттығу:\n${topic.example}`,
-      topic: topic.title,
+      reply: selected
+        .map(
+          ({ topic }) =>
+            `${topic.title}\n\n${topic.text}\n\nМысал және жаттығу:\n${topic.example}`,
+        )
+        .join("\n\n"),
+      topic: selected.map(({ topic }) => topic.title).join(", "),
     };
   return {
     reply:

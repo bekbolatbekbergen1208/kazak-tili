@@ -1,0 +1,409 @@
+/* Shared finishing touches, with motion kept optional. */
+:root {
+  --muted: #65718b;
+}
+::selection {
+  background: #dddfff;
+  color: #24295b;
+}
+:where(a, button, input, textarea, select, summary):focus-visible {
+  outline: 3px solid #ac541e;
+  outline-offset: 4px;
+}
+:where(button, a, input, textarea, select) {
+  -webkit-tap-highlight-color: transparent;
+}
+.btn {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.btn:disabled {
+  cursor: not-allowed;
+}
+.appShell {
+  background:
+    radial-gradient(ellipse at 100% 0, #eeedff80, transparent 55%), #f8f9fd;
+}
+.appShell aside {
+  box-shadow: 8px 0 36px #303c6904;
+}
+.appShell nav a {
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
+}
+.appShell nav a.active {
+  box-shadow: inset 3px 0 var(--purple);
+}
+.panel,
+.stat,
+.qd-option {
+  box-shadow: 0 5px 20px #25345a04;
+}
+.qd-bar {
+  background: #ffffffb8;
+}
+.landing {
+  background:
+    radial-gradient(ellipse at 85% 12%, #e7e4ff 0, transparent 30%),
+    radial-gradient(ellipse at 0 45%, #eaf8f2 0, transparent 30%), #fbfbfe;
+}
+.landingNav {
+  border-bottom: 1px solid #dedff080;
+}
+.landingHero {
+  margin-bottom: 36px;
+}
+.landingHero h1 {
+  font-size: clamp(38px, 5.4vw, 65px);
+}
+.landingHero h1 span {
+  background: linear-gradient(110deg, #555fdb, #9061ce);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+.features {
+  padding-bottom: 64px;
+}
+.features > div {
+  box-shadow: 0 8px 32px #31396305;
+}
+.exploreSection,
+.startSection,
+.landingFaq,
+.landingFooter {
+  max-width: 1132px;
+  margin: 0 auto;
+}
+.exploreSection {
+  padding: 40px 0 72px;
+}
+.exploreHeading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  margin-bottom: 28px;
+}
+.exploreHeading h2,
+.startSection h2,
+.landingFaq h2 {
+  font-size: clamp(27px, 3vw, 38px);
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+  margin: 16px 0;
+}
+.exploreHeading > p {
+  max-width: 320px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.exploreGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+.exploreCard {
+  border: 1px solid #ffffff;
+  border-radius: 26px;
+  padding: 27px 24px;
+  display: flex;
+  flex-direction: column;
+  transition:
+    transform 0.25s,
+    box-shadow 0.25s;
+}
+.exploreCard.mint {
+  background: #e8f5ee;
+}
+.exploreCard.peach {
+  background: #fff0e6;
+}
+.exploreCard.lavender {
+  background: #efebfc;
+}
+.exploreCard.blue {
+  background: #e8f1fc;
+}
+.exploreIcon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 19px;
+  background: #ffffffaa;
+  font-size: 30px;
+}
+.exploreCard h3 {
+  font-size: 19px;
+  margin: 24px 0 10px;
+}
+.exploreCard p {
+  color: #536079;
+  font-size: 14px;
+  line-height: 1.75;
+  margin: 0 0 24px;
+}
+.exploreLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  font-size: 13px;
+  font-weight: 800;
+}
+.startSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 70px;
+  padding: 48px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 32px;
+}
+.startSection p {
+  line-height: 1.8;
+  color: var(--muted);
+}
+.startSection .btn {
+  margin-top: 12px;
+}
+.startSteps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 22px;
+}
+.startSteps li {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+.startSteps li > b {
+  border-radius: 16px;
+  background: #f0efff;
+  color: var(--purple);
+  padding: 14px;
+}
+.startSteps h3 {
+  font-size: 16px;
+  margin: 3px 0 5px;
+}
+.startSteps p {
+  font-size: 13px;
+  margin: 0;
+}
+.landingFaq {
+  padding: 72px 0;
+  max-width: 780px;
+}
+.landingFaq h2 {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.landingFaq details {
+  border-bottom: 1px solid var(--line);
+  padding: 20px 4px;
+}
+.landingFaq summary {
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.landingFaq p {
+  color: var(--muted);
+  line-height: 1.8;
+}
+.landingFaq p a {
+  color: var(--purple);
+  text-decoration: underline;
+}
+.landingFooter {
+  border-top: 1px solid var(--line);
+  padding: 28px 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+}
+.landingFooter p {
+  flex: 1;
+  color: var(--muted);
+  font-size: 13px;
+}
+.landingFooter > a {
+  font-size: 13px;
+}
+@media (hover: hover) {
+  .exploreCard:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 32px #30375812;
+  }
+  .btn.primary:hover {
+    box-shadow: 0 10px 25px #5c67e845;
+  }
+  .appShell nav a:hover {
+    background: #f0f1fc;
+    color: var(--purple);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .landingHero > div:first-child,
+  .features,
+  .appShell .page,
+  .teacherPage {
+    animation: polish-enter 0.5s ease-out both;
+  }
+  .landingVisual {
+    animation: polish-enter 0.7s ease-out both;
+  }
+  .floatCard {
+    animation: polish-float 5s ease-in-out 2;
+  }
+  .fc2 {
+    animation-delay: 0.7s;
+  }
+  @keyframes polish-enter {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes polish-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+@media (max-width: 1180px) {
+  .exploreSection,
+  .startSection,
+  .landingFaq,
+  .landingFooter {
+    margin-left: 24px;
+    margin-right: 24px;
+  }
+}
+@media (max-width: 900px) {
+  .exploreGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .startSection {
+    gap: 30px;
+    padding: 32px;
+  }
+  .exploreHeading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0;
+  }
+  .exploreHeading > p {
+    max-width: none;
+  }
+}
+@media (max-width: 600px) {
+  .landingNav {
+    height: auto;
+    min-height: 78px;
+    padding: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .landingNav > div {
+    gap: 8px;
+  }
+  .landingNav .btn {
+    padding: 10px 13px;
+  }
+  .landingHero {
+    padding: 20px;
+    margin-top: 14px;
+  }
+  .landingHero p {
+    font-size: 16px;
+  }
+  .heroBtns,
+  .trust {
+    flex-wrap: wrap;
+  }
+  .trust {
+    gap: 10px;
+  }
+  .landingVisual {
+    height: 330px;
+    min-width: 0;
+  }
+  .mascotBlob {
+    width: min(280px, 80vw);
+    height: min(280px, 80vw);
+  }
+  .fc1 {
+    left: 0;
+    top: 30px;
+  }
+  .fc2 {
+    right: 0;
+    bottom: 35px;
+  }
+  .exploreSection,
+  .startSection,
+  .landingFaq,
+  .landingFooter {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+  .exploreSection {
+    padding: 16px 0 40px;
+  }
+  .exploreGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .exploreCard {
+    padding: 22px;
+  }
+  .exploreCard h3 {
+    margin-top: 16px;
+  }
+  .startSection {
+    grid-template-columns: 1fr;
+    padding: 24px;
+    border-radius: 24px;
+  }
+  .landingFaq {
+    padding: 44px 0;
+  }
+  .landingFooter {
+    gap: 16px;
+  }
+  .landingFooter p {
+    flex-basis: 100%;
+    margin: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
