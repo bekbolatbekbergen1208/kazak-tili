@@ -1,83 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { interfaceLanguages, localized } from "@/lib/learning/languages";
+import { useEffect, useMemo, useState } from "react";
+import { useLearning } from "./provider";
+import { interfaceLanguages } from "@/lib/learning/languages";
 import type {
   Exercise,
   InterfaceLanguage,
   Localized,
 } from "@/lib/learning/types";
 
-type TranslationItem = {
-  kk: string;
-  translation: Localized;
-};
-
-function item(
-  kk: string,
-  ru: string,
-  en: string,
-  extra: Partial<Localized> = {},
-) {
-  return { kk, translation: { ru, en, ...extra } };
-}
-
-const commonDictionary: TranslationItem[] = [
-  item("Сәлем", "Привет", "Hello", {
-    zh: "你好",
-    es: "Hola",
-    de: "Hallo",
-    fr: "Bonjour",
-  }),
-  item("Рақмет", "Спасибо", "Thank you", {
-    zh: "谢谢",
-    es: "Gracias",
-    de: "Danke",
-    fr: "Merci",
-  }),
-  item("Саяхат", "Путешествие", "Travel", {
-    zh: "旅行",
-    es: "Viaje",
-    de: "Reise",
-    fr: "Voyage",
-  }),
-  item("Ұшақ", "Самолёт", "Airplane", {
-    zh: "飞机",
-    es: "Avión",
-    de: "Flugzeug",
-    fr: "Avion",
-  }),
-  item("Дос", "Друг", "Friend", {
-    zh: "朋友",
-    es: "Amigo",
-    de: "Freund",
-    fr: "Ami",
-  }),
-  item("Мектеп", "Школа", "School", {
-    zh: "学校",
-    es: "Escuela",
-    de: "Schule",
-    fr: "École",
-  }),
-  item("Кітап", "Книга", "Book", {
-    zh: "书",
-    es: "Libro",
-    de: "Buch",
-    fr: "Livre",
-  }),
-  item("Қазақстан", "Казахстан", "Kazakhstan", {
-    zh: "哈萨克斯坦",
-    es: "Kazajistán",
-    de: "Kasachstan",
-    fr: "Kazakhstan",
-  }),
-];
-
-const clean = (value: string) =>
-  value
-    .replace(/[“”"«».,!?;:()]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+import { commonDictionary } from "@/lib/translation/dictionary";
+type TranslationItem = { kk: string; translation: Localized };
 
 function lessonItems(exercise?: Exercise): TranslationItem[] {
   if (!exercise) return commonDictionary;
@@ -88,45 +21,72 @@ function lessonItems(exercise?: Exercise): TranslationItem[] {
   commonDictionary.forEach(add);
   add({ kk: exercise.example, translation: exercise.translation });
   exercise.pairs?.forEach(add);
-  clean(exercise.example)
-    .split(" ")
-    .filter((word) => word.length > 2)
-    .slice(0, 6)
-    .forEach((word) =>
-      add({
-        kk: word,
-        translation: exercise.translation,
-      }),
-    );
   return [...items.values()].slice(0, 12);
 }
 
 export function LessonTranslator({ exercise }: { exercise?: Exercise }) {
-  const [language, setLanguage] = useState<InterfaceLanguage>("ru");
+  const { state } = useLearning();
+  const [language, setLanguage] = useState<InterfaceLanguage>(state.profile.language);
+  useEffect(() => { setLanguage(state.profile.language); }, [state.profile.language]);
+  useEffect(() => {
+    const sync = () => {
+      try {
+        const saved = localStorage.getItem("qd-translation-language");
+        if (interfaceLanguages.some(item => item.code === saved)) setLanguage(saved as InterfaceLanguage);
+      } catch { /* Storage is optional. */ }
+    };
+    sync();
+    window.addEventListener("qd-translation-language", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("qd-translation-language", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
   const items = useMemo(() => lessonItems(exercise), [exercise]);
   const [query, setQuery] = useState(items[0]?.kk ?? "");
+  const [remote, setRemote] = useState<{ key: string; text: string; error: boolean } | null>(null);
+  const [retry, setRetry] = useState(0);
+  const requestKey = JSON.stringify([query.trim(), language]);
   const active =
     items.find(
       (entry) => entry.kk.toLowerCase() === query.trim().toLowerCase(),
-    ) ??
-    items.find((entry) =>
-      entry.kk.toLowerCase().includes(query.trim().toLowerCase()),
     );
-  const result = active
-    ? localized(active.translation, language)
-    : query.trim()
-      ? "Бұл сөз әзірге сабақ сөздігінде жоқ"
-      : "Қазақша сөз таңда";
+  const known = active?.translation[language];
+  useEffect(() => {
+    if (!query.trim() || known) return;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(async () => {
+      try {
+        const response = await fetch("/api/translate", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ word: query.trim(), language }),
+          signal: controller.signal,
+        });
+        const body = await response.json();
+        if (!response.ok) throw Error(body.error || "Аударма орындалмады.");
+        if (!controller.signal.aborted) setRemote({ key: requestKey, text: body.translation, error: false });
+      } catch (error) {
+        if (!controller.signal.aborted) setRemote({ key: requestKey, text: error instanceof Error ? error.message : "Аударма орындалмады.", error: true });
+      }
+    }, 400);
+    return () => { window.clearTimeout(timeout); controller.abort(); };
+  }, [query, language, known, requestKey, retry]);
+  const result = !query.trim() ? "Қазақша сөз таңда" : known ?? (remote?.key === requestKey ? remote.text : "Аударылып жатыр…");
 
   return (
-    <aside className="qd-lesson-translator">
+    <aside className="qd-lesson-translator" data-word-translator>
       <div>
         <b>Аудармашы</b>
         <select
           value={language}
-          onChange={(event) =>
-            setLanguage(event.target.value as InterfaceLanguage)
-          }
+          onChange={(event) => {
+            setLanguage(event.target.value as InterfaceLanguage);
+            try {
+              localStorage.setItem("qd-translation-language", event.target.value);
+              window.dispatchEvent(new Event("qd-translation-language"));
+            } catch { /* Keep the selected language in memory. */ }
+          }}
           aria-label="Аударма тілі"
         >
           {interfaceLanguages.map((item) => (
@@ -141,8 +101,10 @@ export function LessonTranslator({ exercise }: { exercise?: Exercise }) {
         onChange={(event) => setQuery(event.target.value)}
         placeholder="Қазақша сөз"
         aria-label="Қазақша сөз"
+        maxLength={300}
       />
-      <strong>{result}</strong>
+      <strong role="status" aria-live="polite">{result}</strong>
+      {!known && remote?.key === requestKey && remote.error && <button type="button" onClick={() => { setRemote(null); setRetry(value => value + 1); }}>Қайта көру</button>}
       <div>
         {items.slice(0, 8).map((entry) => (
           <button

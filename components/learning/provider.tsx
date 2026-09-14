@@ -52,6 +52,13 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
     revision = useRef(0),
     storageKey = useRef(DEMO_KEY),
     lock = useRef(false);
+  useEffect(() => {
+    if (!ready) return;
+    try {
+      localStorage.setItem("qd-translation-language", state.profile.language);
+      window.dispatchEvent(new Event("qd-translation-language"));
+    } catch { /* Translation still works without persistent storage. */ }
+  }, [ready, state.profile.language]);
   const kazakhMode = [
     "/learn/history",
     "/learn/friends",

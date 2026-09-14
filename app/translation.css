@@ -1,0 +1,9 @@
+.qd-word-translation { position: fixed; z-index: 10000; width: min(300px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; padding: 16px; border: 1px solid #cbd5e1; border-radius: 16px; background: #fff; color: #172b35; box-shadow: 0 12px 40px #102a4333; font: 15px/1.5 system-ui, sans-serif; overflow-wrap: anywhere; }
+.qd-word-translation-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.qd-word-translation button { cursor: pointer; padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f1f5f9; color: #172b35; }
+.qd-word-translation label { display: grid; gap: 4px; margin-top: 12px; font-size: 12px; }
+.qd-word-translation select { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; color: #172b35; font: inherit; font-size: 14px; }
+.qd-word-translation p { margin: 12px 0 0; }
+.qd-translation-toggle { position: fixed; left: 12px; bottom: max(12px, env(safe-area-inset-bottom)); z-index: 9999; max-width: calc(100vw - 24px); padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 24px; background: #fff; color: #172b35; box-shadow: 0 4px 16px #102a4326; font: 13px/1.4 system-ui, sans-serif; cursor: pointer; }
+.qd-translation-toggle[aria-pressed="true"] { background: #145c48; color: white; border-color: #145c48; }
+.qd-translation-toggle:focus-visible, .qd-word-translation :focus-visible { outline: 3px solid #0891b2; outline-offset: 3px; }

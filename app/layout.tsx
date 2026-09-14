@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { WordTranslator } from "@/components/word-translator";
+import "./translation.css";
 import "./globals.css";
 import "./extra.css";
 import "./extra2.css";
@@ -16,10 +18,19 @@ import "./learning.css";
 import "./characters.css";
 import "./dossha.css";
 import "./polish.css";
+import "./brand.css";
 
 export const metadata: Metadata = {
   title: "QazaqDos — қазақ тілін саяхатпен үйрен",
   description: "Балаларға арналған бейімделмелі қазақ тілі платформасы",
+  icons: {
+    icon: {
+      url: "/qazaqdos-logo.png",
+      type: "image/png",
+      sizes: "1254x1254",
+    },
+    apple: "/qazaqdos-logo.png",
+  },
 };
 export default function RootLayout({
   children,
@@ -28,7 +39,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="kk">
-      <body>{children}</body>
+      <body>{children}<WordTranslator /></body>
     </html>
   );
 }

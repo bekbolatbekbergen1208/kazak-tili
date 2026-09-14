@@ -1,0 +1,25 @@
+.logo.qd-brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  line-height: 1;
+  vertical-align: middle;
+}
+.qd-brand-logo .qd-brand-symbol {
+  display: block;
+  width: 42px;
+  height: auto;
+  flex: 0 0 42px;
+}
+.qd-brand-logo .qd-brand-wordmark {
+  display: block;
+  width: 132px;
+  height: auto;
+  min-width: 0;
+}
+@media (max-width: 480px) {
+  .logo.qd-brand-logo { gap: 6px; }
+  .qd-brand-logo .qd-brand-symbol { width: 34px; flex-basis: 34px; }
+  .qd-brand-logo .qd-brand-wordmark { width: 112px; }
+}
