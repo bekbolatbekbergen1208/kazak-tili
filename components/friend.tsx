@@ -50,6 +50,8 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
   const [ready, setReady] = useState(false);
   const [chatError, setChatError] = useState("");
   const [saveNote, setSaveNote] = useState("");
+  const [signedIn, setSignedIn] = useState(false);
+  const [aiConfigured, setAiConfigured] = useState(false);
   const lock = useRef(false);
   const messagesRef = useRef<HTMLDivElement>(null);
   const currentMessages = useRef(msgs);
@@ -135,6 +137,8 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
           history.map((m) => ({ me: m.role === "user", text: m.content })),
         );
         setMode(data.mode === "ai" ? "ai" : "reference");
+        setSignedIn(!!data.signedIn);
+        setAiConfigured(!!data.aiConfigured);
         setSaveNote(
           data.persistence
             ? "Соңғы 20 хабарлама аккаунтыңда сақталады."
@@ -339,8 +343,15 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
             </div>
             {ready && mode === "reference" && (
               <p className="dossha-mode-note">
-                Қазір ақылы AI өшірілген. Досша жергілікті анықтамалық пен
-                дайын оқу материалдары бойынша жауап береді.
+                {aiConfigured && !signedIn ? (
+                  <>
+                    Өз серверіміздегі AI үшін{" "}
+                    <Link href="/login">аккаунтпен кір</Link>. Қазір жергілікті
+                    анықтамалық жауаптары қолжетімді.
+                  </>
+                ) : (
+                  "Қазір жергілікті анықтамалық режимі жұмыс істейді. Өз серверіміздегі AI бапталса, аккаунтпен кірген оқушыларға қосылады."
+                )}
               </p>
             )}
             <div

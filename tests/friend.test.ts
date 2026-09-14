@@ -132,15 +132,28 @@ test("reference mode covers grammar, follow-ups, books and admits unknown questi
     /AI режимі әзірге қосылмаған/,
   );
 });
-test("paid chat provider is disabled", async () => {
-  await assert.rejects(
-    requestDossha({
-      key: "test-only-key",
-      model: "test-model",
-      message: "Сәлем",
-      language: "kk",
-      history: [],
-    }),
-    /AI_DISABLED/,
-  );
+test("chat can use a configured local AI endpoint", async () => {
+  process.env.QAZAQDOS_AI_BASE_URL = "http://127.0.0.1:11434/v1";
+  const mock: typeof fetch = async (url, init) => {
+    assert.equal(url, "http://127.0.0.1:11434/v1/chat/completions");
+    const body = JSON.parse(String(init?.body));
+    assert.equal(body.model, "local-chat");
+    assert.equal(body.stream, false);
+    assert.equal(body.messages.at(-1).content, "Мысал келтір");
+    assert.match(body.messages[0].content, /Досша/);
+    assert.ok(init?.signal);
+    return Response.json({
+      choices: [{ message: { content: "Барыс септік: мектепке." } }],
+    });
+  };
+  const answer = await requestDossha({
+    key: "",
+    model: "local-chat",
+    message: "Мысал келтір",
+    language: "kk",
+    history: [{ role: "user", content: "Септік туралы айт" }],
+    fetcher: mock,
+  });
+  assert.equal(answer, "Барыс септік: мектепке.");
+  delete process.env.QAZAQDOS_AI_BASE_URL;
 });

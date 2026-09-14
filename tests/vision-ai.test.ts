@@ -73,15 +73,27 @@ test("image input rejects URLs, disguised files, invalid base64 and excessive si
   ])
     assert.throws(() => validateVisionImage(bad));
 });
-test("paid vision provider is disabled", async () => {
-  await assert.rejects(
-    requestVision({
-      key: "test",
-      model: "test",
-      image,
-    }),
-    /AI_DISABLED/,
-  );
+test("vision can use a configured local AI endpoint", async () => {
+  process.env.QAZAQDOS_AI_BASE_URL = "http://127.0.0.1:11434/v1";
+  const response = await requestVision({
+    key: "",
+    model: "local-vision",
+    image,
+    fetcher: async (url, init) => {
+      assert.equal(url, "http://127.0.0.1:11434/v1/chat/completions");
+      const b = JSON.parse(String(init?.body));
+      assert.equal(b.model, "local-vision");
+      assert.equal(b.stream, false);
+      assert.equal(b.messages[1].content[1].image_url.url, image);
+      assert.match(b.messages[0].content, /Catalog/);
+      assert.ok(init?.signal);
+      return Response.json({
+        choices: [{ message: { content: JSON.stringify(result) } }],
+      });
+    },
+  });
+  assert.equal(response.objects.length, 2);
+  delete process.env.QAZAQDOS_AI_BASE_URL;
 });
 test("vision budget prevents concurrent calls and enforces minute/hour windows", () => {
   const acquire = createVisionLimiter();

@@ -115,7 +115,7 @@ export function VisionLab() {
         setAvailability(
           b.configured
             ? ""
-            : "Автоматты AI тануы өшірілген. Қолмен сөз таңдауға болады.",
+            : "Өз серверіміздегі AI тануы әлі бапталмаған. Қолмен сөз таңдауға болады.",
         ),
       )
       .catch(() => {});
@@ -150,20 +150,66 @@ export function VisionLab() {
     setImage(data);
     setStatus("captured");
     stop();
-    setMessage("Кадр дайын. Төменнен дұрыс сөзді қолмен таңда.");
+    void identify(data);
   }
   async function identify(data = image) {
     if (!data) return;
     request.current?.abort();
+    const controller = new AbortController();
+    request.current = controller;
+    const timeout = window.setTimeout(() => controller.abort(), 55000);
+    setIdentifying(true);
+    setMessage("Досша затты қарап жатыр…");
     setWordId("");
     setAnalysis(null);
     setSelected(null);
     setAnswer("");
     setManual(false);
     setConfidence(0);
-    request.current = null;
-    setIdentifying(false);
-    setMessage("Автоматты AI тануы өшірілген. Төменнен сөзді қолмен таңда.");
+    try {
+      const r = await fetch("/api/vision", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: data }),
+          signal: controller.signal,
+        }),
+        b = await r.json();
+      if (request.current !== controller) return;
+      if (!r.ok) throw Error(b.error);
+      if (Array.isArray(b.objects)) {
+        setAnalysis(b);
+        setSelected(b.objects[0] ?? null);
+      }
+      if (b.word) {
+        setWordId(b.word.id);
+        setConfidence(b.confidence);
+        setMessage(
+          b.confidence < 0.7
+            ? `Меніңше, бұл — ${b.word.kk}. Дұрыс па?`
+            : "Зат анықталды. Енді нәтижені растап, тапсырманы орында.",
+        );
+      } else
+        setMessage(
+          b.objects?.[0]
+            ? `Меніңше, бұл — ${b.objects[0].kk}. Дұрыс па?`
+            : "Нәтиже сенімсіз. Төменнен дұрыс сөзді таңда.",
+        );
+    } catch (e) {
+      if (request.current === controller)
+        setMessage(
+          controller.signal.aborted
+            ? "Тану уақыты аяқталды. Қайта байқап көр."
+            : e instanceof Error
+              ? e.message
+              : "Затты тану мүмкін болмады.",
+        );
+    } finally {
+      window.clearTimeout(timeout);
+      if (request.current === controller) {
+        setIdentifying(false);
+        request.current = null;
+      }
+    }
   }
   function cancelIdentification() {
     request.current?.abort();
@@ -185,7 +231,7 @@ export function VisionLab() {
       if (version !== imageVersion.current) return;
       setImage(data);
       setStatus("captured");
-      setMessage("Сурет дайын. Төменнен дұрыс сөзді қолмен таңда.");
+      void identify(data);
     } catch (error) {
       if (version === imageVersion.current)
         setMessage(
@@ -285,8 +331,8 @@ export function VisionLab() {
         <strong>🔒 Құпиялық</strong>
         <p>
           Камера тек рұқсатыңмен қосылады. Түсірілген немесе жүктелген кадр
-          сыртқы AI қызметіне жіберілмейді. Сайт суретті базаға, логқа немесе
-          аналитикаға сақтамайды. Жеке құжаттарды жүктеме.
+          өз серверіміздегі AI-ға ғана жіберіледі. Сайт суретті базаға, логқа
+          немесе аналитикаға сақтамайды. Жеке құжаттарды жүктеме.
         </p>
       </div>
       {availability && (
@@ -333,7 +379,7 @@ export function VisionLab() {
             ) : status === "ready" ? (
               <>
                 <button className="btn primary" onClick={capture}>
-                  <Camera /> Кадр түсіру
+                  <Camera /> Затты анықтау
                 </button>
                 <button
                   className="btn ghost"
@@ -355,6 +401,11 @@ export function VisionLab() {
             <button className="btn ghost" onClick={() => file.current?.click()}>
               <ImagePlus /> Сурет жүктеу
             </button>
+            {image && !identifying && (
+              <button className="btn ghost" onClick={() => void identify()}>
+                <RefreshCcw /> Қайта тану
+              </button>
+            )}
             {identifying && (
               <button
                 className="btn ghost"
@@ -439,7 +490,7 @@ export function VisionLab() {
               <p className="vs-kicker">
                 {selected.confidence < 0.7
                   ? "БОЛЖАМ · ТЕКСЕР"
-                  : "ҚОЛМЕН ТАҢДАЛҒАН"}
+                  : "ӨЗ AI ҰСЫНҒАН АТАУ"}
               </p>
               <div className="vs-word">
                 <h2>{selected.kk}</h2>
@@ -479,7 +530,7 @@ export function VisionLab() {
                   ? "ӨЗІҢ РАСТАҒАН ЗАТ"
                   : confidence < 0.7
                     ? "СЕНІМСІЗ НӘТИЖЕ · РАСТА"
-                    : "ҚОЛМЕН ТАҢДАЛҒАН"}
+                    : "ӨЗ AI ҰСЫНҒАН АТАУ"}
               </p>
               <div className="vs-word">
                 <div>

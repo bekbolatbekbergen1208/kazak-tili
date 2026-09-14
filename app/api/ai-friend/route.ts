@@ -4,9 +4,11 @@ import { createClient } from "@/utils/supabase/server";
 import {
   boundedHistory,
   parseChat,
+  requestDossha,
   type ChatMessage,
 } from "@/lib/friend/chat";
 import { referenceAnswer } from "@/lib/friend/knowledge";
+import { localAiConfigured } from "@/lib/ai/local";
 import { isSameOrigin } from "@/utils/request-origin";
 import { boundedJson } from "@/utils/bounded-body";
 const limits = new Map<string, { timestamps: number[]; busy: boolean }>();
@@ -15,6 +17,7 @@ const json = (body: unknown, status = 200) =>
     status,
     headers: { "Cache-Control": "private, no-store" },
   });
+const chatModel = () => process.env.QAZAQDOS_CHAT_MODEL;
 export async function GET() {
   const db = createClient(await cookies());
   const {
@@ -27,12 +30,13 @@ export async function GET() {
         .eq("user_id", user.id)
         .maybeSingle()
     : null;
+  const configured = localAiConfigured(chatModel());
   return json({
-    mode: "reference",
+    mode: configured && user ? "ai" : "reference",
     signedIn: !!user,
     history: saved?.data?.messages ?? [],
     persistence: !!user && !saved?.error,
-    aiConfigured: false,
+    aiConfigured: configured,
   });
 }
 export async function POST(req: Request) {
@@ -53,6 +57,8 @@ export async function POST(req: Request) {
   const {
     data: { user },
   } = await db.auth.getUser();
+  const model = chatModel();
+  const live = localAiConfigured(model) && !!user;
   const now = Date.now();
   // Single-process limits for the existing PM2 deployment. Use a shared store
   // before deploying multiple instances of the chat server.
@@ -87,7 +93,15 @@ export async function POST(req: Request) {
   }
   try {
     const reference = referenceAnswer(input.message, input.history);
-    const reply = reference.reply;
+    const reply = live
+      ? await requestDossha({
+          key: "",
+          model: model!,
+          ...input,
+          signal: req.signal,
+          context: reference.topic ? reference.reply : undefined,
+        })
+      : reference.reply;
     const history: ChatMessage[] = boundedHistory([
       ...input.history,
       { role: "user", content: input.message },
@@ -105,16 +119,20 @@ export async function POST(req: Request) {
       : null;
     return json({
       reply,
-      mode: "reference",
+      mode: live ? "ai" : "reference",
       saved: !!user && !saved?.error,
       history,
-      notice: "Анықтамалық режимі: ақылы AI жауаптары өшірілген.",
+      notice: live
+        ? undefined
+        : "Анықтамалық режимі: өз серверіңдегі AI тек аккаунтпен кіргенде қосылады.",
     });
   } catch (error) {
     return json(
       {
         error:
-          "Досша жауап бере алмады. Хабарламаң енгізу өрісіне қайтарылады — қайта жіберіп көр.",
+          error instanceof Error && error.message === "AI_BUSY"
+            ? "Досшаға қазір сұрау көп. Біраздан кейін қайта жібер."
+            : "Досша жауап бере алмады. Хабарламаң енгізу өрісіне қайтарылады — қайта жіберіп көр.",
       },
       503,
     );

@@ -1,3 +1,5 @@
+import { requestLocalChat } from "@/lib/ai/local";
+
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 export function parseChat(body: unknown): {
   message: string;
@@ -57,13 +59,13 @@ export const dosshaInstructions = `Сен — QazaqDos платформасын�
 Жауапты қарапайым мәтінмен бер: қысқа абзацтар мен нөмірленген тізімдер қолдануға болады, HTML жазба.`;
 export async function requestDossha({
   key: _key,
-  model: _model,
-  history: _history,
-  message: _message,
-  language: _language,
-  context: _context,
-  signal: _signal,
-  fetcher: _fetcher = fetch,
+  model,
+  history,
+  message,
+  language,
+  context,
+  signal,
+  fetcher = fetch,
 }: {
   key: string;
   model: string;
@@ -74,5 +76,19 @@ export async function requestDossha({
   signal?: AbortSignal;
   fetcher?: typeof fetch;
 }) {
-  throw Error("AI_DISABLED");
+  const reply = await requestLocalChat({
+    model,
+    fetcher,
+    signal,
+    maxTokens: 2400,
+    messages: [
+      {
+        role: "system",
+        content: `${dosshaInstructions}\nТүсіндіру тілінің таңдауы: ${language}.${context ? `\nОқу анықтамасы:\n${context}` : ""}`,
+      },
+      ...boundedHistory(history),
+      { role: "user", content: message },
+    ],
+  });
+  return reply.slice(0, 7000);
 }

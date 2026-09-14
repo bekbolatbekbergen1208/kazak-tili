@@ -1,4 +1,5 @@
 import { visionWords } from "./words";
+import { requestLocalChat } from "@/lib/ai/local";
 
 export type DetectedObject = {
   id: string | null;
@@ -142,10 +143,10 @@ export function parseVisionResult(input: unknown): VisionResult {
 }
 export async function requestVision({
   key: _key,
-  model: _model,
-  image: _image,
-  signal: _signal,
-  fetcher: _fetcher = fetch,
+  model,
+  image,
+  signal,
+  fetcher = fetch,
 }: {
   key: string;
   model: string;
@@ -153,5 +154,29 @@ export async function requestVision({
   signal?: AbortSignal;
   fetcher?: typeof fetch;
 }): Promise<VisionResult> {
-  throw Error("AI_DISABLED");
+  const text = await requestLocalChat({
+    model,
+    fetcher,
+    signal,
+    maxTokens: 3000,
+    messages: [
+      {
+        role: "system",
+        content: `Сен QazaqDos платформасының көру арқылы сөз үйрететін көмекшісісің.
+Суреттегі күнделікті заттарды таны. Ең көрініп тұрған 1-6 затты қайтар. Каталогтағы зат болса exact id қолдан, сәйкес келмесе id=null. Адамды, жеке құжатты, сезімтал деректі анықтама.
+Жауап тек JSON болсын, markdown жазба. Пішім:
+{"quality":"clear|blurry|dark|uncertain|no_objects","summary":"қысқа қазақша сипаттама","tip":"қысқа кеңес","objects":[{"id":null,"kk":"қазақша атау","ru":"орысша","en":"english","plural":"көпше түрі","example":"қазақша сөйлем","description":"қысқа сипаттама","confidence":0.8}]}
+Catalog: ${visionWords.map((w) => `${w.id}=${w.en} (${w.kk})`).join("; ")}`,
+      },
+      {
+        role: "user",
+        content: [
+          { type: "text", text: "Суреттегі заттарды танып, JSON қайтар." },
+          { type: "image_url", image_url: { url: validateVisionImage(image) } },
+        ],
+      },
+    ],
+  });
+  const json = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  return parseVisionResult(JSON.parse(json));
 }
