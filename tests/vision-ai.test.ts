@@ -80,15 +80,15 @@ test("vision can use a configured local AI endpoint", async () => {
     model: "local-vision",
     image,
     fetcher: async (url, init) => {
-      assert.equal(url, "http://127.0.0.1:11434/v1/chat/completions");
+      assert.equal(url, "http://127.0.0.1:11434/api/chat");
       const b = JSON.parse(String(init?.body));
       assert.equal(b.model, "local-vision");
       assert.equal(b.stream, false);
-      assert.equal(b.messages[1].content[1].image_url.url, image);
+      assert.equal(b.messages[1].images[0], image.split(",")[1]);
       assert.match(b.messages[0].content, /Catalog/);
       assert.ok(init?.signal);
       return Response.json({
-        choices: [{ message: { content: JSON.stringify(result) } }],
+        message: { content: JSON.stringify(result) },
       });
     },
   });
