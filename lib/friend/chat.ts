@@ -56,14 +56,14 @@ export const dosshaInstructions = `Сен — QazaqDos платформасын�
 Сен оқу көмекшісісің. Жеке құпия деректерді сұрама. Жасына лайық түсіндір. Медициналық, құқықтық және қаржылық сұрақтарда жалпы ақпаратпен шектел, жеке диагноз не кепілдік берме. Интернетке тікелей қолжетімділігің жоқ: бүгінгі баға, ауа райы, жаңалық сияқты өзгермелі деректерді тексердім деп айтпа, ойдан сілтеме жасама. Нақты білмегенде белгісіздігін ашық айт.
 Жауапты қарапайым мәтінмен бер: қысқа абзацтар мен нөмірленген тізімдер қолдануға болады, HTML жазба.`;
 export async function requestDossha({
-  key,
-  model,
-  history,
-  message,
-  language,
-  context,
-  signal,
-  fetcher = fetch,
+  key: _key,
+  model: _model,
+  history: _history,
+  message: _message,
+  language: _language,
+  context: _context,
+  signal: _signal,
+  fetcher: _fetcher = fetch,
 }: {
   key: string;
   model: string;
@@ -74,42 +74,5 @@ export async function requestDossha({
   signal?: AbortSignal;
   fetcher?: typeof fetch;
 }) {
-  const response = await fetcher("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      instructions: `${dosshaInstructions}\nТүсіндіру тілінің таңдауы: ${language}.${context ? `\nОқу анықтамасы:\n${context}` : ""}`,
-      input: [...boundedHistory(history), { role: "user", content: message }],
-      max_output_tokens: 2400,
-      store: false,
-    }),
-    signal: signal
-      ? AbortSignal.any([signal, AbortSignal.timeout(30000)])
-      : AbortSignal.timeout(30000),
-  });
-  if (!response.ok)
-    throw Error(response.status === 429 ? "AI_BUSY" : "AI_UNAVAILABLE");
-  const data = await response.json();
-  const output = Array.isArray(data.output) ? data.output : [];
-  const reply = output
-    .flatMap(
-      (item: {
-        type?: string;
-        content?: { type?: string; text?: string; refusal?: string }[];
-      }) =>
-        item.type === "message" && Array.isArray(item.content)
-          ? item.content
-              .filter((c) => c.type === "output_text" || c.type === "refusal")
-              .map((c) => c.text ?? c.refusal ?? "")
-          : [],
-    )
-    .join("\n")
-    .trim();
-  if (!reply || data.status === "incomplete" || data.error)
-    throw Error("AI_UNAVAILABLE");
-  return reply.slice(0, 7000);
+  throw Error("AI_DISABLED");
 }

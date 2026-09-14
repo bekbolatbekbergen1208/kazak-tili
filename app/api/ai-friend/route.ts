@@ -4,7 +4,6 @@ import { createClient } from "@/utils/supabase/server";
 import {
   boundedHistory,
   parseChat,
-  requestDossha,
   type ChatMessage,
 } from "@/lib/friend/chat";
 import { referenceAnswer } from "@/lib/friend/knowledge";
@@ -29,11 +28,11 @@ export async function GET() {
         .maybeSingle()
     : null;
   return json({
-    mode: process.env.OPENAI_API_KEY && user ? "ai" : "reference",
+    mode: "reference",
     signedIn: !!user,
     history: saved?.data?.messages ?? [],
     persistence: !!user && !saved?.error,
-    aiConfigured: !!process.env.OPENAI_API_KEY,
+    aiConfigured: false,
   });
 }
 export async function POST(req: Request) {
@@ -54,8 +53,6 @@ export async function POST(req: Request) {
   const {
     data: { user },
   } = await db.auth.getUser();
-  const key = process.env.OPENAI_API_KEY;
-  const live = !!key && !!user;
   const now = Date.now();
   // Single-process limits for the existing PM2 deployment. Use a shared store
   // before deploying multiple instances of the chat server.
@@ -90,15 +87,7 @@ export async function POST(req: Request) {
   }
   try {
     const reference = referenceAnswer(input.message, input.history);
-    const reply = live
-      ? await requestDossha({
-          key: key!,
-          model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
-          ...input,
-          signal: req.signal,
-          context: reference.topic ? reference.reply : undefined,
-        })
-      : reference.reply;
+    const reply = reference.reply;
     const history: ChatMessage[] = boundedHistory([
       ...input.history,
       { role: "user", content: input.message },
@@ -116,22 +105,16 @@ export async function POST(req: Request) {
       : null;
     return json({
       reply,
-      mode: live ? "ai" : "reference",
+      mode: "reference",
       saved: !!user && !saved?.error,
       history,
-      notice: !live
-        ? key && !user
-          ? "Еркін AI чаты үшін аккаунтпен кір. Қазір анықтамалық режимі жұмыс істейді."
-          : "Анықтамалық режимі: еркін AI жауаптары әлі қосылмаған."
-        : undefined,
+      notice: "Анықтамалық режимі: ақылы AI жауаптары өшірілген.",
     });
   } catch (error) {
     return json(
       {
         error:
-          error instanceof Error && error.message === "AI_BUSY"
-            ? "Досшаға қазір сұрақ көп. Біраздан кейін қайта жібер."
-            : "Досша жауап бере алмады. Хабарламаң енгізу өрісіне қайтарылады — қайта жіберіп көр.",
+          "Досша жауап бере алмады. Хабарламаң енгізу өрісіне қайтарылады — қайта жіберіп көр.",
       },
       503,
     );

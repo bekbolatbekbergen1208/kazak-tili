@@ -132,78 +132,15 @@ test("reference mode covers grammar, follow-ups, books and admits unknown questi
     /AI режимі әзірге қосылмаған/,
   );
 });
-test("Responses request keeps key server-side, carries context, and extracts actual output", async () => {
-  const mock: typeof fetch = async (url, init) => {
-    assert.equal(url, "https://api.openai.com/v1/responses");
-    assert.equal(
-      (init?.headers as Record<string, string>).Authorization,
-      "Bearer test-only-key",
-    );
-    const body = JSON.parse(String(init?.body));
-    assert.equal(body.store, false);
-    assert.equal(body.model, "test-model");
-    assert.equal(body.input[0].content, "Септік туралы айт");
-    assert.equal(body.input.at(-1).content, "Мысал келтір");
-    assert.match(body.instructions, /Досша/);
-    assert.match(body.instructions, /ru/);
-    assert.ok(init?.signal);
-    return Response.json({
-      status: "completed",
-      output: [
-        { type: "reasoning", summary: [] },
-        {
-          type: "message",
-          content: [{ type: "output_text", text: "Барыс септік: мектепке." }],
-        },
-      ],
-    });
-  };
-  const answer = await requestDossha({
-    key: "test-only-key",
-    model: "test-model",
-    message: "Мысал келтір",
-    language: "ru",
-    history: [{ role: "user", content: "Септік туралы айт" }],
-    fetcher: mock,
-  });
-  assert.equal(answer, "Барыс септік: мектепке.");
-});
-test("provider failures never masquerade as successful canned answers", async () => {
-  const args = {
-    key: "test-only-key",
-    model: "test-model",
-    message: "Сәлем",
-    language: "kk",
-    history: [],
-  };
+test("paid chat provider is disabled", async () => {
   await assert.rejects(
     requestDossha({
-      ...args,
-      fetcher: async () => new Response("rate limited", { status: 429 }),
+      key: "test-only-key",
+      model: "test-model",
+      message: "Сәлем",
+      language: "kk",
+      history: [],
     }),
-    /AI_BUSY/,
-  );
-  await assert.rejects(
-    requestDossha({
-      ...args,
-      fetcher: async () => Response.json({ output: [] }),
-    }),
-    /AI_UNAVAILABLE/,
-  );
-  await assert.rejects(
-    requestDossha({
-      ...args,
-      fetcher: async () =>
-        Response.json({
-          status: "incomplete",
-          output: [
-            {
-              type: "message",
-              content: [{ type: "output_text", text: "Partial" }],
-            },
-          ],
-        }),
-    }),
-    /AI_UNAVAILABLE/,
+    /AI_DISABLED/,
   );
 });

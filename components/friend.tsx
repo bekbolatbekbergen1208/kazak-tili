@@ -50,8 +50,6 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
   const [ready, setReady] = useState(false);
   const [chatError, setChatError] = useState("");
   const [saveNote, setSaveNote] = useState("");
-  const [signedIn, setSignedIn] = useState(false);
-  const [aiConfigured, setAiConfigured] = useState(false);
   const lock = useRef(false);
   const messagesRef = useRef<HTMLDivElement>(null);
   const currentMessages = useRef(msgs);
@@ -137,8 +135,6 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
           history.map((m) => ({ me: m.role === "user", text: m.content })),
         );
         setMode(data.mode === "ai" ? "ai" : "reference");
-        setSignedIn(!!data.signedIn);
-        setAiConfigured(!!data.aiConfigured);
         setSaveNote(
           data.persistence
             ? "Соңғы 20 хабарлама аккаунтыңда сақталады."
@@ -261,7 +257,7 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
             </div>
             <h2>Досша</h2>
             <span className="online">
-              ● {mode === "ai" ? "AI оқу көмекшісі" : "Анықтамалық режимі"}
+              ● {mode === "ai" ? "Оқу көмекшісі" : "Анықтамалық режимі"}
             </span>
             <p>Грамматика, аударма, мәтін және әдебиет бойынша оқу серігің.</p>
             <div className="safe">
@@ -343,15 +339,8 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
             </div>
             {ready && mode === "reference" && (
               <p className="dossha-mode-note">
-                {aiConfigured && !signedIn ? (
-                  <>
-                    Еркін AI жауаптары үшін{" "}
-                    <Link href="/login">аккаунтпен кір</Link>. Қазір қазақша
-                    анықтамалық жауаптары қолжетімді.
-                  </>
-                ) : (
-                  "Қазір қазақша анықтамалық режимі жұмыс істейді. Еркін сұрақтарға жауап беру, мәтін түзету және аударма үшін AI әлі қосылмаған."
-                )}
+                Қазір ақылы AI өшірілген. Досша жергілікті анықтамалық пен
+                дайын оқу материалдары бойынша жауап береді.
               </p>
             )}
             <div

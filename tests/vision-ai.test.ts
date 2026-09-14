@@ -73,68 +73,14 @@ test("image input rejects URLs, disguised files, invalid base64 and excessive si
   ])
     assert.throws(() => validateVisionImage(bad));
 });
-test("vision uses strict structured output, high detail, private storage and bounded latency", async () => {
-  const response = await requestVision({
-    key: "test-key",
-    model: "test-model",
-    image,
-    fetcher: async (url, init) => {
-      assert.equal(url, "https://api.openai.com/v1/responses");
-      const b = JSON.parse(String(init?.body));
-      assert.equal(b.store, false);
-      assert.equal(b.model, "test-model");
-      assert.equal(b.text.format.strict, true);
-      assert.equal(b.text.format.schema.properties.objects.maxItems, 6);
-      assert.equal(b.input[0].content[1].detail, "high");
-      assert.match(b.instructions, /NOT restricted/);
-      assert.ok(init?.signal);
-      return Response.json({
-        status: "completed",
-        output: [
-          {
-            type: "message",
-            content: [{ type: "output_text", text: JSON.stringify(result) }],
-          },
-        ],
-      });
-    },
-  });
-  assert.equal(response.objects.length, 2);
-});
-test("provider refusals, incomplete output, invalid JSON and rate limits fail explicitly", async () => {
-  for (const data of [
-    { status: "incomplete" },
-    { error: {} },
-    {
-      output: [
-        { type: "message", content: [{ type: "refusal", refusal: "No" }] },
-      ],
-    },
-    {
-      output: [
-        {
-          type: "message",
-          content: [{ type: "output_text", text: "```json {} ```" }],
-        },
-      ],
-    },
-  ])
-    await assert.rejects(
-      requestVision({
-        key: "test",
-        model: "test",
-        image,
-        fetcher: async () => Response.json(data),
-      }),
-    );
+test("paid vision provider is disabled", async () => {
   await assert.rejects(
     requestVision({
       key: "test",
       model: "test",
       image,
-      fetcher: async () => new Response("", { status: 429 }),
     }),
-    /AI_BUSY/,
+    /AI_DISABLED/,
   );
 });
 test("vision budget prevents concurrent calls and enforces minute/hour windows", () => {
