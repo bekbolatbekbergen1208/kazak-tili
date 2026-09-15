@@ -2,7 +2,16 @@
 
 import { FormEvent, Fragment, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Mic, MicOff, Send, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  Check,
+  Mic,
+  MicOff,
+  Send,
+  ShieldCheck,
+  Sparkles,
+  ThumbsDown,
+  ThumbsUp,
+} from "lucide-react";
 import { Mascot } from "./icons";
 import { Shell, StudentTop } from "./shell";
 import { interfaceLanguages, localized } from "@/lib/learning/languages";
@@ -11,7 +20,12 @@ import type { InterfaceLanguage } from "@/lib/learning/types";
 import { boundedHistory, parseChat, type ChatMessage } from "@/lib/friend/chat";
 import { friendSuggestions } from "@/lib/friend/knowledge";
 
-type Message = { me: boolean; text: string };
+type Message = {
+  me: boolean;
+  text: string;
+  interactionId?: string;
+  rating?: "helpful" | "unhelpful";
+};
 type SpeechResultEvent = {
   results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean }>;
 };
@@ -52,6 +66,9 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
   const [saveNote, setSaveNote] = useState("");
   const [signedIn, setSignedIn] = useState(false);
   const [aiConfigured, setAiConfigured] = useState(false);
+  const [feedbackFor, setFeedbackFor] = useState("");
+  const [feedbackNote, setFeedbackNote] = useState("");
+  const [feedbackBusy, setFeedbackBusy] = useState(false);
   const lock = useRef(false);
   const messagesRef = useRef<HTMLDivElement>(null);
   const currentMessages = useRef(msgs);
@@ -95,7 +112,14 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
         [
           ...before,
           { me: true, text: message },
-          { me: false, text: data.reply },
+          {
+            me: false,
+            text: data.reply,
+            interactionId:
+              typeof data.interactionId === "string"
+                ? data.interactionId
+                : undefined,
+          },
         ].slice(-40),
       );
       setMode(data.mode === "ai" ? "ai" : "reference");
@@ -226,6 +250,45 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
   function submit(event: FormEvent) {
     event.preventDefault();
     void send();
+  }
+
+  async function rate(message: Message, rating: "helpful" | "unhelpful") {
+    if (!message.interactionId || feedbackBusy) return;
+    if (rating === "unhelpful" && feedbackFor !== message.interactionId) {
+      setFeedbackFor(message.interactionId);
+      setFeedbackNote("");
+      return;
+    }
+    setFeedbackBusy(true);
+    setChatError("");
+    try {
+      const response = await fetch("/api/ai-friend/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: message.interactionId,
+          rating,
+          note: rating === "unhelpful" ? feedbackNote : "",
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw Error(data.error ?? "Бағалау сақталмады.");
+      setMsgs((current) =>
+        current.map((item) =>
+          item.interactionId === message.interactionId
+            ? { ...item, rating }
+            : item,
+        ),
+      );
+      setFeedbackFor("");
+      setFeedbackNote("");
+    } catch (error) {
+      setChatError(
+        error instanceof Error ? error.message : "Бағалау сақталмады.",
+      );
+    } finally {
+      setFeedbackBusy(false);
+    }
   }
 
   const translatorWord = translatorInput.trim();
@@ -368,7 +431,71 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
                   key={index}
                 >
                   {!message.me && <Mascot />}
-                  <p>{message.text}</p>
+                  <div className="dossha-message-body">
+                    <p>{message.text}</p>
+                    {!message.me && message.interactionId && (
+                      <div className="dossha-rating">
+                        {message.rating ? (
+                          <span>
+                            <Check size={14} /> Рақмет, бағалауың сақталды
+                          </span>
+                        ) : (
+                          <>
+                            <small>Жауап пайдалы болды ма?</small>
+                            <button
+                              type="button"
+                              onClick={() => void rate(message, "helpful")}
+                              disabled={feedbackBusy}
+                              aria-label="Жауап пайдалы"
+                            >
+                              <ThumbsUp size={15} /> Иә
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => void rate(message, "unhelpful")}
+                              disabled={feedbackBusy}
+                              aria-label="Жауап қате немесе пайдасыз"
+                            >
+                              <ThumbsDown size={15} /> Қате
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                    {feedbackFor === message.interactionId &&
+                      !message.rating && (
+                        <div className="dossha-feedback-note">
+                          <label htmlFor={`feedback-${message.interactionId}`}>
+                            Не қате болды? Мұғалімге қысқаша жаз.
+                          </label>
+                          <textarea
+                            id={`feedback-${message.interactionId}`}
+                            rows={2}
+                            maxLength={1000}
+                            value={feedbackNote}
+                            onChange={(event) =>
+                              setFeedbackNote(event.target.value)
+                            }
+                          />
+                          <div>
+                            <button
+                              type="button"
+                              onClick={() => setFeedbackFor("")}
+                              disabled={feedbackBusy}
+                            >
+                              Бас тарту
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => void rate(message, "unhelpful")}
+                              disabled={feedbackBusy}
+                            >
+                              Мұғалімге жіберу
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                  </div>
                 </div>
               ))}
               {(!ready || pending) && (

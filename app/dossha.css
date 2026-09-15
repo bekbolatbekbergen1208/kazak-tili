@@ -242,6 +242,91 @@
   border-color: #7966bd;
   box-shadow: 0 0 0 3px #7966bd22;
 }
+
+.dossha-message-body {
+  max-width: min(78%, 650px);
+}
+.friendPage .message .dossha-message-body > p {
+  max-width: none;
+}
+.message.mine .dossha-message-body {
+  margin-left: auto;
+}
+.dossha-rating {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 4px 0;
+  color: var(--muted);
+}
+.dossha-rating small { margin-right: 2px; }
+.dossha-rating button,
+.dossha-feedback-note button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: white;
+  color: #4b5874;
+  padding: 6px 9px;
+  cursor: pointer;
+}
+.dossha-rating span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--green);
+  font-size: 11px;
+}
+.dossha-feedback-note {
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid #ffd7cc;
+  border-radius: 13px;
+  background: #fff8f5;
+}
+.dossha-feedback-note label { display: block; font-size: 11px; font-weight: 700; }
+.dossha-feedback-note textarea {
+  width: 100%;
+  margin: 8px 0;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px;
+  font: inherit;
+}
+.dossha-feedback-note > div { display: flex; justify-content: flex-end; gap: 7px; }
+.dossha-feedback-note > div button:last-child { background: var(--purple); color: white; border-color: var(--purple); }
+
+.dossha-review-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 260px)); gap: 14px; margin-bottom: 18px; }
+.dossha-review-summary > div { display: flex; align-items: center; gap: 12px; padding: 18px; background: white; border: 1px solid var(--line); border-radius: 16px; color: var(--purple); }
+.dossha-review-summary span > * { display: block; }
+.dossha-review-summary b { font-size: 24px; }
+.dossha-review-summary small { color: var(--muted); }
+.dossha-review-list { display: grid; gap: 15px; }
+.dossha-review-card { border-left: 4px solid #ff9a76; }
+.dossha-review-card.corrected { border-left-color: var(--green); }
+.dossha-review-card h3 { margin: 15px 0 6px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.dossha-review-card p { margin: 0; white-space: pre-wrap; line-height: 1.6; }
+.dossha-review-card .dossha-old-answer { padding: 13px; background: #f7f8fc; border-radius: 12px; }
+.dossha-review-card blockquote { margin: 12px 0; padding: 10px 13px; background: #fff8e7; border-left: 3px solid #f3bd45; }
+.dossha-review-card label { display: block; margin: 16px 0 7px; font-size: 12px; font-weight: 800; }
+.dossha-review-card textarea { width: 100%; padding: 12px; resize: vertical; border: 1px solid var(--line); border-radius: 12px; font: inherit; line-height: 1.5; }
+.dossha-review-card .btn { margin-top: 10px; }
+.dossha-review-status { display: flex; justify-content: space-between; align-items: center; }
+.dossha-review-status span { padding: 5px 9px; border-radius: 999px; background: #fff0ea; color: #b94d2b; font-size: 10px; font-weight: 800; }
+.dossha-review-card.corrected .dossha-review-status span { background: #e5f8f1; color: #23785b; }
+.dossha-review-status time { color: var(--muted); font-size: 11px; }
+.dossha-review-empty { text-align: center; padding: 50px 20px; color: var(--muted); }
+.dossha-review-empty svg { color: var(--green); width: 40px; height: 40px; }
+.dossha-review-error { padding: 12px; border-radius: 10px; background: #fff0ed; color: #a63c2b; }
+
+@media (max-width: 600px) {
+  .dossha-message-body { max-width: 88%; }
+  .dossha-rating small { display: none; }
+  .dossha-review-summary { grid-template-columns: 1fr; }
+}
 .friendPage .dossha-dictionary[open] .translatorPanel {
   animation: dossha-arrive 200ms ease-out;
 }

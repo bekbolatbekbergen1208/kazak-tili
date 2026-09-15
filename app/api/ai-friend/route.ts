@@ -8,10 +8,15 @@ import {
   type ChatMessage,
 } from "@/lib/friend/chat";
 import { readLearningMemory, updateLearningMemory } from "@/lib/friend/memory";
+import {
+  reviewedKnowledgeContext,
+  selectReviewedKnowledge,
+} from "@/lib/friend/reviewed-knowledge";
 import { referenceAnswer } from "@/lib/friend/knowledge";
 import { localAiConfigured } from "@/lib/ai/local";
 import { isSameOrigin } from "@/utils/request-origin";
 import { boundedJson } from "@/utils/bounded-body";
+import { createAdminClient } from "@/utils/supabase/admin";
 const limits = new Map<string, { timestamps: number[]; busy: boolean }>();
 const json = (body: unknown, status = 200) =>
   NextResponse.json(body, {
@@ -112,6 +117,25 @@ export async function POST(req: Request) {
       }
     }
     const reference = referenceAnswer(input.message, input.history);
+    const admin = createAdminClient();
+    const reviewedResult = admin
+      ? await admin
+          .from("qd_dossha_knowledge")
+          .select("question,answer,keywords")
+          .eq("active", true)
+          .order("created_at", { ascending: false })
+          .limit(200)
+      : null;
+    const reviewed = selectReviewedKnowledge(
+      input.message,
+      reviewedResult?.data ?? [],
+    );
+    const contexts = [
+      reference.topic ? `Оқу анықтамасы:\n${reference.reply}` : "",
+      reviewed.length
+        ? `Мұғалім тексерген білім:\n${reviewedKnowledgeContext(reviewed)}`
+        : "",
+    ].filter(Boolean);
     const reply = live
       ? await requestDossha({
           key: "",
@@ -119,7 +143,7 @@ export async function POST(req: Request) {
           ...input,
           memory,
           signal: req.signal,
-          context: reference.topic ? reference.reply : undefined,
+          context: contexts.join("\n\n") || undefined,
         })
       : reference.reply;
     const history: ChatMessage[] = boundedHistory([
@@ -154,11 +178,24 @@ export async function POST(req: Request) {
         .from("qd_friend_conversations")
         .upsert(record, { onConflict: "user_id" });
     }
+    const feedback =
+      admin && user
+        ? await admin
+            .from("qd_dossha_feedback")
+            .insert({
+              user_id: user.id,
+              question: input.message,
+              answer: reply,
+            })
+            .select("id")
+            .single()
+        : null;
     return json({
       reply,
       mode: live ? "ai" : "reference",
       saved: !!user && !saved?.error,
       memorySaved,
+      interactionId: feedback?.data?.id ?? null,
       history,
       notice: live
         ? undefined

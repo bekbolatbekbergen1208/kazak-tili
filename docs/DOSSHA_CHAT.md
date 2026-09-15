@@ -23,3 +23,9 @@ Tests: `tests/friend.test.ts` (request validation, bounded context, reference an
 Apply `supabase/migrations/202609150011_friend_learning_memory.sql` after migration 009. Each successful chat saves the latest 12 distinct user requests (up to 300 characters each) in the user's own conversation row. These are unverified user text, supplied as user context, never as system instructions or shared grammatical facts. Existing owner-only RLS and account deletion apply. This is bounded personal context, not model training, and it cannot guarantee correct answers. Older requests are discarded. An empty client history recovers the saved conversation. Without the migration, ordinary conversation saving still works; `memorySaved` in the POST response reports whether memory was persisted.
 
 The model still needs evaluation on real incorrect answers before a server upgrade or fine-tuning decision. No server model weights were changed by these code changes. Do not automatically train on raw chat replies: incorrect answers would become training targets. Use reviewed corrections and a separate evaluation set for any future training.
+
+## Reviewed improvement loop
+
+Apply `supabase/migrations/202609150012_dossha_feedback_learning.sql`. Signed-in learners can rate a newly generated answer. An unhelpful rating and optional note enter the teacher queue at `/teacher/dossha`. Only a user with `app_metadata.role` set to `teacher` or `admin`, or an email listed in the server-only `QAZAQDOS_TEACHER_EMAILS`, can read that queue and approve a correction.
+
+Approved corrections are stored in `qd_dossha_knowledge`. Before generating a reply, the server ranks active corrections by overlap with the current question and supplies at most three matching answers as teacher-verified context. Raw learner messages and AI replies never become verified knowledge automatically. Teacher access and knowledge writes use `SUPABASE_SECRET_KEY` only on the server.

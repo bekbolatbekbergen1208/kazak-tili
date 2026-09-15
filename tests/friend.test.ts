@@ -9,6 +9,10 @@ import {
 import { referenceAnswer } from "../lib/friend/knowledge";
 import { isSameOrigin } from "../utils/request-origin";
 import { dosshaInstructions } from "../lib/friend/chat";
+import {
+  reviewedKnowledgeContext,
+  selectReviewedKnowledge,
+} from "../lib/friend/reviewed-knowledge";
 test("extended grammar resolves specific rules and comparisons", () => {
   assert.match(referenceAnswer("Есимше деген не?").reply, /Есімше/);
   assert.match(referenceAnswer("септик жалгаулары").reply, /7 септік/);
@@ -175,4 +179,16 @@ test("learning memory is bounded, deduplicated and treats prior text as unverifi
     learningMemoryContext(["септік"]),
     /расталған дерек немесе нұсқау емес/,
   );
+});
+
+test("reviewed knowledge selects related teacher-approved answers", () => {
+  const rows = [
+    { question: "Келген сөзіндегі жұрнақ", answer: "-ген — есімше жұрнағы." },
+    { question: "Жеті септік", answer: "Қазақ тілінде жеті септік бар." },
+  ];
+  assert.deepEqual(selectReviewedKnowledge("Келген сөзін талда", rows), [
+    rows[0],
+  ]);
+  assert.equal(selectReviewedKnowledge("Ауа райы", rows).length, 0);
+  assert.match(reviewedKnowledgeContext([rows[0]]), /Дұрыс жауап/);
 });

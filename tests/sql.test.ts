@@ -214,6 +214,44 @@ test("migrations execute; RLS isolates two users and protects curriculum", async
     await db.exec("reset role");
     await db.exec(
       readFileSync(
+        "supabase/migrations/202609150011_friend_learning_memory.sql",
+        "utf8",
+      ),
+    );
+    await db.exec(
+      readFileSync(
+        "supabase/migrations/202609150012_dossha_feedback_learning.sql",
+        "utf8",
+      ),
+    );
+    const feedbackId = "10000000-0000-0000-0000-000000000001";
+    await db.exec("set role service_role");
+    await db.query(
+      "insert into public.qd_dossha_feedback(id,user_id,question,answer) values ($1,$2,'Сұрақ','Жауап')",
+      [feedbackId, a],
+    );
+    await db.exec(
+      `reset role; set role authenticated; set request.jwt.claim.sub='${a}'`,
+    );
+    assert.equal(
+      (
+        await db.query(
+          "update public.qd_dossha_feedback set rating='unhelpful',status='review' where id=$1 returning id",
+          [feedbackId],
+        )
+      ).rows.length,
+      1,
+    );
+    await assert.rejects(
+      db.query(
+        "update public.qd_dossha_feedback set answer='өзгерді' where id=$1",
+        [feedbackId],
+      ),
+    );
+    await assert.rejects(db.exec("select * from public.qd_dossha_knowledge"));
+    await db.exec("reset role");
+    await db.exec(
+      readFileSync(
         "supabase/migrations/202609100010_friendships_vision.sql",
         "utf8",
       ),

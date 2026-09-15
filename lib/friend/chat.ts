@@ -88,7 +88,7 @@ export async function requestDossha({
     messages: [
       {
         role: "system",
-        content: `${dosshaInstructions}\nТүсіндіру тілінің таңдауы: ${language}.${context ? `\nОқу анықтамасы:\n${context}` : ""}`,
+        content: `${dosshaInstructions}\nТүсіндіру тілінің таңдауы: ${language}.${context ? `\nҚосымша тексерілген контекст:\n${context}` : ""}`,
       },
       ...(learningMemoryContext(memory)
         ? [{ role: "user" as const, content: learningMemoryContext(memory) }]
