@@ -7,6 +7,7 @@ import {
   requestDossha,
   type ChatMessage,
 } from "@/lib/friend/chat";
+import { readLearningMemory, updateLearningMemory } from "@/lib/friend/memory";
 import { referenceAnswer } from "@/lib/friend/knowledge";
 import { localAiConfigured } from "@/lib/ai/local";
 import { isSameOrigin } from "@/utils/request-origin";
@@ -92,12 +93,31 @@ export async function POST(req: Request) {
     limits.set(user!.id, limit);
   }
   try {
+    const previous = user
+      ? await db
+          .from("qd_friend_conversations")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle()
+      : null;
+    const memory = readLearningMemory(previous?.data?.learning_memory);
+    if (!input.history.length && previous?.data?.messages) {
+      try {
+        input.history = parseChat({
+          message: input.message,
+          history: previous.data.messages,
+        }).history;
+      } catch {
+        /* Ignore invalid stored history. */
+      }
+    }
     const reference = referenceAnswer(input.message, input.history);
     const reply = live
       ? await requestDossha({
           key: "",
           model: model!,
           ...input,
+          memory,
           signal: req.signal,
           context: reference.topic ? reference.reply : undefined,
         })
@@ -107,20 +127,38 @@ export async function POST(req: Request) {
       { role: "user", content: input.message },
       { role: "assistant", content: reply },
     ]);
-    const saved = user
+    const record = user
+      ? {
+          user_id: user.id,
+          messages: history,
+          updated_at: new Date().toISOString(),
+        }
+      : null;
+    let saved = record
       ? await db.from("qd_friend_conversations").upsert(
           {
-            user_id: user.id,
-            messages: history,
-            updated_at: new Date().toISOString(),
+            ...record,
+            learning_memory: updateLearningMemory(memory, input.message),
           },
           { onConflict: "user_id" },
         )
       : null;
+    const memorySaved = !!user && !saved?.error;
+    // Keep saving conversations on installations awaiting the memory migration.
+    if (
+      record &&
+      saved?.error &&
+      ["42703", "PGRST204"].includes(saved.error.code)
+    ) {
+      saved = await db
+        .from("qd_friend_conversations")
+        .upsert(record, { onConflict: "user_id" });
+    }
     return json({
       reply,
       mode: live ? "ai" : "reference",
       saved: !!user && !saved?.error,
+      memorySaved,
       history,
       notice: live
         ? undefined

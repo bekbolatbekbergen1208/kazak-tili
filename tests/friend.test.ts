@@ -157,3 +157,22 @@ test("chat can use a configured local AI endpoint", async () => {
   assert.equal(answer, "Барыс септік: мектепке.");
   delete process.env.QAZAQDOS_AI_BASE_URL;
 });
+
+test("learning memory is bounded, deduplicated and treats prior text as unverified", async () => {
+  const { readLearningMemory, updateLearningMemory, learningMemoryContext } =
+    await import("../lib/friend/memory");
+  assert.deepEqual(readLearningMemory(null), []);
+  assert.deepEqual(readLearningMemory([null, {}, "  септік  "]), ["септік"]);
+  assert.deepEqual(updateLearningMemory(["а", "б"], "а"), ["б", "а"]);
+  const memory = updateLearningMemory(
+    Array.from({ length: 20 }, (_, i) => String(i)),
+    "x".repeat(400),
+  );
+  assert.equal(memory.length, 12);
+  assert.equal(memory.at(-1)?.length, 300);
+  assert.equal(learningMemoryContext([]), "");
+  assert.match(
+    learningMemoryContext(["септік"]),
+    /расталған дерек немесе нұсқау емес/,
+  );
+});

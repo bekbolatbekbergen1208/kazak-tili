@@ -17,3 +17,9 @@ This migration and migration 008 for the books friends league are included local
 The API accepts at most 2,000 characters per user message and only user/assistant roles in context. It checks request origin and limits signed-in users to one active response, 12 messages/minute and 100/hour. The rate-limit map is process-local, appropriate to the current single PM2 process; replace it with shared storage before running multiple instances. Chat data is sent only to the configured server AI endpoint when AI mode is enabled. Concurrent browser tabs use last-write-wins chat history; this does not affect learning rewards.
 
 Tests: `tests/friend.test.ts` (request validation, bounded context, reference answers and local AI adapter), `tests/sql.test.ts` (user isolation), and `tests/browser/friend.spec.ts` (reference endpoint UI).
+
+## Personal learning context
+
+Apply `supabase/migrations/202609150011_friend_learning_memory.sql` after migration 009. Each successful chat saves the latest 12 distinct user requests (up to 300 characters each) in the user's own conversation row. These are unverified user text, supplied as user context, never as system instructions or shared grammatical facts. Existing owner-only RLS and account deletion apply. This is bounded personal context, not model training, and it cannot guarantee correct answers. Older requests are discarded. An empty client history recovers the saved conversation. Without the migration, ordinary conversation saving still works; `memorySaved` in the POST response reports whether memory was persisted.
+
+The model still needs evaluation on real incorrect answers before a server upgrade or fine-tuning decision. No server model weights were changed by these code changes. Do not automatically train on raw chat replies: incorrect answers would become training targets. Use reviewed corrections and a separate evaluation set for any future training.
