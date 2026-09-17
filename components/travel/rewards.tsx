@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import { useLearning } from "@/components/learning/provider";
 import { travelOf, travelAchievements } from "@/lib/travel/state";
 import { CharacterModal } from "@/components/characters/modal";
@@ -14,7 +15,12 @@ export function TravelRewards() {
   const id =
     t.achievements.find((id) => !t.announced.includes(id)) ??
     (stamp ? `stamp:${stamp.id}` : undefined);
-  if (!id) return null;
+  const showModal = id?.startsWith("stamp:") ?? false;
+  useEffect(() => {
+    if (id && !showModal && !busy)
+      void dispatch({ type: "travel-announce", id });
+  }, [busy, dispatch, id, showModal]);
+  if (!id || !showModal) return null;
   const close = () => {
     if (!busy) void dispatch({ type: "travel-announce", id });
   };
