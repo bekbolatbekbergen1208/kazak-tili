@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Clapperboard, Eye, EyeOff, ExternalLink, Languages, RotateCcw } from "lucide-react";
+import { Check, Clapperboard, Eye, EyeOff, ExternalLink, Languages, Play, RotateCcw } from "lucide-react";
 import { Shell, StudentTop } from "./shell";
 
 type Word = { kk: string; ru: string; note: string };
@@ -64,12 +64,17 @@ const phrases: Phrase[] = [
   { kk: "Рақмет сізге!", ru: "Спасибо вам!", speaker: "благодарность" },
   { kk: "Сау болыңыз!", ru: "До свидания!", speaker: "прощание" },
 ];
-const videoUrl = "https://www.youtube.com/watch?v=ZFkrkxLKxg8";
-const embedUrl = "https://www.youtube.com/embed/ZFkrkxLKxg8";
+const videos = [
+  { id: "aldar", level: "1-деңгей", title: "Алдар Көсе", description: "Халық ертегісіндегі айлакер кейіпкердің оқиғалары.", videoUrl: "https://www.youtube.com/watch?v=ZFkrkxLKxg8", embedUrl: "https://www.youtube.com/embed/ZFkrkxLKxg8" },
+  { id: "aldar-fun", level: "2-деңгей", title: "Алдар Көсенің көңілді оқиғалары", description: "Диалогтары көбірек, күнделікті сөздерді тыңдауға ыңғайлы.", videoUrl: "https://www.youtube.com/watch?v=ghPz381opTM", embedUrl: "https://www.youtube.com/embed/ghPz381opTM" },
+  { id: "er-tostik", level: "3-деңгей", title: "Ер Төстік және Жылан Бапы хан", description: "Батырлық ертегі: сапар, достық және ғажайып кейіпкерлер.", videoUrl: "https://www.youtube.com/watch?v=phlovMQN8Ic", embedUrl: "https://www.youtube.com/embed/phlovMQN8Ic" },
+] as const;
 
 export default function CartoonLesson() {
+  const [activeVideoId, setActiveVideoId] = useState<(typeof videos)[number]["id"]>("aldar");
   const [shown, setShown] = useState<string | null>(null);
   const [direction, setDirection] = useState<"kk-ru" | "ru-kk">("kk-ru");
+  const activeVideo = videos.find((video) => video.id === activeVideoId) ?? videos[0];
 
   const prompt = direction === "kk-ru" ? "Қазақша сөзді бас" : "Русское слово бас";
 
@@ -81,16 +86,26 @@ export default function CartoonLesson() {
       <Clapperboard aria-hidden="true" />
     </section>
 
+    <section className="videoLevels panel" aria-labelledby="level-title">
+      <div className="sectionHead"><div><h3 id="level-title">Видео деңгейлері</h3><p>Деңгейді таңдаңыз: видео сол деңгейге ауысады.</p></div></div>
+      <div className="levelCards">{videos.map((video) => {
+        const active = video.id === activeVideo.id;
+        return <button className={`levelCard ${active ? "active" : ""}`} onClick={() => { setActiveVideoId(video.id); setShown(null); }} type="button" key={video.id} aria-pressed={active}>
+          <span>{video.level}</span><b>{video.title}</b><small>{video.description}</small>{active ? <em><Check size={15} /> Таңдалды</em> : <em><Play size={15} /> Ашып көру</em>}
+        </button>;
+      })}</div>
+    </section>
+
     <section className="cartoonPlayer panel" aria-labelledby="video-title">
-      <div className="sectionHead"><div><h3 id="video-title">Алдар Көсе</h3><p>Толық мультфильм • шамамен 3 сағат</p></div></div>
+      <div className="sectionHead"><div><span className="eyebrow">{activeVideo.level}</span><h3 id="video-title">{activeVideo.title}</h3><p>{activeVideo.description}</p></div></div>
       <div className="videoStage">
-        <iframe src={embedUrl} title="Алдар Көсе — мультфильм" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+        <iframe src={activeVideo.embedUrl} title={`${activeVideo.title} — мультфильм`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
       </div>
-      <a className="sourceLink" href={videoUrl} target="_blank" rel="noreferrer">YouTube-тан ашу <ExternalLink size={15} /></a>
+      <a className="sourceLink" href={activeVideo.videoUrl} target="_blank" rel="noreferrer">YouTube-тан ашу <ExternalLink size={15} /></a>
     </section>
 
     <section className="dictionary panel" aria-labelledby="dictionary-title">
-      <div className="dictionaryHead"><div><span className="eyebrow">«АЛДАР КӨСЕ» МУЛЬТФИЛЬМІНДЕГІ СӨЗДЕР</span><h3 id="dictionary-title">Үлкен интерактивті сөздік</h3><p>{words.length} сөз • {prompt} — аудармасы пайда болады.</p></div><button className="directionButton" type="button" onClick={() => { setDirection((current) => current === "kk-ru" ? "ru-kk" : "kk-ru"); setShown(null); }}><Languages size={18} /> {direction === "kk-ru" ? "Қаз → Рус" : "Рус → Қаз"}</button></div>
+      <div className="dictionaryHead"><div><span className="eyebrow">ВИДЕОҒА АРНАЛҒАН СӨЗДЕР</span><h3 id="dictionary-title">Үлкен интерактивті сөздік</h3><p>{words.length} сөз • {prompt} — аудармасы пайда болады.</p></div><button className="directionButton" type="button" onClick={() => { setDirection((current) => current === "kk-ru" ? "ru-kk" : "kk-ru"); setShown(null); }}><Languages size={18} /> {direction === "kk-ru" ? "Қаз → Рус" : "Рус → Қаз"}</button></div>
       <div className="wordGrid">
         {words.map((word) => {
           const front = direction === "kk-ru" ? word.kk : word.ru;
