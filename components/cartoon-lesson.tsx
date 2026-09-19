@@ -80,12 +80,27 @@ const videos = [
   { id: "aldar", level: "C1", title: "Алдар Көсе", description: "Ұзақ мультфильм: күрделі диалогтар мен тұрақты тіркестер.", videoUrl: "https://www.youtube.com/watch?v=ZFkrkxLKxg8", embedUrl: "https://www.youtube.com/embed/ZFkrkxLKxg8" },
 ] as const;
 const levels = ["A1", "A2", "B1", "B2", "C1"] as const;
+const videoDictionaries: Record<string, Word[]> = {
+  "zsrcsLcbKMc": [
+    { kk: "қошқар", ru: "баран", note: "кейіпкер" }, { kk: "ауыл", ru: "аул, деревня", note: "туған жер" }, { kk: "сағыну", ru: "скучать", note: "сағындым" }, { kk: "қайта", ru: "снова, обратно", note: "қайта оралу" }, { kk: "жақсы", ru: "хороший", note: "баға беру" },
+  ],
+  "y03JllPau0Y": [
+    { kk: "сәлем", ru: "привет", note: "амандасу" }, { kk: "балақай", ru: "малыш", note: "балаға қарату" }, { kk: "Мақта қыз", ru: "Макта кыз", note: "кейіпкер" }, { kk: "мысық", ru: "кошка", note: "кейіпкер" }, { kk: "құйрық", ru: "хвост", note: "дене мүшесі" }, { kk: "достық", ru: "дружба", note: "ертегінің тақырыбы" },
+  ],
+  "kjKrMStb8E0": [
+    { kk: "жер", ru: "земля", note: "мекен" }, { kk: "бай", ru: "богач", note: "ертегі кейіпкері" }, { kk: "қыз", ru: "девочка, дочь", note: "кейіпкер" }, { kk: "үй", ru: "дом", note: "тұратын жер" }, { kk: "болыпты", ru: "оказывается, жил-был", note: "ертегінің басталуы" }, { kk: "ертегі", ru: "сказка", note: "оқиға түрі" },
+  ],
+  "dHW2YHwkiMw": [
+    { kk: "баяғыда", ru: "давным-давно", note: "ертегінің басталуы" }, { kk: "Мақта қыз", ru: "Макта кыз", note: "кейіпкер" }, { kk: "мысық", ru: "кошка", note: "кейіпкер" }, { kk: "құйрық", ru: "хвост", note: "дене мүшесі" }, { kk: "сүт", ru: "молоко", note: "тағам" }, { kk: "көмек", ru: "помощь", note: "оқиға тақырыбы" },
+  ],
+};
 
 export default function CartoonLesson() {
-  const [activeVideoId, setActiveVideoId] = useState<(typeof videos)[number]["id"]>("aldar");
+  const [activeVideoId, setActiveVideoId] = useState<(typeof videos)[number]["id"]>("makta");
   const [shown, setShown] = useState<string | null>(null);
   const [direction, setDirection] = useState<"kk-ru" | "ru-kk">("kk-ru");
   const activeVideo = videos.find((video) => video.id === activeVideoId) ?? videos[0];
+  const activeWords = videoDictionaries[activeVideo.embedUrl.slice(-11)] ?? [];
 
   const prompt = direction === "kk-ru" ? "Қазақша сөзді бас" : "Русское слово бас";
 
@@ -116,9 +131,9 @@ export default function CartoonLesson() {
     </section>
 
     <section className="dictionary panel" aria-labelledby="dictionary-title">
-      <div className="dictionaryHead"><div><span className="eyebrow">ВИДЕОҒА АРНАЛҒАН СӨЗДЕР</span><h3 id="dictionary-title">Үлкен интерактивті сөздік</h3><p>{words.length} сөз • {prompt} — аудармасы пайда болады.</p></div><button className="directionButton" type="button" onClick={() => { setDirection((current) => current === "kk-ru" ? "ru-kk" : "kk-ru"); setShown(null); }}><Languages size={18} /> {direction === "kk-ru" ? "Қаз → Рус" : "Рус → Қаз"}</button></div>
+      <div className="dictionaryHead"><div><span className="eyebrow">{activeVideo.title.toUpperCase()} • СУБТИТРЛЕРДЕН</span><h3 id="dictionary-title">Осы видеоның сөздігі</h3><p>{activeWords.length ? `${activeWords.length} сөз • ${prompt} — аудармасы пайда болады.` : "Бұл видеода ашық субтитрлер жоқ."}</p></div><button className="directionButton" type="button" onClick={() => { setDirection((current) => current === "kk-ru" ? "ru-kk" : "kk-ru"); setShown(null); }}><Languages size={18} /> {direction === "kk-ru" ? "Қаз → Рус" : "Рус → Қаз"}</button></div>
       <div className="wordGrid">
-        {words.map((word) => {
+        {activeWords.map((word) => {
           const front = direction === "kk-ru" ? word.kk : word.ru;
           const back = direction === "kk-ru" ? word.ru : word.kk;
           const isShown = shown === word.kk;
@@ -129,6 +144,7 @@ export default function CartoonLesson() {
           </button>;
         })}
       </div>
+      {!activeWords.length && <p className="subtitleUnavailable">Бұл роликтің ашық субтитрлері өшірілген немесе тек музыкадан тұрады. Нақты сөздік қосу үшін автордың субтитр файлы қажет.</p>}
       <button type="button" className="resetWords" onClick={() => setShown(null)}><RotateCcw size={15} /> Сөздерді жабу</button>
 
       <div className="phraseSection">
