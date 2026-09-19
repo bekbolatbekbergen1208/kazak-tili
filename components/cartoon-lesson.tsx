@@ -93,14 +93,44 @@ const videoDictionaries: Record<string, Word[]> = {
   "dHW2YHwkiMw": [
     { kk: "баяғыда", ru: "давным-давно", note: "ертегінің басталуы" }, { kk: "Мақта қыз", ru: "Макта кыз", note: "кейіпкер" }, { kk: "мысық", ru: "кошка", note: "кейіпкер" }, { kk: "құйрық", ru: "хвост", note: "дене мүшесі" }, { kk: "сүт", ru: "молоко", note: "тағам" }, { kk: "көмек", ru: "помощь", note: "оқиға тақырыбы" },
   ],
+  "D2vA2-rYXpg": [
+    { kk: "қоян", ru: "заяц", note: "кейіпкер • тақырып бойынша" }, { kk: "құмырсқа", ru: "муравей", note: "кейіпкер • тақырып бойынша" }, { kk: "қораз", ru: "петух", note: "кейіпкер • тақырып бойынша" }, { kk: "мақтаншақ", ru: "хвастливый", note: "мінез • тақырып бойынша" }, { kk: "адасу", ru: "заблудиться", note: "оқиға • тақырып бойынша" },
+  ],
+  "bHp_f2x7B7Y": [
+    { kk: "түлкі", ru: "лиса", note: "кейіпкер • тақырып бойынша" }, { kk: "қоян", ru: "заяц", note: "кейіпкер • тақырып бойынша" }, { kk: "үй", ru: "дом", note: "оқиға орны • тақырып бойынша" }, { kk: "әтеш", ru: "петух", note: "кейіпкер • тақырып бойынша" }, { kk: "қайтару", ru: "вернуть", note: "әрекет • тақырып бойынша" }, { kk: "достық", ru: "дружба", note: "тақырып" },
+  ],
+  "tNv1p7yObgw": [
+    { kk: "құмырсқа", ru: "муравей", note: "кейіпкер • тақырып бойынша" }, { kk: "шегіртке", ru: "кузнечик", note: "кейіпкер • тақырып бойынша" }, { kk: "еңбекқор", ru: "трудолюбивый", note: "мінез • тақырып бойынша" }, { kk: "жалқау", ru: "ленивый", note: "мінез • тақырып бойынша" }, { kk: "жаз", ru: "лето", note: "жыл мезгілі • тақырып бойынша" }, { kk: "қыс", ru: "зима", note: "жыл мезгілі • тақырып бойынша" },
+  ],
+  "ZkBfEFv34mo": [
+    { kk: "қарлығаш", ru: "ласточка", note: "кейіпкер • тақырып бойынша" }, { kk: "жылан", ru: "змея", note: "кейіпкер • тақырып бойынша" }, { kk: "құйрық", ru: "хвост", note: "ертегі өзегі" }, { kk: "айыр", ru: "вильчатый, раздвоенный", note: "сипаттама" }, { kk: "құтқару", ru: "спасти", note: "әрекет • тақырып бойынша" }, { kk: "табиғат", ru: "природа", note: "тақырып" },
+  ],
+  "ghPz381opTM": [
+    { kk: "көңілді", ru: "весёлый", note: "оқиғаның сипаты • тақырып бойынша" }, { kk: "оқиға", ru: "событие, история", note: "мультфильмдегі жағдай" }, { kk: "айла", ru: "хитрость, уловка", note: "Алдардың тәсілі" }, { kk: "күлкі", ru: "смех", note: "көңіл-күй" }, { kk: "жеңу", ru: "победить", note: "әрекет • тақырып бойынша" },
+  ],
+  "iPlzkDj566k": [
+    { kk: "түлкі", ru: "лиса", note: "кейіпкер • тақырып бойынша" }, { kk: "тырна", ru: "журавль", note: "кейіпкер • тақырып бойынша" }, { kk: "қонақ", ru: "гость", note: "оқиға тақырыбы" }, { kk: "шақыру", ru: "приглашать", note: "әрекет • тақырып бойынша" }, { kk: "құмыра", ru: "кувшин", note: "зат • тақырып бойынша" }, { kk: "сыйластық", ru: "уважение", note: "тақырып" },
+  ],
+  "Ss4lhn6vQS8": [
+    { kk: "Ер Төстік", ru: "Ер Төстік", note: "басты кейіпкер • тақырып бойынша" }, { kk: "батыр", ru: "богатырь", note: "кейіпкер" }, { kk: "отбасы", ru: "семья", note: "ертегі тақырыбы" }, { kk: "аға", ru: "старший брат", note: "туыс" }, { kk: "үміт", ru: "надежда", note: "сезім" },
+  ],
+  "phlovMQN8Ic": [
+    { kk: "жер асты", ru: "подземный мир", note: "оқиға орны • тақырып бойынша" }, { kk: "Шалқұйрық", ru: "Шалкуйрык", note: "тұлпар • тақырып бойынша" }, { kk: "Желаяқ", ru: "Желаяқ", note: "дос • тақырып бойынша" }, { kk: "Мыстан кемпір", ru: "ведьма-старушка", note: "кейіпкер • тақырып бойынша" }, { kk: "жылан", ru: "змея", note: "кейіпкер • тақырып бойынша" }, { kk: "сапар", ru: "путешествие", note: "оқиға тақырыбы" },
+  ],
+  "ZFkrkxLKxg8": [
+    { kk: "Алдар Көсе", ru: "Алдар Косе", note: "басты кейіпкер • тақырып бойынша" }, { kk: "көсе", ru: "безбородый", note: "прозвище • тақырып бойынша" }, { kk: "бай", ru: "богач", note: "кейіпкер • тақырып бойынша" }, { kk: "алдау", ru: "обманывать", note: "Алдардың айласы" }, { kk: "айлакер", ru: "хитрый, находчивый", note: "мінез" }, { kk: "әділдік", ru: "справедливость", note: "тақырып" },
+  ],
 };
+const subtitleVideoIds = new Set(["zsrcsLcbKMc", "y03JllPau0Y", "kjKrMStb8E0", "dHW2YHwkiMw"]);
 
 export default function CartoonLesson() {
   const [activeVideoId, setActiveVideoId] = useState<(typeof videos)[number]["id"]>("makta");
   const [shown, setShown] = useState<string | null>(null);
   const [direction, setDirection] = useState<"kk-ru" | "ru-kk">("kk-ru");
   const activeVideo = videos.find((video) => video.id === activeVideoId) ?? videos[0];
-  const activeWords = videoDictionaries[activeVideo.embedUrl.slice(-11)] ?? [];
+  const activeVideoKey = activeVideo.embedUrl.slice(-11);
+  const activeWords = videoDictionaries[activeVideoKey] ?? [];
+  const hasSubtitles = subtitleVideoIds.has(activeVideoKey);
 
   const prompt = direction === "kk-ru" ? "Қазақша сөзді бас" : "Русское слово бас";
 
@@ -131,7 +161,7 @@ export default function CartoonLesson() {
     </section>
 
     <section className="dictionary panel" aria-labelledby="dictionary-title">
-      <div className="dictionaryHead"><div><span className="eyebrow">{activeVideo.title.toUpperCase()} • СУБТИТРЛЕРДЕН</span><h3 id="dictionary-title">Осы видеоның сөздігі</h3><p>{activeWords.length ? `${activeWords.length} сөз • ${prompt} — аудармасы пайда болады.` : "Бұл видеода ашық субтитрлер жоқ."}</p></div><button className="directionButton" type="button" onClick={() => { setDirection((current) => current === "kk-ru" ? "ru-kk" : "kk-ru"); setShown(null); }}><Languages size={18} /> {direction === "kk-ru" ? "Қаз → Рус" : "Рус → Қаз"}</button></div>
+      <div className="dictionaryHead"><div><span className="eyebrow">{activeVideo.title.toUpperCase()} • {hasSubtitles ? "СУБТИТРЛЕРДЕН" : "БЕЙІМДЕЛГЕН"}</span><h3 id="dictionary-title">Осы видеоның сөздігі</h3><p>{activeWords.length} сөз • {hasSubtitles ? "Субтитрлердегі сөздер." : "Сюжетке сай шамамен алынған сөздер."} {prompt}.</p></div><button className="directionButton" type="button" onClick={() => { setDirection((current) => current === "kk-ru" ? "ru-kk" : "kk-ru"); setShown(null); }}><Languages size={18} /> {direction === "kk-ru" ? "Қаз → Рус" : "Рус → Қаз"}</button></div>
       <div className="wordGrid">
         {activeWords.map((word) => {
           const front = direction === "kk-ru" ? word.kk : word.ru;
@@ -144,7 +174,6 @@ export default function CartoonLesson() {
           </button>;
         })}
       </div>
-      {!activeWords.length && <p className="subtitleUnavailable">Бұл роликтің ашық субтитрлері өшірілген немесе тек музыкадан тұрады. Нақты сөздік қосу үшін автордың субтитр файлы қажет.</p>}
       <button type="button" className="resetWords" onClick={() => setShown(null)}><RotateCcw size={15} /> Сөздерді жабу</button>
 
       <div className="phraseSection">
