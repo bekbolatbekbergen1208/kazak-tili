@@ -1,57 +1,51 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Clapperboard, Eye, EyeOff, ExternalLink, Languages, Play, RotateCcw } from "lucide-react";
+import { useState } from "react";
+import { Clapperboard, Eye, EyeOff, ExternalLink, Languages, RotateCcw } from "lucide-react";
 import { Shell, StudentTop } from "./shell";
 
 type Word = { kk: string; ru: string; note: string };
 
 const words: Word[] = [
-  { kk: "сәлем", ru: "привет", note: "амандасу" },
-  { kk: "дос", ru: "друг", note: "жақын адам" },
-  { kk: "үй", ru: "дом", note: "тұратын жер" },
-  { kk: "ойнау", ru: "играть", note: "әрекет" },
-  { kk: "қуаныш", ru: "радость", note: "жақсы сезім" },
-  { kk: "көмектесу", ru: "помогать", note: "біреуге жәрдем беру" },
-  { kk: "табиғат", ru: "природа", note: "қоршаған әлем" },
-  { kk: "ертегі", ru: "сказка", note: "қызықты әңгіме" },
+  { kk: "Алдар Көсе", ru: "Алдар Косе", note: "главный герой" },
+  { kk: "бай", ru: "богач", note: "богатый человек" },
+  { kk: "хан", ru: "хан, правитель", note: "правитель страны" },
+  { kk: "кедей", ru: "бедняк", note: "небогатый человек" },
+  { kk: "шал", ru: "старик", note: "пожилой мужчина" },
+  { kk: "кемпір", ru: "старушка", note: "пожилая женщина" },
+  { kk: "айлакер", ru: "хитрый, находчивый", note: "умеет найти выход" },
+  { kk: "қулық", ru: "хитрость", note: "ловкий замысел" },
+  { kk: "өтірік", ru: "ложь", note: "неправда" },
+  { kk: "ақылды", ru: "умный", note: "много знает" },
+  { kk: "әділ", ru: "справедливый", note: "поступает честно" },
+  { kk: "мейірімді", ru: "добрый", note: "заботится о других" },
+  { kk: "ауыл", ru: "аул, деревня", note: "место, где живут люди" },
+  { kk: "киіз үй", ru: "юрта", note: "традиционный дом" },
+  { kk: "қонақ", ru: "гость", note: "пришедший в дом" },
+  { kk: "дастарқан", ru: "накрытый стол", note: "стол с угощениями" },
+  { kk: "ас", ru: "еда, угощение", note: "то, что едят" },
+  { kk: "нан", ru: "хлеб", note: "продукт из теста" },
+  { kk: "ет", ru: "мясо", note: "традиционное угощение" },
+  { kk: "қазан", ru: "казан", note: "большая посуда для еды" },
+  { kk: "алтын", ru: "золото", note: "дорогой металл" },
+  { kk: "ақша", ru: "деньги", note: "средство оплаты" },
+  { kk: "ат", ru: "лошадь", note: "животное для езды" },
+  { kk: "жол", ru: "дорога, путь", note: "куда идут или едут" },
+  { kk: "сапар", ru: "поездка, путешествие", note: "долгий путь" },
+  { kk: "көмектесу", ru: "помогать", note: "делать добро другому" },
+  { kk: "беру", ru: "давать", note: "передавать кому-то" },
+  { kk: "алу", ru: "брать", note: "получать что-то" },
+  { kk: "іздеу", ru: "искать", note: "пытаться найти" },
+  { kk: "табу", ru: "находить", note: "обнаружить нужное" },
+  { kk: "келу", ru: "приходить", note: "прибывать куда-то" },
+  { kk: "кету", ru: "уходить", note: "покидать место" },
 ];
-
-function embedUrl(value: string) {
-  try {
-    const url = new URL(value);
-    if (url.hostname === "youtu.be") return `https://www.youtube.com/embed/${url.pathname.slice(1)}`;
-    if (url.hostname.includes("youtube.com")) {
-      const id = url.searchParams.get("v");
-      if (id) return `https://www.youtube.com/embed/${id}`;
-      if (url.pathname.startsWith("/embed/")) return url.toString();
-    }
-    if (url.hostname.includes("vimeo.com")) {
-      const id = url.pathname.split("/").filter(Boolean).pop();
-      if (id) return `https://player.vimeo.com/video/${id}`;
-    }
-  } catch { /* the validation message is shown in the UI */ }
-  return null;
-}
+const videoUrl = "https://www.youtube.com/watch?v=ZFkrkxLKxg8";
+const embedUrl = "https://www.youtube.com/embed/ZFkrkxLKxg8";
 
 export default function CartoonLesson() {
-  const [url, setUrl] = useState("");
-  const [savedUrl, setSavedUrl] = useState("");
   const [shown, setShown] = useState<string | null>(null);
   const [direction, setDirection] = useState<"kk-ru" | "ru-kk">("kk-ru");
-
-  useEffect(() => setUrl(localStorage.getItem("qazaqdos-cartoon-url") ?? ""), []);
-  const playerUrl = useMemo(() => embedUrl(savedUrl), [savedUrl]);
-  const directVideo = /\.(mp4|webm|ogg)(\?.*)?$/i.test(savedUrl);
-  const canPlay = Boolean(playerUrl || directVideo);
-
-  function loadVideo(event: FormEvent) {
-    event.preventDefault();
-    const next = url.trim();
-    setSavedUrl(next);
-    if (next) localStorage.setItem("qazaqdos-cartoon-url", next);
-    else localStorage.removeItem("qazaqdos-cartoon-url");
-  }
 
   const prompt = direction === "kk-ru" ? "Қазақша сөзді бас" : "Русское слово бас";
 
@@ -64,20 +58,15 @@ export default function CartoonLesson() {
     </section>
 
     <section className="cartoonPlayer panel" aria-labelledby="video-title">
-      <div className="sectionHead"><div><h3 id="video-title">Мультфильм</h3><p>YouTube, Vimeo немесе тікелей MP4 сілтемесін қойыңыз</p></div></div>
-      <form className="videoLinkForm" onSubmit={loadVideo}>
-        <label htmlFor="cartoon-url">Видео сілтемесі</label>
-        <div><input id="cartoon-url" type="url" value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://www.youtube.com/watch?v=..." /><button className="btn primary" type="submit"><Play size={17} /> Көру</button></div>
-      </form>
-      {savedUrl && !canPlay && <p className="videoError">Бұл сілтеме әзірге танылмады. YouTube, Vimeo немесе .mp4 сілтемесін қолданыңыз.</p>}
+      <div className="sectionHead"><div><h3 id="video-title">Алдар Көсе</h3><p>Толық мультфильм • шамамен 3 сағат</p></div></div>
       <div className="videoStage">
-        {playerUrl ? <iframe src={playerUrl} title="Мультфильм" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen /> : directVideo ? <video controls src={savedUrl}>Браузеріңіз видеоны қолдамайды.</video> : <div className="videoPlaceholder"><span><Play /></span><b>Мультфильмді бастауға дайынсыз ба?</b><p>Жоғарыға видео сілтемесін енгізіңіз.</p></div>}
+        <iframe src={embedUrl} title="Алдар Көсе — мультфильм" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
       </div>
-      {canPlay && <a className="sourceLink" href={savedUrl} target="_blank" rel="noreferrer">Сілтемені ашу <ExternalLink size={15} /></a>}
+      <a className="sourceLink" href={videoUrl} target="_blank" rel="noreferrer">YouTube-тан ашу <ExternalLink size={15} /></a>
     </section>
 
     <section className="dictionary panel" aria-labelledby="dictionary-title">
-      <div className="dictionaryHead"><div><span className="eyebrow">ВИДЕОДАҒЫ СӨЗДЕР</span><h3 id="dictionary-title">Интерактивті сөздік</h3><p>{prompt} — аудармасы пайда болады.</p></div><button className="directionButton" type="button" onClick={() => { setDirection((current) => current === "kk-ru" ? "ru-kk" : "kk-ru"); setShown(null); }}><Languages size={18} /> {direction === "kk-ru" ? "Қаз → Рус" : "Рус → Қаз"}</button></div>
+      <div className="dictionaryHead"><div><span className="eyebrow">«АЛДАР КӨСЕ» МУЛЬТФИЛЬМІНДЕГІ СӨЗДЕР</span><h3 id="dictionary-title">Үлкен интерактивті сөздік</h3><p>{words.length} сөз • {prompt} — аудармасы пайда болады.</p></div><button className="directionButton" type="button" onClick={() => { setDirection((current) => current === "kk-ru" ? "ru-kk" : "kk-ru"); setShown(null); }}><Languages size={18} /> {direction === "kk-ru" ? "Қаз → Рус" : "Рус → Қаз"}</button></div>
       <div className="wordGrid">
         {words.map((word) => {
           const front = direction === "kk-ru" ? word.kk : word.ru;
