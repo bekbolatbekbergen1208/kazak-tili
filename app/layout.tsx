@@ -19,6 +19,7 @@ import "./characters.css";
 import "./dossha.css";
 import "./polish.css";
 import "./brand.css";
+import "./cartoon.css";
 
 export const metadata: Metadata = {
   title: "QazaqDos — қазақ тілін саяхатпен үйрен",
