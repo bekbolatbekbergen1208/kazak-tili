@@ -5,9 +5,14 @@ import { Clapperboard, Eye, EyeOff, ExternalLink, Languages, RotateCcw } from "l
 import { Shell, StudentTop } from "./shell";
 
 type Word = { kk: string; ru: string; note: string };
+type Phrase = { kk: string; ru: string; speaker: string };
 
 const words: Word[] = [
   { kk: "Алдар Көсе", ru: "Алдар Косе", note: "главный герой" },
+  { kk: "көсе", ru: "безбородый", note: "прозвище Алдара" },
+  { kk: "алдау", ru: "обманывать", note: "вводить в заблуждение" },
+  { kk: "алдану", ru: "быть обманутым", note: "поверить неправде" },
+  { kk: "алдамшы", ru: "обманщик", note: "тот, кто обманывает" },
   { kk: "бай", ru: "богач", note: "богатый человек" },
   { kk: "хан", ru: "хан, правитель", note: "правитель страны" },
   { kk: "кедей", ru: "бедняк", note: "небогатый человек" },
@@ -39,6 +44,25 @@ const words: Word[] = [
   { kk: "табу", ru: "находить", note: "обнаружить нужное" },
   { kk: "келу", ru: "приходить", note: "прибывать куда-то" },
   { kk: "кету", ru: "уходить", note: "покидать место" },
+];
+
+const phrases: Phrase[] = [
+  { kk: "Ассалаумағалейкум!", ru: "Здравствуйте!", speaker: "приветствие" },
+  { kk: "Қош келдіңіз!", ru: "Добро пожаловать!", speaker: "хозяин дома" },
+  { kk: "Төрге шығыңыз.", ru: "Проходите на почётное место.", speaker: "хозяин дома" },
+  { kk: "Дастарқанға келіңіз.", ru: "Подходите к столу.", speaker: "приглашение" },
+  { kk: "Не істеп жүрсің?", ru: "Что ты делаешь?", speaker: "вопрос" },
+  { kk: "Мен жол жүріп келемін.", ru: "Я иду (еду) в путь.", speaker: "путник" },
+  { kk: "Маған көмектесіңізші.", ru: "Помогите мне, пожалуйста.", speaker: "просьба" },
+  { kk: "Уәдеңде тұр!", ru: "Сдержи своё обещание!", speaker: "требование" },
+  { kk: "Бұл әділ емес!", ru: "Это несправедливо!", speaker: "возмущение" },
+  { kk: "Мен сені алдай алмаймын.", ru: "Я не могу тебя обмануть.", speaker: "обещание" },
+  { kk: "Айлаңды асырып жібердің.", ru: "Ты перехитрил всех.", speaker: "о хитрости" },
+  { kk: "Ақылмен іс қыл.", ru: "Поступай с умом.", speaker: "совет" },
+  { kk: "Байлық бақыт әкелмейді.", ru: "Богатство не приносит счастья.", speaker: "мудрость" },
+  { kk: "Жақсылық жаса.", ru: "Делай добро.", speaker: "совет" },
+  { kk: "Рақмет сізге!", ru: "Спасибо вам!", speaker: "благодарность" },
+  { kk: "Сау болыңыз!", ru: "До свидания!", speaker: "прощание" },
 ];
 const videoUrl = "https://www.youtube.com/watch?v=ZFkrkxLKxg8";
 const embedUrl = "https://www.youtube.com/embed/ZFkrkxLKxg8";
@@ -80,6 +104,19 @@ export default function CartoonLesson() {
         })}
       </div>
       <button type="button" className="resetWords" onClick={() => setShown(null)}><RotateCcw size={15} /> Сөздерді жабу</button>
+
+      <div className="phraseSection">
+        <div><span className="eyebrow">ТЫҢДАП ҚАЙТАЛА</span><h4>Мультфильмге арналған фразалар</h4><p>Фразаны басыңыз — орысша мағынасы ашылады.</p></div>
+        <div className="phraseList">
+          {phrases.map((phrase) => {
+            const isShown = shown === phrase.kk;
+            return <button className={`phraseCard ${isShown ? "revealed" : ""}`} key={phrase.kk} type="button" onClick={() => setShown(isShown ? null : phrase.kk)} aria-pressed={isShown}>
+              <span>{phrase.speaker}</span><b>{phrase.kk}</b>
+              {isShown ? <strong><Eye size={16} /> {phrase.ru}</strong> : <em><EyeOff size={16} /> Аударманы көру</em>}
+            </button>;
+          })}
+        </div>
+      </div>
     </section>
   </div></Shell>;
 }
