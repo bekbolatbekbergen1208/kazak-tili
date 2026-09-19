@@ -65,21 +65,12 @@ const phrases: Phrase[] = [
   { kk: "Сау болыңыз!", ru: "До свидания!", speaker: "прощание" },
 ];
 const videos = [
-  { id: "fairy-tales", level: "A1", title: "Қазақша ертегілер жинағы", description: "Қысқа, қарапайым оқиғалар: қоян, құмырсқа, қораз.", videoUrl: "https://www.youtube.com/watch?v=D2vA2-rYXpg", embedUrl: "https://www.youtube.com/embed/D2vA2-rYXpg" },
   { id: "qoshqar", level: "A1", title: "Қошқар мен теке", description: "Жануарлар туралы қарапайым ертегі.", videoUrl: "https://www.youtube.com/watch?v=zsrcsLcbKMc", embedUrl: "https://www.youtube.com/embed/zsrcsLcbKMc" },
   { id: "makta", level: "A1", title: "Мақта қыз бен Мысық", description: "Достық пен жауапкершілік туралы ертегі.", videoUrl: "https://www.youtube.com/watch?v=y03JllPau0Y", embedUrl: "https://www.youtube.com/embed/y03JllPau0Y" },
-  { id: "fox-rabbit", level: "A1", title: "Түлкі мен Қоян", description: "Үй, достық және көмек туралы қысқа әңгіме.", videoUrl: "https://www.youtube.com/watch?v=bHp_f2x7B7Y", embedUrl: "https://www.youtube.com/embed/bHp_f2x7B7Y" },
-  { id: "ant", level: "A1", title: "Құмырсқа мен Шегіртке", description: "Еңбекқорлық туралы таныс ертегі.", videoUrl: "https://www.youtube.com/watch?v=tNv1p7yObgw", embedUrl: "https://www.youtube.com/embed/tNv1p7yObgw" },
   { id: "fairy-collection", level: "A2", title: "Ертегілер жинағы", description: "Бірнеше қазақша ертегімен сөздік қорды кеңейту.", videoUrl: "https://www.youtube.com/watch?v=kjKrMStb8E0", embedUrl: "https://www.youtube.com/embed/kjKrMStb8E0" },
-  { id: "swallow", level: "A2", title: "Қарлығаштың құйрығы неге айыр?", description: "Құс, табиғат және мейірім туралы классикалық мультфильм.", videoUrl: "https://www.youtube.com/watch?v=ZkBfEFv34mo", embedUrl: "https://www.youtube.com/embed/ZkBfEFv34mo" },
   { id: "makta-short", level: "A2", title: "Мақта қыз бен мысық: қысқа нұсқа", description: "Күнделікті диалогтарды тыңдауға арналған қысқа видео.", videoUrl: "https://www.youtube.com/watch?v=dHW2YHwkiMw", embedUrl: "https://www.youtube.com/embed/dHW2YHwkiMw" },
-  { id: "aldar-fun", level: "B1", title: "Алдар Көсенің көңілді оқиғалары", description: "Диалогтары көбірек, күнделікті сөздерді тыңдауға ыңғайлы.", videoUrl: "https://www.youtube.com/watch?v=ghPz381opTM", embedUrl: "https://www.youtube.com/embed/ghPz381opTM" },
-  { id: "fox-crane", level: "B1", title: "Түлкі мен Тырна", description: "Қонақжайлылық пен сыйластық туралы ертегі.", videoUrl: "https://www.youtube.com/watch?v=iPlzkDj566k", embedUrl: "https://www.youtube.com/embed/iPlzkDj566k" },
-  { id: "er-tostik-short", level: "B1", title: "Ер Төстік", description: "Батырлық ертегіге алғашқы қадам.", videoUrl: "https://www.youtube.com/watch?v=Ss4lhn6vQS8", embedUrl: "https://www.youtube.com/embed/Ss4lhn6vQS8" },
-  { id: "er-tostik", level: "B2", title: "Ер Төстік және Жылан Бапы хан", description: "Батырлық ертегі: сапар, достық және ғажайып кейіпкерлер.", videoUrl: "https://www.youtube.com/watch?v=phlovMQN8Ic", embedUrl: "https://www.youtube.com/embed/phlovMQN8Ic" },
-  { id: "aldar", level: "C1", title: "Алдар Көсе", description: "Ұзақ мультфильм: күрделі диалогтар мен тұрақты тіркестер.", videoUrl: "https://www.youtube.com/watch?v=ZFkrkxLKxg8", embedUrl: "https://www.youtube.com/embed/ZFkrkxLKxg8" },
 ] as const;
-const levels = ["A1", "A2", "B1", "B2", "C1"] as const;
+const levels = ["A1", "A2"] as const;
 const videoDictionaries: Record<string, Word[]> = {
   "zsrcsLcbKMc": [
     { kk: "қошқар", ru: "баран", note: "кейіпкер" }, { kk: "ауыл", ru: "аул, деревня", note: "туған жер" }, { kk: "сағыну", ru: "скучать", note: "сағындым" }, { kk: "қайта", ru: "снова, обратно", note: "қайта оралу" }, { kk: "жақсы", ru: "хороший", note: "баға беру" },
@@ -122,6 +113,30 @@ const videoDictionaries: Record<string, Word[]> = {
   ],
 };
 const subtitleVideoIds = new Set(["zsrcsLcbKMc", "y03JllPau0Y", "kjKrMStb8E0", "dHW2YHwkiMw"]);
+const videoPhrases: Record<string, Phrase[]> = {
+  zsrcsLcbKMc: [
+    { kk: "Қошқар, ауылды сағындым.", ru: "Баран, я соскучился по аулу.", speaker: "Қошқар" },
+    { kk: "Ауылға қайтайықшы.", ru: "Давайте вернёмся в аул.", speaker: "өтініш" },
+    { kk: "Достарым, сендерді көргеніме қуаныштымын.", ru: "Друзья, я рад вас видеть.", speaker: "кездесу" },
+  ],
+  y03JllPau0Y: [
+    { kk: "Сәлем, балақайлар!", ru: "Привет, малыши!", speaker: "жүргізуші" },
+    { kk: "Бүгін «Мақта қыз бен мысық» ертегісін оқып беремін.", ru: "Сегодня я расскажу сказку «Макта кыз и кошка».", speaker: "жүргізуші" },
+    { kk: "Жайғасып отырып алыңыздар.", ru: "Усаживайтесь поудобнее.", speaker: "жүргізуші" },
+    { kk: "Маған бір шелек су беріңізші.", ru: "Дайте мне, пожалуйста, ведро воды.", speaker: "мысық" },
+  ],
+  kjKrMStb8E0: [
+    { kk: "Кімнің үйінде жас қыз бар?", ru: "У кого дома есть молодая девушка?", speaker: "сұрақ" },
+    { kk: "Қыздарым, жақсылап дайындалыңдар.", ru: "Дочери, хорошо подготовьтесь.", speaker: "ана" },
+    { kk: "Мен бәрібір сені табамын.", ru: "Я всё равно тебя найду.", speaker: "уәде" },
+  ],
+  dHW2YHwkiMw: [
+    { kk: "Баяғыда Мақта қыз болыпты.", ru: "Давным-давно жила Макта кыз.", speaker: "ертегі" },
+    { kk: "Мысық, мені неге шақырдың?", ru: "Кошка, зачем ты меня позвала?", speaker: "Мақта қыз" },
+    { kk: "Маған бір шелек су берші.", ru: "Дай мне, пожалуйста, ведро воды.", speaker: "мысық" },
+    { kk: "Рақмет.", ru: "Спасибо.", speaker: "алғыс" },
+  ],
+};
 
 export default function CartoonLesson() {
   const [activeVideoId, setActiveVideoId] = useState<(typeof videos)[number]["id"]>("makta");
@@ -130,6 +145,7 @@ export default function CartoonLesson() {
   const activeVideo = videos.find((video) => video.id === activeVideoId) ?? videos[0];
   const activeVideoKey = activeVideo.embedUrl.slice(-11);
   const activeWords = videoDictionaries[activeVideoKey] ?? [];
+  const activePhrases = videoPhrases[activeVideoKey] ?? [];
   const hasSubtitles = subtitleVideoIds.has(activeVideoKey);
 
   const prompt = direction === "kk-ru" ? "Қазақша сөзді бас" : "Русское слово бас";
@@ -143,7 +159,7 @@ export default function CartoonLesson() {
     </section>
 
     <section className="videoLevels panel" aria-labelledby="level-title">
-      <div className="sectionHead"><div><h3 id="level-title">Видео деңгейлері</h3><p>13 видео: A1-ден C1-ге дейін. Деңгейді таңдаңыз.</p></div></div>
+      <div className="sectionHead"><div><h3 id="level-title">Видео деңгейлері</h3><p>Субтитрі бар 4 видео: A1 және A2. Деңгейді таңдаңыз.</p></div></div>
       <div className="levelGroups">{levels.map((level) => <div className="levelGroup" key={level}><h4>{level} деңгейі</h4><div className="levelCards">{videos.filter((video) => video.level === level).map((video) => {
         const active = video.id === activeVideo.id;
         return <button className={`levelCard ${active ? "active" : ""}`} onClick={() => { setActiveVideoId(video.id); setShown(null); }} type="button" key={video.id} aria-pressed={active}>
@@ -179,7 +195,7 @@ export default function CartoonLesson() {
       <div className="phraseSection">
         <div><span className="eyebrow">ТЫҢДАП ҚАЙТАЛА</span><h4>Мультфильмге арналған фразалар</h4><p>Фразаны басыңыз — орысша мағынасы ашылады.</p></div>
         <div className="phraseList">
-          {phrases.map((phrase) => {
+          {activePhrases.map((phrase) => {
             const isShown = shown === phrase.kk;
             return <button className={`phraseCard ${isShown ? "revealed" : ""}`} key={phrase.kk} type="button" onClick={() => setShown(isShown ? null : phrase.kk)} aria-pressed={isShown}>
               <span>{phrase.speaker}</span><b>{phrase.kk}</b>
