@@ -1,5 +1,5 @@
-import CartoonLesson from "@/components/cartoon-lesson";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <CartoonLesson />;
+  redirect("/learn/cartoon");
 }

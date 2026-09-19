@@ -99,6 +99,14 @@ export default function Dashboard() {
           </div>
         ))}
       </section>
+      <section className="panel qd-cartoon-card">
+        <div>
+          <span className="overline">🎬 ВИДЕО САБАҚ</span>
+          <h3>Мультфильм арқылы үйрен</h3>
+          <p>«Алдар Көсе» мультфильмін көріп, сөздер мен фразаларды интерактивті сөздіктен қайталаңыз.</p>
+        </div>
+        <Link className="btn primary" href="/learn/cartoon">Мультфильмді ашу →</Link>
+      </section>
       <div className="qd-grid two">
         <section className="panel">
           <div className="sectionHead">

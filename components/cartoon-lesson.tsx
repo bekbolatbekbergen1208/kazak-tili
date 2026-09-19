@@ -67,14 +67,14 @@ const phrases: Phrase[] = [
 const videoUrl = "https://www.youtube.com/watch?v=ZFkrkxLKxg8";
 const embedUrl = "https://www.youtube.com/embed/ZFkrkxLKxg8";
 
-export default function CartoonLesson() {
+export default function CartoonLesson({ inLearningProgram = false }: { inLearningProgram?: boolean }) {
   const [shown, setShown] = useState<string | null>(null);
   const [direction, setDirection] = useState<"kk-ru" | "ru-kk">("kk-ru");
 
   const prompt = direction === "kk-ru" ? "Қазақша сөзді бас" : "Русское слово бас";
 
-  return <Shell><div className="page cartoonPage">
-    <StudentTop title="Мультфильм арқылы үйрен" sub="Видеоны көріп, жаңа сөздерді бірден қайтала" />
+  const content = <div className="page cartoonPage">
+    {inLearningProgram ? <header className="top"><div><h1>Мультфильм арқылы үйрен</h1><p>Видеоны көріп, жаңа сөздерді бірден қайтала</p></div></header> : <StudentTop title="Мультфильм арқылы үйрен" sub="Видеоны көріп, жаңа сөздерді бірден қайтала" />}
 
     <section className="cartoonIntro">
       <div><span className="eyebrow">ҚАЗАҚ ТІЛІ • ВИДЕО САБАҚ</span><h2>Көр, тыңда, сөзді аш</h2><p>Мультфильмге сілтеме қосыңыз. Төмендегі сөздіктегі сөзді басып, оның аудармасын тексеріңіз.</p></div>
@@ -118,5 +118,7 @@ export default function CartoonLesson() {
         </div>
       </div>
     </section>
-  </div></Shell>;
+  </div>;
+
+  return inLearningProgram ? content : <Shell>{content}</Shell>;
 }
