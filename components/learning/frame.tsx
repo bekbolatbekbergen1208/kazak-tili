@@ -3,7 +3,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
-  Clapperboard,
   Compass,
   Home,
   LogOut,
@@ -30,7 +29,6 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
     ["/learn/national", Trophy, "Ұлттық ойындар"],
     ["/learn/map", Compass, t("Мой маршрут", "My path")],
     ["/learn/books", BookOpen, "Кітап әлемі"],
-    ["/learn/cartoon", Clapperboard, "Мультфильм"],
     ["/learn/friend", MessageCircle, "Досшамен чат"],
     ["/learn/friends", Users, "Достық байланыс"],
     ["/learn/vision", ScanLine, "Досша Vision"],
