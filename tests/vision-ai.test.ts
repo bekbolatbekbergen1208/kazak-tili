@@ -95,6 +95,18 @@ test("vision can use a configured local AI endpoint", async () => {
   assert.equal(response.objects.length, 2);
   delete process.env.QAZAQDOS_AI_BASE_URL;
 });
+test("vision degrades safely when the model returns malformed JSON", async () => {
+  process.env.OLLAMA_BASE_URL = "http://127.0.0.1:11434";
+  const response = await requestVision({
+    key: "",
+    model: "gemma3:4b",
+    image,
+    fetcher: async () => Response.json({ message: { content: "not-json" } }),
+  });
+  assert.equal(response.quality, "uncertain");
+  assert.deepEqual(response.objects, []);
+  delete process.env.OLLAMA_BASE_URL;
+});
 test("vision budget prevents concurrent calls and enforces minute/hour windows", () => {
   const acquire = createVisionLimiter();
   const release = acquire("user", 0)!;

@@ -7,13 +7,14 @@ import { visionWords } from "@/lib/vision/words";
 import { requestVision, validateVisionImage } from "@/lib/vision/recognize";
 import { createVisionLimiter } from "@/lib/vision/limit";
 import { localAiConfigured } from "@/lib/ai/local";
+import { doshaVisionModel } from "@/lib/dosha/config";
 const acquire = createVisionLimiter();
 const json = (body: unknown, status = 200) =>
   NextResponse.json(body, {
     status,
     headers: { "Cache-Control": "private, no-store" },
   });
-const visionModel = () => process.env.QAZAQDOS_VISION_MODEL;
+const visionModel = () => doshaVisionModel();
 export async function GET() {
   const {
     data: { user },

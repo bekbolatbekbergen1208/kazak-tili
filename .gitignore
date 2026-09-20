@@ -10,3 +10,7 @@ tsconfig.tsbuildinfo
 playwright-report/
 test-results/
 .next-production/
+training/data/*.jsonl
+training/data/manifest.json
+training/artifacts/
+training/vision-images/*/

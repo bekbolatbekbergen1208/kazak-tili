@@ -8,8 +8,10 @@ export type LocalAiMessage =
       )[];
     };
 
+import { ollamaBaseUrl } from "@/lib/dosha/config";
+
 export function localAiConfigured(model: string | undefined) {
-  return Boolean(process.env.QAZAQDOS_AI_BASE_URL && model);
+  return Boolean(ollamaBaseUrl() && model);
 }
 
 export async function requestLocalChat({
@@ -27,9 +29,11 @@ export async function requestLocalChat({
   signal?: AbortSignal;
   fetcher?: typeof fetch;
 }) {
-  const baseUrl = process.env.QAZAQDOS_AI_BASE_URL?.replace(/\/+$/, "");
+  const baseUrl = ollamaBaseUrl();
   if (!baseUrl) throw Error("AI_DISABLED");
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
   if (process.env.QAZAQDOS_AI_KEY)
     headers.Authorization = `Bearer ${process.env.QAZAQDOS_AI_KEY}`;
   const imageMessages = messages.map((message) => {
@@ -40,14 +44,20 @@ export async function requestLocalChat({
       .join("\n");
     const images = message.content
       .filter((part) => part.type === "image_url")
-      .map((part) => part.image_url.url.match(/^data:image\/png;base64,(.+)$/)?.[1])
+      .map(
+        (part) =>
+          part.image_url.url.match(
+            /^data:image\/(?:jpeg|png|webp);base64,(.+)$/,
+          )?.[1],
+      )
       .filter((part): part is string => Boolean(part));
     return { role: message.role, content: text, images };
   });
   const hasImage = imageMessages.some(
     (message) => "images" in message && message.images.length,
   );
-  if (hasImage) {
+  const nativeOllama = hasImage || !baseUrl.endsWith("/v1");
+  if (nativeOllama) {
     const ollamaUrl = baseUrl.endsWith("/v1")
       ? baseUrl.slice(0, -3)
       : baseUrl.replace(/\/openai$/i, "");
@@ -71,7 +81,9 @@ export async function requestLocalChat({
       throw Error(response.status === 429 ? "AI_BUSY" : "AI_UNAVAILABLE");
     const data = await response.json();
     const reply =
-      typeof data?.message?.content === "string" ? data.message.content.trim() : "";
+      typeof data?.message?.content === "string"
+        ? data.message.content.trim()
+        : "";
     if (!reply) throw Error("AI_UNAVAILABLE");
     return reply;
   }

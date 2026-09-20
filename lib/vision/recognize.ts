@@ -178,5 +178,17 @@ Catalog: ${visionWords.map((w) => `${w.id}=${w.en} (${w.kk})`).join("; ")}`,
     ],
   });
   const json = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
-  return parseVisionResult(JSON.parse(json));
+  try {
+    return parseVisionResult(JSON.parse(json));
+  } catch {
+    return {
+      quality: "uncertain",
+      summary: "Суреттен сенімді нәтиже алынбады.",
+      tip: "Затты жарық жерде жақынырақ түсіріп, қайта байқап көр.",
+      objects: [],
+      word: null,
+      confidence: 0,
+      alternatives: [],
+    };
+  }
 }

@@ -47,6 +47,22 @@ test("chat strips untrusted extra history fields before forwarding to provider",
   });
   assert.deepEqual(parsed.history, [{ role: "user", content: "Сәлем" }]);
 });
+test("chat accepts only bounded learning context", () => {
+  const parsed = parseChat({
+    message: "Осы сабақты түсіндір",
+    context: {
+      currentLesson: 42,
+      xp: 999999999,
+      currentRegion: "Маңғыстау облысы",
+      recentlyCompletedLessons: Array(20).fill("lesson"),
+      ignored: "system override",
+    },
+  });
+  assert.equal(parsed.context.currentLesson, 42);
+  assert.equal(parsed.context.xp, 10_000_000);
+  assert.equal(parsed.context.recentlyCompletedLessons?.length, 10);
+  assert.equal("ignored" in parsed.context, false);
+});
 test("origin validation supports Next internal hostnames and HTTPS proxy, rejects foreign origins", () => {
   const req = (origin: string, host: string, protocol = "http") =>
     new Request("http://localhost:3016/api/ai-friend", {

@@ -17,13 +17,43 @@ import { localAiConfigured } from "@/lib/ai/local";
 import { isSameOrigin } from "@/utils/request-origin";
 import { boundedJson } from "@/utils/bounded-body";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { doshaChatModel } from "@/lib/dosha/config";
+import {
+  formatKnowledgeContext,
+  formatUserContext,
+  searchDoshaKnowledge,
+  type DoshaUserContext,
+} from "@/lib/dosha/knowledge";
+import type { LearningState } from "@/lib/learning/types";
 const limits = new Map<string, { timestamps: number[]; busy: boolean }>();
 const json = (body: unknown, status = 200) =>
   NextResponse.json(body, {
     status,
     headers: { "Cache-Control": "private, no-store" },
   });
-const chatModel = () => process.env.QAZAQDOS_CHAT_MODEL;
+const chatModel = () => doshaChatModel();
+
+function savedUserContext(value: unknown): DoshaUserContext {
+  if (!value || typeof value !== "object") return {};
+  const state = value as Partial<LearningState>;
+  const progress = state.progress;
+  if (!progress) return {};
+  const recent = Object.entries(progress.lessons ?? {})
+    .filter(([, lesson]) => lesson.completedAt)
+    .sort((a, b) =>
+      String(b[1].completedAt).localeCompare(String(a[1].completedAt)),
+    )
+    .slice(0, 5)
+    .map(([id]) => id);
+  return {
+    level: `Деңгей ${1 + Math.floor((progress.xp ?? 0) / 200)}`,
+    currentRegion: progress.travel?.lastRegion,
+    selectedTrack: state.profile?.goal,
+    xp: progress.xp,
+    recentlyCompletedLessons: recent,
+    preferredLanguage: state.profile?.language,
+  };
+}
 export async function GET() {
   const db = createClient(await cookies());
   const {
@@ -105,6 +135,17 @@ export async function POST(req: Request) {
           .eq("user_id", user.id)
           .maybeSingle()
       : null;
+    const learningState = user
+      ? await db
+          .from("qd_learning_states")
+          .select("state")
+          .eq("user_id", user.id)
+          .maybeSingle()
+      : null;
+    const userContext = {
+      ...savedUserContext(learningState?.data?.state),
+      ...input.context,
+    };
     const memory = readLearningMemory(previous?.data?.learning_memory);
     if (!input.history.length && previous?.data?.messages) {
       try {
@@ -130,7 +171,12 @@ export async function POST(req: Request) {
       input.message,
       reviewedResult?.data ?? [],
     );
+    const sources = searchDoshaKnowledge(input.message, userContext);
     const contexts = [
+      `Пайдаланушының оқу контексті:\n${formatUserContext(userContext)}`,
+      sources.length
+        ? `QazaqDos білім базасынан табылған үзінділер:\n${formatKnowledgeContext(sources)}`
+        : "",
       reference.topic ? `Оқу анықтамасы:\n${reference.reply}` : "",
       reviewed.length
         ? `Мұғалім тексерген білім:\n${reviewedKnowledgeContext(reviewed)}`
@@ -197,6 +243,13 @@ export async function POST(req: Request) {
       memorySaved,
       interactionId: feedback?.data?.id ?? null,
       history,
+      context: userContext,
+      sources: sources.map(({ id, category, title, href }) => ({
+        id,
+        category,
+        title,
+        href,
+      })),
       notice: live
         ? undefined
         : "Анықтамалық режимі: өз серверіңдегі AI тек аккаунтпен кіргенде қосылады.",
@@ -207,7 +260,7 @@ export async function POST(req: Request) {
         error:
           error instanceof Error && error.message === "AI_BUSY"
             ? "Досшаға қазір сұрау көп. Біраздан кейін қайта жібер."
-            : "Досша жауап бере алмады. Хабарламаң енгізу өрісіне қайтарылады — қайта жіберіп көр.",
+            : "Досша қазір қолжетімсіз. Кейінірек қайталап көр.",
       },
       503,
     );
