@@ -91,6 +91,36 @@ test("asyk validates turns, rejects invalid shots, resumes and rewards once", ()
   assert.equal(national(s).results.length, 1);
   assert.equal(national(s).rewards.length, 1);
 });
+test("asyk requires a correct answer before every shot", () => {
+  let s = applyAction(ready(), { type: "national-start", kind: "asyk" }, now);
+  const game = national(s).session!,
+    question = questionFor(game.id, game.turn),
+    wrong = (question.answer + 1) % question.options.length;
+  s = applyAction(
+    s,
+    {
+      type: "national-answer",
+      sessionId: game.id,
+      turn: game.turn,
+      answer: wrong,
+    },
+    now,
+  );
+  assert.equal(national(s).session!.answered, false);
+  assert.throws(() =>
+    applyAction(
+      s,
+      {
+        type: "national-shot",
+        sessionId: game.id,
+        turn: game.turn,
+        dx: 0,
+        dy: -120,
+      },
+      now,
+    ),
+  );
+});
 test("arqan correct fast answers beat stats; timeout loses; daily cap and claims are idempotent", () => {
   let s = ready();
   for (let round = 0; round < 4; round++) {

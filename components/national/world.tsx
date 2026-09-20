@@ -6,6 +6,7 @@ import { useLearning } from "@/components/learning/provider";
 import { CharacterArt } from "@/components/characters/character-art";
 import { selectedCharacter, equipmentFor } from "@/lib/characters/state";
 import { national } from "@/lib/national/state";
+import { questionFor } from "@/lib/national/catalog";
 import {
   worldGame,
   teamQuestions,
@@ -21,6 +22,12 @@ import { boardMove, legalMoves, newBoard } from "@/lib/national/board";
 import { NationalFrame, useGameSound } from "./shared";
 import { GameDrawing } from "./world-art";
 import "./world.css";
+
+type PendingAction = {
+  key: string;
+  label: string;
+  value?: number;
+};
 
 function Companion({
   action = "idle",
@@ -65,7 +72,10 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
     [systemReduced, setSystemReduced] = useState(false),
     [fps, setFps] = useState(0),
     [tutorial, setTutorial] = useState(false),
-    [board, setBoard] = useState(newBoard);
+    [board, setBoard] = useState(newBoard),
+    [pendingAction, setPendingAction] = useState<PendingAction | null>(null),
+    [questionOffset, setQuestionOffset] = useState(0),
+    [questionFeedback, setQuestionFeedback] = useState("");
   const [shotActive, setShotActive] = useState(false);
   const reduceMotion = reduced || systemReduced || !state.profile.animations;
   const timingRef = useRef<HTMLElement>(null);
@@ -191,7 +201,7 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
       JSON.stringify({ quality: nextQuality, reduced: nextReduced }),
     );
   }
-  function act(key: string, value?: number) {
+  function performAction(key: string, value?: number) {
     const current = snap.current;
     if (
       !current ||
@@ -217,6 +227,19 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
       setError(e instanceof Error ? e.message : "Әрекет орындалмады");
     }
   }
+  function requestAction(key: string, label: string, value?: number) {
+    if (
+      !snap.current ||
+      snap.current.finished ||
+      paused ||
+      busy ||
+      pendingAction ||
+      (kind === "asyk" && shotActive)
+    )
+      return;
+    setQuestionFeedback("");
+    setPendingAction({ key, label, value });
+  }
   const primary: Partial<Record<WorldKind, string>> = {
     asyk: "shoot",
     arqan: "pull",
@@ -236,8 +259,28 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
     soqyrteke: "take",
     kokpar: "take",
   };
-  const actRef = useRef(act);
-  actRef.current = act;
+  const actionLabels: Record<string, string> = {
+    left: "Солға жылжу",
+    right: "Оңға жылжу",
+    up: "Жоғары жылжу",
+    down: "Төмен жылжу",
+    shoot: "Ату",
+    pull: "Арқанды тарту",
+    collect: "Жинау",
+    boost: "Үдету",
+    rest: "Демалу",
+    run: "Жүгіру",
+    take: "Алу",
+    fly: "Ұшты",
+    stay: "Ұшпайды",
+    throw: "Лақтыру",
+    catch: "Қағу",
+    choose: "Таңдау",
+    draw: "Тең ойын жариялау",
+    pit: "Отауды таңдау",
+  };
+  const actRef = useRef(requestAction);
+  actRef.current = requestAction;
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement).closest("button,input,select,a,textarea"))
@@ -251,7 +294,7 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
       const key = e.code === "Space" ? primary[kind] : keys[e.code];
       if (key) {
         e.preventDefault();
-        actRef.current(key, aim);
+        actRef.current(key, actionLabels[key] ?? "Ойын әрекеті", aim);
       }
     };
     window.addEventListener("keydown", handler);
@@ -259,6 +302,9 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
   }, [kind, aim, primary[kind]]);
   const start = async () => {
     setError("");
+    setPendingAction(null);
+    setQuestionOffset(0);
+    setQuestionFeedback("");
     await dispatch({ type: "village-start", kind });
     setPaused(false);
   };
@@ -267,13 +313,42 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
       <button
         className="btn primary"
         key={`${key}-${value ?? label}`}
-        disabled={paused || busy || (kind === "asyk" && shotActive)}
-        onClick={() => act(key, value)}
+        disabled={
+          paused ||
+          busy ||
+          Boolean(pendingAction) ||
+          (kind === "asyk" && shotActive)
+        }
+        onClick={() => requestAction(key, label, value)}
       >
         {label}
       </button>
     ));
   const occupied = saved && !saved.finished && saved.kind !== kind;
+  const actionQuestion =
+    session && pendingAction
+      ? questionFor(
+          `${session.id}-${pendingAction.key}`,
+          session.events.length + questionOffset,
+        )
+      : null;
+  function answerAction(index: number) {
+    if (!pendingAction || !actionQuestion) return;
+    const correct = index === actionQuestion.answer;
+    sound(correct);
+    if (!correct) {
+      setQuestionFeedback(
+        `Қате. ${actionQuestion.explanation} Жаңа сұраққа жауап бер.`,
+      );
+      setQuestionOffset((value) => value + 1);
+      return;
+    }
+    const action = pendingAction;
+    setQuestionFeedback(`Дұрыс! ${actionQuestion.explanation}`);
+    setPendingAction(null);
+    setQuestionOffset(0);
+    performAction(action.key, action.value);
+  }
   const roundReward = session
     ? national(state).rewards.find(
         (r) =>
@@ -438,12 +513,15 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
                           session.finished ||
                           paused ||
                           busy ||
+                          Boolean(pendingAction) ||
                           !legalMoves(session.board).includes(i)
                         }
                         className={
                           session.board.trail.includes(i) ? "vw-sown" : ""
                         }
-                        onClick={() => act("pit", i)}
+                        onClick={() =>
+                          requestAction("pit", `${i + 1}-отауды таңдау`, i)
+                        }
                       >
                         <small>{(i % 9) + 1}-отау</small>
                         <strong>
@@ -521,6 +599,28 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
             <p className="vw-feedback" role="status">
               {session.feedback}
             </p>
+            {pendingAction && actionQuestion && !session.finished && (
+              <section
+                className="vw-action-question"
+                aria-labelledby="vw-action-question-title"
+              >
+                <span>ӘРЕКЕТ: {pendingAction.label}</span>
+                <h2 id="vw-action-question-title">{actionQuestion.prompt}</h2>
+                <div>
+                  {actionQuestion.options.map((option, index) => (
+                    <button
+                      className="btn ghost"
+                      key={`${questionOffset}-${option}`}
+                      disabled={busy}
+                      onClick={() => answerAction(index)}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+                {questionFeedback && <p role="status">{questionFeedback}</p>}
+              </section>
+            )}
             {!session.finished && (
               <>
                 <div className="vw-controls">
@@ -631,8 +731,8 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
                 </div>
                 <button
                   className="btn ghost"
-                  disabled={busy || paused}
-                  onClick={() => act("retire")}
+                  disabled={busy || paused || Boolean(pendingAction)}
+                  onClick={() => performAction("retire")}
                 >
                   Раундты тоқтату
                 </button>

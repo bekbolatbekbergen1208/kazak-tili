@@ -735,6 +735,32 @@
   border-radius: 6px;
   margin: 12px 0;
 }
+.vw-game .vw-action-question {
+  width: min(720px, calc(100% - 24px));
+  margin: 14px auto;
+  padding: 18px;
+  border: 1px solid #b9d2c2;
+  border-radius: 8px;
+  background: #f7fbf7;
+}
+.vw-game .vw-action-question > span {
+  color: #277e6d;
+  font-size: 12px;
+  font-weight: 800;
+}
+.vw-game .vw-action-question h2 {
+  margin: 8px 0 14px;
+  font-size: 20px;
+}
+.vw-game .vw-action-question > div {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.vw-game .vw-action-question p {
+  margin: 12px 0 0;
+  color: #674c28;
+}
 .vw-game .vw-controls {
   border-radius: 0;
   background: #f5f8f5;
@@ -851,6 +877,9 @@
   .vw-game .vw-controls .btn {
     flex: 1 1 auto;
     font-size: 14px;
+  }
+  .vw-game .vw-action-question > div {
+    grid-template-columns: 1fr;
   }
 }
 @media (prefers-reduced-motion: reduce) {

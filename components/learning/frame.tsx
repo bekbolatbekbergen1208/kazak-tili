@@ -3,7 +3,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
+  Clapperboard,
   Compass,
+  GraduationCap,
   Home,
   LogOut,
   Settings,
@@ -24,6 +26,8 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
     path = usePathname();
   const nav = [
     ["/learn", Home, t("Главная", "Home")],
+    ["/student/lessons", GraduationCap, "1000 сабақ"],
+    ["/student/cartoon", Clapperboard, "Мультфильм"],
     ["/kazakhstan", Compass, "Қазақстанға саяхат"],
     ["/learn/history", Compass, "Тарих"],
     ["/learn/national", Trophy, "Ұлттық ойындар"],
@@ -63,12 +67,6 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <div className="sideBottom">
-          <Link href="/student/lessons">
-            {t(
-              "Прежний каталог · 1000 уроков",
-              "Original catalog · 1,000 lessons",
-            )}
-          </Link>
           <button className="btn ghost" onClick={() => void logout()}>
             <LogOut size={18} />
             {t("Выйти", "Sign out")}

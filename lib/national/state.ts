@@ -182,13 +182,14 @@ export function applyNational(s: LearningState, a: NationalAction, now: Date) {
     const correct =
       a.answer === questionFor(session.id, session.turn).answer &&
       (session.kind === "asyk" || elapsed <= 15000);
-    session.answered = true;
+    session.answered = session.kind === "asyk" ? correct : true;
     session.bonus = correct;
     session.combo = correct ? session.combo + 1 : 0;
     if (correct) {
       session.correct++;
       daily.correct++;
     }
+    if (session.kind === "asyk" && !correct) session.questionAt = date;
     if (session.kind === "arqan") {
       session.rope += correct
         ? 18 +
@@ -206,6 +207,7 @@ export function applyNational(s: LearningState, a: NationalAction, now: Date) {
     if (
       session.kind !== "asyk" ||
       !session.answered ||
+      !session.bonus ||
       !Number.isFinite(a.dx) ||
       !Number.isFinite(a.dy) ||
       Math.hypot(a.dx, a.dy) > 121 ||
