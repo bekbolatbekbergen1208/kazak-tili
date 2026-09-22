@@ -81,6 +81,7 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
   const clock = useRef(time),
     snap = useRef(session),
     pauseRef = useRef(paused),
+    pendingRef = useRef(false),
     prevSaved = useRef(saved?.id),
     sound = useGameSound(national(state).settings.sound);
   const saveRef = useRef<(s: WorldSession) => Promise<void>>(async () => {});
@@ -114,6 +115,7 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
   }
   snap.current = session;
   pauseRef.current = paused;
+  pendingRef.current = Boolean(pendingAction);
   useEffect(() => {
     if (
       saved?.kind === kind &&
@@ -153,7 +155,7 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
     const loop = (now: number) => {
       const delta = Math.min(100, now - last);
       last = now;
-      if (!pauseRef.current && !document.hidden) {
+      if (!pauseRef.current && !pendingRef.current && !document.hidden) {
         clock.current += delta;
         if (timingRef.current && snap.current)
           timingRef.current.style.left = `${phaseAt(snap.current, clock.current) * 100}%`;
