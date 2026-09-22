@@ -87,7 +87,7 @@ export default function DosshaReview() {
         <header className="teacherTop">
           <div>
             <span className="demoTag">ТЕКСЕРІЛГЕН БІЛІМ</span>
-            <h1>Досшаны дамыту</h1>
+            <h1>Досжанды дамыту</h1>
             <p>Қате жауаптарды түзетіп, білім қорына бекітіңіз</p>
           </div>
           <button
@@ -148,7 +148,7 @@ export default function DosshaReview() {
                 </div>
                 <h3>Оқушы сұрағы</h3>
                 <p>{item.question}</p>
-                <h3>Досшаның жауабы</h3>
+                <h3>Досжанның жауабы</h3>
                 <p className="dossha-old-answer">{item.answer}</p>
                 {item.learner_note && (
                   <blockquote>Оқушы пікірі: {item.learner_note}</blockquote>

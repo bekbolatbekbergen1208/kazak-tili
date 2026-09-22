@@ -1,4 +1,4 @@
-# Dosha model training
+# Doszhan model training
 
 This package prepares QazaqDos data for Gemma 3 4B fine-tuning with Unsloth. It
 is based on the official Unsloth `python_scripts/Gemma3_(4B).py` and
@@ -20,7 +20,7 @@ second hand-copied knowledge base.
 | Kazakh grammar                     | `lib/friend/grammar.ts`                            |
 | Vision vocabulary                  | `lib/vision/words.ts`                              |
 | Robotics terms and unified records | `lib/dosha/knowledge.ts`                           |
-| Dosha style and safety rules       | `lib/dosha/prompt.ts`                              |
+| Doszhan style and safety rules     | `lib/dosha/prompt.ts`                              |
 
 ## 1. Generate datasets
 
@@ -74,7 +74,11 @@ Package pins mirror the referenced Unsloth notebooks. If the current Unsloth
 installation guide requires a CUDA-specific install command, use that command
 first, then install the remaining requirements.
 
-## 3. Train Dosha
+The QazaqDos development Mac has no CUDA, Unsloth, or PyTorch installed. The
+dataset can be generated there, but actual fine-tuning requires the separate GPU
+runtime above. No model has been fine-tuned by the dataset-generation command.
+
+## 3. Train Doszhan
 
 Start with a short smoke run:
 
@@ -94,10 +98,10 @@ python training/train_dosha.py \
 The script uses 4-bit QLoRA, Gemma 3 chat formatting, and response-only loss.
 Tune epochs and learning rate from held-out evaluation results, not only loss.
 For compatibility with Gemma templates that do not expose a separate `system`
-role, the formatter prepends the trusted Dosha instruction to the first user
+role, the formatter prepends the trusted Doszhan instruction to the first user
 turn before tokenization.
 
-## 4. Train Dosha Vision
+## 4. Train Doszhan Vision
 
 First ensure `manifest.json` reports enough balanced, reviewed images for every
 class. Then run:

@@ -62,7 +62,7 @@ export default async function Page() {
 - `/teacher/students` — сүзгіленетін анонимді қатысушылар
 - `/about-research` — әдістеме, формулалар, сауалнама және этика
 - `/methodology` — 2023–2029 тіл саясаты тұжырымдамасына негізделген A1–C1 оқу моделі
-- `/api/ai-friend` — Досша чаты: өз серверіндегі AI endpoint бапталса толық жауап береді, әйтпесе жергілікті анықтамалық режимі қолданылады. [Баптау](docs/DOSSHA_CHAT.md).
+- `/api/ai-friend` — Досжан чаты: өз серверіндегі AI endpoint бапталса толық жауап береді, әйтпесе жергілікті анықтамалық режимі қолданылады. [Баптау](docs/DOSSHA_CHAT.md).
 - `/api/adaptive` — дәлдік пен қайталанған қателерге негізделген ережелер
 
 Оқушының сабақ күйі мен қиын сөздері браузердің `localStorage` қоймасында сақталады. CSV экспорты жеке деректерсіз жасалады. Dashboard-тағы барлық нәтижелер экранда «ДЕМО ДЕРЕКТЕР» деп белгіленген және ғылыми қорытынды болып саналмайды.
@@ -73,7 +73,7 @@ export default async function Page() {
 
 `supabase/schema.sql` ұсынылған деректер құрылымын қамтиды. Өндірісте Supabase Auth, Row Level Security, мұғалімнің рейтингті өшіруі, келісімді тіркеу/қайтарып алу, қатысушыны толық жою, серверлік оқиға журналын және нақты тест/сауалнама редакторын қосу қажет. Нағыз LLM қосылса, жүйелік қауіпсіздік саясаты, контент сүзгісі, лимит және аудит міндетті.
 
-Досша маскоты built-in image generation көмегімен осы жобаға арнайы жасалды. Финал prompt: original sky-blue steppe spirit, modern cream chapan with Kazakh ornamental trim, orange travel scarf, compass, friendly 3D educational-game style, no text or known mascot resemblance.
+Досжан маскоты built-in image generation көмегімен осы жобаға арнайы жасалды. Финал prompt: original sky-blue steppe spirit, modern cream chapan with Kazakh ornamental trim, orange travel scarf, compass, friendly 3D educational-game style, no text or known mascot resemblance.
 
 «Қазақстанға саяхат»: `/kazakhstan` — карта, өңірлер, сөздік пен ойындар.
 Контенттің дайындық күйі және Supabase баптауы: [docs/TRAVEL.md](docs/TRAVEL.md).

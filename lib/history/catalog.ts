@@ -432,7 +432,7 @@ export const historyCities: HistoryCity[] = [
       {
         id: "truth",
         kind: "choice",
-        title: "Досшаның сұрағы",
+        title: "Досжанның сұрағы",
         prompt: "Айша бибі туралы әңгімені таныстырғанда қандай сөйлем дұрыс?",
         options: [
           "Бұл — халық арасында тараған аңыз",

@@ -368,7 +368,7 @@ export function HistoryCityLevel({ city }: { city: HistoryCity }) {
               <p className="hs-eyebrow">САПАР АЯҚТАЛДЫ</p>
               <h2>{city.badge}!</h2>
               <p>
-                Досша: «Мұраны танып, жаңа сөздер үйрендің. Сенің зерттеуің
+                Досжан: «Мұраны танып, жаңа сөздер үйрендің. Сенің зерттеуің
                 келесі сапарға жол ашты!»
               </p>
               <div className="hs-reward-row">

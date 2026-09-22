@@ -19,6 +19,11 @@ import { commonDictionary } from "@/components/learning/lesson-translator";
 import type { InterfaceLanguage } from "@/lib/learning/types";
 import { boundedHistory, parseChat, type ChatMessage } from "@/lib/friend/chat";
 import { friendSuggestions } from "@/lib/friend/knowledge";
+import {
+  writingGenres,
+  writingStyles,
+  type WritingRequest,
+} from "@/lib/dosha/writing";
 
 type Message = {
   me: boolean;
@@ -52,7 +57,7 @@ declare global {
 const dictionary = commonDictionary;
 const greeting: Message = {
   me: false,
-  text: "Сәлем! Мен — Досша 👋 Ережені түсіндірейін бе, сөйлеміңді тексерейін бе? Күнделікті сұрағыңды да қоя бер. Бірге ойланып көрейік!",
+  text: "Сәлем! Мен — Досжан 👋 Ережені түсіндірейін бе, сөйлеміңді тексерейін бе? Күнделікті сұрағыңды да қоя бер. Бірге ойланып көрейік!",
 };
 export default function Friend({ embedded = false }: { embedded?: boolean }) {
   const Wrapper = embedded ? Fragment : Shell;
@@ -60,6 +65,11 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
   const [value, setValue] = useState("");
   const [mode, setMode] = useState<"ai" | "reference">("reference");
   const [language, setLanguage] = useState("kk");
+  const [writingMode, setWritingMode] = useState(false);
+  const [writingGenre, setWritingGenre] =
+    useState<WritingRequest["genre"]>("essay");
+  const [writingStyle, setWritingStyle] =
+    useState<WritingRequest["style"]>("neutral");
   const [pending, setPending] = useState(false);
   const [ready, setReady] = useState(false);
   const [chatError, setChatError] = useState("");
@@ -102,7 +112,14 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
       const response = await fetch("/api/ai-friend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, history, language }),
+        body: JSON.stringify({
+          message,
+          history,
+          language,
+          ...(writingMode
+            ? { writing: { genre: writingGenre, style: writingStyle } }
+            : {}),
+        }),
         signal: controller.signal,
       });
       const data = await response.json();
@@ -313,7 +330,7 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
         }
       >
         <StudentTop
-          title="Досшамен сөйлесу"
+          title="Досжанмен сөйлесу"
           sub="Сұрағыңды қой · ережені түсін · қазақша сөйлес"
         />
         <div className="chat">
@@ -322,7 +339,7 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
               <Mascot />
               <i />
             </div>
-            <h2>Досша</h2>
+            <h2>Досжан</h2>
             <span className="online">
               ● {mode === "ai" ? "Оқу көмекшісі" : "Анықтамалық режимі"}
             </span>
@@ -382,7 +399,7 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
             <div className="chatHead">
               <Sparkles />
               <div>
-                <b>Досшадан сұра</b>
+                <b>Досжаннан сұра</b>
                 <span>
                   {pending
                     ? "Жауап дайындап жатыр…"
@@ -421,7 +438,7 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
               className="messages"
               ref={messagesRef}
               role="log"
-              aria-label="Досшамен әңгіме"
+              aria-label="Досжанмен әңгіме"
               aria-live="polite"
               aria-busy={pending}
             >
@@ -502,7 +519,7 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
                 <div className="message dossha-typing">
                   <Mascot />
                   <p role="status">
-                    {ready ? "Досша ойланып жатыр…" : "Чат ашылуда…"}
+                    {ready ? "Досжан ойланып жатыр…" : "Чат ашылуда…"}
                     <span className="dossha-dots" aria-hidden="true">
                       <i />
                       <i />
@@ -523,6 +540,57 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
                   {text}
                 </button>
               ))}
+            </div>
+            <div className="dossha-writing-controls">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={writingMode}
+                  onChange={(event) => setWritingMode(event.target.checked)}
+                  disabled={pending}
+                />{" "}
+                Мәтінді түзету
+              </label>
+              {writingMode && (
+                <>
+                  <label>
+                    Жанр{" "}
+                    <select
+                      value={writingGenre}
+                      onChange={(event) =>
+                        setWritingGenre(
+                          event.target.value as WritingRequest["genre"],
+                        )
+                      }
+                      disabled={pending}
+                    >
+                      {Object.entries(writingGenres).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Стиль{" "}
+                    <select
+                      value={writingStyle}
+                      onChange={(event) =>
+                        setWritingStyle(
+                          event.target.value as WritingRequest["style"],
+                        )
+                      }
+                      disabled={pending}
+                    >
+                      {Object.entries(writingStyles).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </>
+              )}
             </div>
             {isListening && (
               <div className="voiceStatus">
@@ -559,7 +627,9 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
                 placeholder={
                   isListening
                     ? "Сөйлей бер…"
-                    : "Сұрағыңды немесе тексеретін мәтініңді жаз…"
+                    : writingMode
+                      ? "Түзететін мәтініңді жаз…"
+                      : "Сұрағыңды немесе тексеретін мәтініңді жаз…"
                 }
                 aria-label="Хабарлама"
               />

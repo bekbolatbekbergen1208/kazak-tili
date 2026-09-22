@@ -24,12 +24,12 @@ const student = [
   ["/student/cartoon", Clapperboard, "Мультфильм"],
   ["/student/journey", Compass, "Саяхаттар"],
   ["/student/assessment", BookOpen, "Дағдылар"],
-  ["/student/friend", MessageCircle, "Досша"],
+  ["/student/friend", MessageCircle, "Досжан"],
   ["/leaderboard", Medal, "Рейтинг"],
 ] as const;
 const teacher = [
   ["/teacher", LayoutDashboard, "Шолу"],
-  ["/teacher/dossha", BrainCircuit, "Досшаны дамыту"],
+  ["/teacher/dossha", BrainCircuit, "Досжанды дамыту"],
   ["/teacher/research", BookOpen, "Зерттеу"],
   ["/teacher/analytics", BarChart3, "Аналитика"],
   ["/teacher/students", Users, "Оқушылар"],

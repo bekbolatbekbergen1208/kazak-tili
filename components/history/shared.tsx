@@ -60,11 +60,11 @@ export function Dossha({ children }: { children: React.ReactNode }) {
     <div
       className="hs-dossha"
       role="complementary"
-      aria-label="Досшаның кеңесі"
+      aria-label="Досжанның кеңесі"
     >
       <Mascot />
       <div>
-        <strong>Досша</strong>
+        <strong>Досжан</strong>
         <div aria-live="polite">{children}</div>
       </div>
     </div>

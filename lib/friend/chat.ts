@@ -2,6 +2,11 @@ import { learningMemoryContext } from "./memory";
 import { requestLocalChat } from "@/lib/ai/local";
 import type { DoshaUserContext } from "@/lib/dosha/knowledge";
 import { dosshaInstructions } from "@/lib/dosha/prompt";
+import {
+  parseWriting,
+  writingInstructions,
+  type WritingRequest,
+} from "@/lib/dosha/writing";
 
 export { dosshaInstructions } from "@/lib/dosha/prompt";
 
@@ -11,6 +16,7 @@ export function parseChat(body: unknown): {
   history: ChatMessage[];
   language: string;
   context: DoshaUserContext;
+  writing?: WritingRequest;
 } {
   if (!body || typeof body !== "object") throw Error("Invalid message");
   const b = body as Record<string, unknown>;
@@ -70,6 +76,7 @@ export function parseChat(body: unknown): {
         ? b.language
         : "kk",
     context,
+    writing: parseWriting(b.writing),
   };
 }
 export function boundedHistory(messages: ChatMessage[], max = 20) {
@@ -89,6 +96,7 @@ export async function requestDossha({
   message,
   language,
   context,
+  writing,
   memory,
   signal,
   fetcher = fetch,
@@ -99,6 +107,7 @@ export async function requestDossha({
   message: string;
   language: string;
   context?: string;
+  writing?: WritingRequest;
   memory?: unknown;
   signal?: AbortSignal;
   fetcher?: typeof fetch;
@@ -111,7 +120,7 @@ export async function requestDossha({
     messages: [
       {
         role: "system",
-        content: `${dosshaInstructions}\nТүсіндіру тілінің таңдауы: ${language}.${context ? `\nҚосымша тексерілген контекст:\n${context}` : ""}`,
+        content: `${dosshaInstructions}\nТүсіндіру тілінің таңдауы: ${language}.${writing ? `\n${writingInstructions(writing)}` : ""}${context ? `\nҚосымша тексерілген контекст:\n${context}` : ""}`,
       },
       ...(learningMemoryContext(memory)
         ? [{ role: "user" as const, content: learningMemoryContext(memory) }]

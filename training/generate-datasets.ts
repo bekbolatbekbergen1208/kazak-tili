@@ -5,6 +5,7 @@ import { doshaKnowledge, type KnowledgeSource } from "../lib/dosha/knowledge";
 import { dosshaInstructions } from "../lib/dosha/prompt";
 import { grammarTopics } from "../lib/friend/grammar";
 import { visionWords } from "../lib/vision/words";
+import { writingInstructions, type WritingRequest } from "../lib/dosha/writing";
 
 type TextPart = { type: "text"; text: string };
 type ImagePart = { type: "image"; image: string };
@@ -105,6 +106,71 @@ function textRows(): Row[] {
         },
       ],
     },
+    ...(
+      [
+        {
+          id: "writing-essay",
+          genre: "essay",
+          style: "neutral",
+          original: "Мен туған жерді жақсы көрем өйткені ол менің үйім.",
+          corrected:
+            "Мен туған жерімді жақсы көремін, өйткені ол — менің үйім.",
+          explanation:
+            "«Көрем» сөзі «көремін» деп толықтырылды; себеп бағыныңқының алдында үтір қойылды. Эсседегі жеке пікір сақталды.",
+        },
+        {
+          id: "writing-letter",
+          genre: "formalLetter",
+          style: "formal",
+          original: "Сәлем. Маған жауап беріңіз тез.",
+          corrected:
+            "Сәлеметсіз бе! Өтінішіме мүмкіндігінше жақын уақытта жауап беруіңізді сұраймын.",
+          explanation:
+            "Ресми хатқа сай сыпайы амандасу мен өтініш формасы қолданылды; негізгі өтініш өзгермеді.",
+        },
+        {
+          id: "writing-story",
+          genre: "story",
+          style: "creative",
+          original: "Бала орман кірді. Ол ағаш көрді.",
+          corrected: "Бала орманға кірді. Ол ағашты көрді.",
+          explanation:
+            "«Орманға» сөзі бағытты, «ағашты» сөзі қимыл нысанын білдіреді. Оқиғаға ойдан жаңа дерек қосылмады.",
+        },
+        {
+          id: "writing-social",
+          genre: "socialPost",
+          style: "simple",
+          original: "Бүгін біз музей бардық өте қызық болды",
+          corrected: "Бүгін біз музейге бардық. Өте қызық болды!",
+          explanation:
+            "«Музейге» барыс септігімен берілді, екі ой жеке сөйлемге бөлінді. Жазбаның жеңіл тілі сақталды.",
+        },
+        {
+          id: "writing-academic",
+          genre: "academic",
+          style: "formal",
+          original: "Зерттеуде үш мәтін қаралды олар салыстырылды.",
+          corrected: "Зерттеуде үш мәтін қаралды және салыстырылды.",
+          explanation:
+            "Қайталанған бастауыш алынып, екі әрекет бір сөйлемде байланыстырылды. Нәтиже немесе сан ойдан қосылмады.",
+        },
+      ] as const
+    ).map((example) => ({
+      id: example.id,
+      source: "writing",
+      messages: [
+        {
+          role: "system" as const,
+          content: `${dosshaInstructions}\n${writingInstructions({ genre: example.genre, style: example.style } as WritingRequest)}`,
+        },
+        { role: "user" as const, content: example.original },
+        {
+          role: "assistant" as const,
+          content: `Түзетілген мәтін:\n${example.corrected}\n\nНегізгі өзгерістер:\n${example.explanation}`,
+        },
+      ],
+    })),
   );
   return rows;
 }

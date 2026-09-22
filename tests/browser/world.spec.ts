@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { initialState } from "../../lib/learning/state";
 import { worldGames } from "../../lib/national/world-catalog";
+import { questions } from "../../lib/national/catalog";
 async function seed(page: Page) {
   const state = initialState();
   state.profile.onboarded = true;
@@ -9,6 +10,20 @@ async function seed(page: Page) {
       json: { state, revision: 0, userId: "world-test", writable: false },
     }),
   );
+}
+async function answerPending(page: Page) {
+  const panel = page.locator(".vw-action-question");
+  await expect(panel).toBeVisible();
+  const prompt = await panel.locator("h2").innerText();
+  const question = questions.find((item) => item.prompt === prompt);
+  if (!question) throw Error(`Missing quiz question: ${prompt}`);
+  await panel
+    .getByRole("button", {
+      name: question.options[question.answer],
+      exact: true,
+    })
+    .click();
+  await expect(panel).toHaveCount(0);
 }
 test("village has 18 accessible destinations and no horizontal overflow", async ({
   page,
@@ -49,10 +64,13 @@ for (const game of worldGames)
     const result = page.locator(".vw-result");
     const click = async (name: string) => {
       await page.getByRole("button", { name, exact: true }).click();
+      if (name !== "Раундты тоқтату" && name !== "Қайта ойнау")
+        await answerPending(page);
       await page.waitForTimeout(150);
     };
     if (game.id === "togyz") {
       await page.locator(".vw-board .vw-pits button:enabled").first().click();
+      await answerPending(page);
       await page
         .getByRole("button", {
           name: "Тоғызқұмалақ: үйрету режимі",
@@ -100,14 +118,17 @@ for (const game of worldGames)
             break;
           case "hantalapai":
             await page.locator(".vw-controls button").first().click();
+            await answerPending(page);
             await page.waitForTimeout(150);
             break;
           case "bestas":
             await page.locator(".vw-controls button").first().click();
+            await answerPending(page);
             await page.waitForTimeout(150);
             break;
           case "aigolek":
             await page.locator(".vw-controls button").first().click();
+            await answerPending(page);
             await page.waitForTimeout(150);
             break;
           case "ushty":
@@ -142,6 +163,7 @@ test("pause persists a round, reduced motion and live FPS indicator", async ({
     `${info.project.name} measured ${await page.locator('[title="Осы браузердегі белсенді кадрлар"]').innerText()}`,
   );
   await page.getByRole("button", { name: "Ұшты", exact: true }).click();
+  await answerPending(page);
   await page
     .getByRole("button", { name: "Үзіліс / сақтау", exact: true })
     .click();

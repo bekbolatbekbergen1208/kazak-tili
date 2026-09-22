@@ -25,7 +25,7 @@ export function applyVision(s: LearningState, a: VisionAction, now: Date) {
     if (!v.days.includes(day)) v.days.push(day);
     awardNational(s, {
       id: `vision-${w.id}-${a.task}`,
-      title: `Досша Vision · ${w.kk}`,
+      title: `Досжан Vision · ${w.kk}`,
       xp: w.xp,
       coins: 2,
       crystals: 0,

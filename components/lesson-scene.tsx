@@ -44,7 +44,7 @@ export default function LessonScene({lesson, step}: {lesson: CourseLesson; step:
     )}</div>
     <div className="sceneCoach">
       <Mascot />
-      <p><b>Досша:</b> {message}</p>
+      <p><b>Досжан:</b> {message}</p>
     </div>
   </section>;
 }

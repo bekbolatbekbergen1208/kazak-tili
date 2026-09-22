@@ -1,6 +1,6 @@
-# Dosha + Ollama
+# Doszhan + Ollama
 
-Dosha and Dosha Vision run through the Next.js backend. The browser never calls
+Doszhan and Doszhan Vision run through the Next.js backend. The browser never calls
 Ollama directly. Requests require a signed-in QazaqDos account, same-origin
 validation, bounded bodies, and server-side rate limits.
 

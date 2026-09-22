@@ -172,7 +172,7 @@ export default function GenericLesson({lesson}: {lesson: CourseLesson}) {
       {audioError && <p className="audioError" role="alert">{audioError}</p>}
       {showHint && <div className="dosshaHint" role="status">
         <Lightbulb />
-        <div><b>Досшаның көмегі</b><p>{task.hint}</p></div>
+        <div><b>Досжанның көмегі</b><p>{task.hint}</p></div>
         <button type="button" onClick={() => setShowHint(false)} aria-label="Көмекті жабу">×</button>
       </div>}
       {task.kind === "typing"

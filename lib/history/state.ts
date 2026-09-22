@@ -96,7 +96,7 @@ export function applyHistory(s: LearningState, a: HistoryAction, now: Date) {
     p.intro = true;
     return;
   }
-  if (!p.intro) throw Error("Досшаның таныстыруын аяқта");
+  if (!p.intro) throw Error("Досжанның таныстыруын аяқта");
   if (a.type === "history-discover") {
     const object = c.objects.find((o) => o.id === a.objectId);
     if (!object) throw Error("Нысан табылмады");

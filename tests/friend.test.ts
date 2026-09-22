@@ -63,6 +63,19 @@ test("chat accepts only bounded learning context", () => {
   assert.equal(parsed.context.recentlyCompletedLessons?.length, 10);
   assert.equal("ignored" in parsed.context, false);
 });
+test("writing requests validate genre and style", () => {
+  const parsed = parseChat({
+    message: "Мен мектеп бардым.",
+    writing: { genre: "formalLetter", style: "formal" },
+  });
+  assert.deepEqual(parsed.writing, { genre: "formalLetter", style: "formal" });
+  assert.throws(() =>
+    parseChat({
+      message: "мәтін",
+      writing: { genre: "unknown", style: "formal" },
+    }),
+  );
+});
 test("origin validation supports Next internal hostnames and HTTPS proxy, rejects foreign origins", () => {
   const req = (origin: string, host: string, protocol = "http") =>
     new Request("http://localhost:3016/api/ai-friend", {
@@ -160,7 +173,7 @@ test("chat can use a configured local AI endpoint", async () => {
     assert.equal(body.model, "local-chat");
     assert.equal(body.stream, false);
     assert.equal(body.messages.at(-1).content, "Мысал келтір");
-    assert.match(body.messages[0].content, /Досша/);
+    assert.match(body.messages[0].content, /Досжан/);
     assert.ok(init?.signal);
     return Response.json({
       choices: [{ message: { content: "Барыс септік: мектепке." } }],

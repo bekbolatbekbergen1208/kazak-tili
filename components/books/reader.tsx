@@ -171,7 +171,7 @@ export function BookReader({ book }: { book: ReadingBook }) {
               Шығарма туралы дерек ↗
             </a>
             <Link href="/learn/friend" className="bw-text-link">
-              💬 Түсінбеген жеріңді Досшадан сұра
+              💬 Түсінбеген жеріңді Досжаннан сұра
             </Link>
             <small className="bw-note">
               Қысқаша оқу мазмұны өз сөзімізбен жазылды. Толық шығарманы

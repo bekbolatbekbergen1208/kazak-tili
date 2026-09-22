@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-test("Dossha reference API and mobile/desktop chat answer grammar questions", async ({
+test("Doszhan reference API and mobile/desktop chat answer grammar questions", async ({
   page,
   request,
 }) => {
@@ -21,7 +21,10 @@ test("Dossha reference API and mobile/desktop chat answer grammar questions", as
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/student/friend");
   await expect(
-    page.getByText("Қазір қазақша анықтамалық режимі", { exact: false }),
+    page.getByRole("heading", { name: "Досжан", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Қазір жергілікті анықтамалық режимі", { exact: false }),
   ).toBeVisible();
   await page
     .getByRole("button", {
@@ -51,7 +54,7 @@ test("Dossha reference API and mobile/desktop chat answer grammar questions", as
   ).toBe(true);
   expect(errors).toEqual([]);
 });
-test("Dossha live UI preserves context, restores failed messages and retries without duplicates (mocked provider)", async ({
+test("Doszhan live UI preserves context, restores failed messages and retries without duplicates (mocked provider)", async ({
   page,
 }) => {
   let attempts = 0;
@@ -108,4 +111,32 @@ test("Dossha live UI preserves context, restores failed messages and retries wit
     page.getByRole("log").getByText("Мына сөйлемді аудар", { exact: true }),
   ).toHaveCount(1);
   expect(attempts).toBe(2);
+});
+test("writing mode sends the selected genre and style", async ({ page }) => {
+  let requestBody: Record<string, unknown> | undefined;
+  await page.route("**/api/ai-friend", (route) => {
+    if (route.request().method() === "GET")
+      return route.fulfill({
+        json: { mode: "ai", signedIn: true, history: [] },
+      });
+    requestBody = route.request().postDataJSON();
+    return route.fulfill({
+      json: { mode: "ai", reply: "Түзетілген мәтін: ..." },
+    });
+  });
+  await page.goto("/student/friend");
+  await page.getByRole("checkbox", { name: "Мәтінді түзету" }).check();
+  await page
+    .getByRole("combobox", { name: "Жанр" })
+    .selectOption("formalLetter");
+  await page.getByRole("combobox", { name: "Стиль" }).selectOption("formal");
+  await page
+    .getByRole("textbox", { name: "Хабарлама" })
+    .fill("Маған жауап беріңіз тез.");
+  await page.getByRole("button", { name: "Жіберу" }).click();
+  await expect(page.getByRole("log")).toContainText("Түзетілген мәтін");
+  expect(requestBody?.writing).toEqual({
+    genre: "formalLetter",
+    style: "formal",
+  });
 });

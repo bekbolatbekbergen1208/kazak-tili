@@ -159,7 +159,7 @@ export function VisionLab() {
     request.current = controller;
     const timeout = window.setTimeout(() => controller.abort(), 55000);
     setIdentifying(true);
-    setMessage("Досша затты қарап жатыр…");
+    setMessage("Досжан затты қарап жатыр…");
     setWordId("");
     setAnalysis(null);
     setSelected(null);
@@ -445,7 +445,7 @@ export function VisionLab() {
           <div className="vs-dossha">
             <Mascot />
             <div>
-              <strong>Досша</strong>
+              <strong>Досжан</strong>
               <p aria-live="polite">
                 {message || "Сәлем! Бүгін айналаңнан қандай жаңа сөз табамыз?"}
               </p>

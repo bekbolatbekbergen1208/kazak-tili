@@ -74,7 +74,6 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
     [tutorial, setTutorial] = useState(false),
     [board, setBoard] = useState(newBoard),
     [pendingAction, setPendingAction] = useState<PendingAction | null>(null),
-    [questionOffset, setQuestionOffset] = useState(0),
     [questionFeedback, setQuestionFeedback] = useState("");
   const [shotActive, setShotActive] = useState(false);
   const reduceMotion = reduced || systemReduced || !state.profile.animations;
@@ -213,7 +212,7 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
       return;
     try {
       const next = advanceWorld(current, {
-        t: Math.floor(clock.current),
+        t: Math.max(Math.floor(clock.current), current.lastAt + 80),
         key,
         ...(value === undefined ? {} : { value }),
       });
@@ -237,6 +236,10 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
       (kind === "asyk" && shotActive)
     )
       return;
+    if (snap.current.approvedAction === key) {
+      performAction(key, value);
+      return;
+    }
     setQuestionFeedback("");
     setPendingAction({ key, label, value });
   }
@@ -303,7 +306,6 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
   const start = async () => {
     setError("");
     setPendingAction(null);
-    setQuestionOffset(0);
     setQuestionFeedback("");
     await dispatch({ type: "village-start", kind });
     setPaused(false);
@@ -327,27 +329,30 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
   const occupied = saved && !saved.finished && saved.kind !== kind;
   const actionQuestion =
     session && pendingAction
-      ? questionFor(
-          `${session.id}-${pendingAction.key}`,
-          session.events.length + questionOffset,
-        )
+      ? questionFor(`${session.id}-${pendingAction.key}`, session.events.length)
       : null;
   function answerAction(index: number) {
-    if (!pendingAction || !actionQuestion) return;
-    const correct = index === actionQuestion.answer;
-    sound(correct);
-    if (!correct) {
-      setQuestionFeedback(
-        `Қате. ${actionQuestion.explanation} Жаңа сұраққа жауап бер.`,
-      );
-      setQuestionOffset((value) => value + 1);
-      return;
+    const current = snap.current;
+    if (!pendingAction || !actionQuestion || !current || busy) return;
+    try {
+      const answered = advanceWorld(current, {
+        t: Math.max(Math.floor(clock.current), current.lastAt + 80),
+        key: "answer",
+        actionKey: pendingAction.key,
+        value: index,
+      });
+      setSession(answered);
+      snap.current = answered;
+      sound(answered.good);
+      setQuestionFeedback(answered.feedback);
+      if (answered.good) {
+        const action = pendingAction;
+        setPendingAction(null);
+        performAction(action.key, action.value);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Жауап сақталмады");
     }
-    const action = pendingAction;
-    setQuestionFeedback(`Дұрыс! ${actionQuestion.explanation}`);
-    setPendingAction(null);
-    setQuestionOffset(0);
-    performAction(action.key, action.value);
   }
   const roundReward = session
     ? national(state).rewards.find(
@@ -610,8 +615,8 @@ export function WorldGame({ kind }: { kind: WorldKind }) {
                   {actionQuestion.options.map((option, index) => (
                     <button
                       className="btn ghost"
-                      key={`${questionOffset}-${option}`}
-                      disabled={busy}
+                      key={`${session.events.length}-${option}`}
+                      disabled={busy || paused}
                       onClick={() => answerAction(index)}
                     >
                       {option}

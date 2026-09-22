@@ -24,10 +24,20 @@ import {
 } from "../lib/national/world-catalog";
 import { applyAction, initialState } from "../lib/learning/state";
 import { national } from "../lib/national/state";
+import { questionFor } from "../lib/national/catalog";
 const date = "2026-09-11T10:00:00Z";
 function play(s: WorldSession, key: string, value?: number, dt = 1200) {
+  if (key !== "retire") {
+    const q = questionFor(`${s.id}-${key}`, s.events.length);
+    s = advanceWorld(s, {
+      t: s.lastAt + 80,
+      key: "answer",
+      actionKey: key,
+      value: q.answer,
+    });
+  }
   return advanceWorld(s, {
-    t: s.lastAt + dt,
+    t: s.lastAt + Math.max(80, dt - (key === "retire" ? 0 : 80)),
     key,
     ...(value === undefined ? {} : { value }),
   });
@@ -156,11 +166,42 @@ test("wrong timing, false starts, sequence errors and invalid inputs cannot earn
   assert.equal(s.won, false);
   assert.throws(() => play(createWorld("baige", "x", 1, date), "fly"));
   assert.throws(() =>
+    advanceWorld(createWorld("baige", "x", 1, date), {
+      key: "boost",
+      t: 1200,
+    }),
+  );
+  const fresh = createWorld("baige", "quiz", 1, date);
+  const wrong = advanceWorld(fresh, {
+    key: "answer",
+    actionKey: "boost",
+    value: (questionFor("quiz-boost", 0).answer + 1) % 3,
+    t: 80,
+  });
+  assert.throws(() => advanceWorld(wrong, { key: "boost", t: 160 }));
+  const correct = advanceWorld(fresh, {
+    key: "answer",
+    actionKey: "boost",
+    value: questionFor("quiz-boost", 0).answer,
+    t: 80,
+  });
+  assert.throws(() => advanceWorld(correct, { key: "rest", t: 160 }));
+  const moved = advanceWorld(correct, { key: "boost", t: 1200 });
+  assert.equal(moved.approvedAction, null);
+  assert.throws(() => advanceWorld(moved, { key: "boost", t: 2400 }));
+  assert.throws(() =>
     advanceWorld(createWorld("baige", "x", 1, date), { key: "boost", t: NaN }),
   );
   assert.throws(() =>
     play(createWorld("saqina", "x", 1, date), "choose", 1, 100),
   );
+});
+test("sessions saved before the quiz gate remain replayable", () => {
+  const old = createWorld("baige", "legacy", 1, date);
+  old.quizGateVersion = 0;
+  const moved = advanceWorld(old, { key: "boost", t: 1200 });
+  assert.equal(replayWorld(old, moved.events).turn, 1);
+  assert.equal(replayWorld(old, moved.events).quizGateVersion, 0);
 });
 test("Togyz sowing, single stone, even capture and all 162 stones are conserved", () => {
   let b = boardMove(newBoard(), 0);

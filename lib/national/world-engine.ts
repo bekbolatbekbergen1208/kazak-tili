@@ -7,7 +7,13 @@ import {
   type WorldKind,
 } from "./world-catalog";
 import type { Bone } from "./types";
-export type WorldInput = { t: number; key: string; value?: number };
+import { questionFor } from "./catalog";
+export type WorldInput = {
+  t: number;
+  key: string;
+  value?: number;
+  actionKey?: string;
+};
 export type WorldSession = {
   id: string;
   kind: WorldKind;
@@ -25,6 +31,9 @@ export type WorldSession = {
   mistakes: number;
   phase: number;
   lastAt: number;
+  actionAt: number;
+  quizGateVersion: number;
+  approvedAction: string | null;
   finished: boolean;
   won: boolean;
   feedback: string;
@@ -63,6 +72,9 @@ export function createWorld(
     mistakes: 0,
     phase: 0,
     lastAt: 0,
+    actionAt: 0,
+    quizGateVersion: 1,
+    approvedAction: null,
     finished: false,
     won: false,
     feedback: "Дайынсың ба?",
@@ -72,7 +84,7 @@ export function createWorld(
   };
 }
 export const phaseAt = (s: WorldSession, time: number) =>
-  ((time - s.lastAt) % 2400) / 2400;
+  ((time - (s.actionAt ?? s.lastAt)) % 2400) / 2400;
 export const hiddenTarget = (s: WorldSession) => ({
   x: 2 + Math.floor(randomAt(s.seed, 0) * 5),
   y: Math.floor(randomAt(s.seed, 1) * 5),
@@ -96,11 +108,13 @@ export function advanceWorld(
     event.t < input.lastAt + (event.key === "retire" ? 0 : 80) ||
     (event.t > 7_200_000 && event.key !== "retire") ||
     typeof event.key !== "string" ||
+    (event.actionKey !== undefined &&
+      (typeof event.actionKey !== "string" || event.actionKey.length > 24)) ||
     (event.value !== undefined && !Number.isFinite(event.value))
   )
     throw Error("Жарамсыз әрекет");
   const s = structuredClone(input),
-    dt = event.t - s.lastAt,
+    dt = event.t - (s.actionAt ?? s.lastAt),
     p = phaseAt(s, event.t),
     key = event.key;
   let good = false,
@@ -117,6 +131,32 @@ export function advanceWorld(
     if (ok) s.score += 10;
     else s.mistakes++;
   };
+  if (key === "answer") {
+    if (
+      !event.actionKey ||
+      event.actionKey === "answer" ||
+      event.actionKey === "retire" ||
+      s.approvedAction ||
+      !Number.isInteger(event.value) ||
+      event.value! < 0 ||
+      event.value! > 2
+    )
+      throw Error("Жарамсыз сұрақ жауабы");
+    const question = questionFor(`${s.id}-${event.actionKey}`, s.events.length);
+    s.good = event.value === question.answer;
+    s.feedback = s.good
+      ? `Дұрыс! ${question.explanation}`
+      : `Қате. ${question.explanation} Тағы жауап бер.`;
+    if (s.good) s.approvedAction = event.actionKey;
+    s.lastAt = event.t;
+    s.events.push(event);
+    return s;
+  }
+  if (key !== "retire" && s.quizGateVersion === 1) {
+    if (s.approvedAction !== key)
+      throw Error("Әр әрекет алдында сұраққа жауап бер");
+    s.approvedAction = null;
+  }
   if (key === "retire") {
     end(false);
     message = "Жаттығу аяқталды. Қайта байқап көр!";
@@ -346,14 +386,14 @@ export function advanceWorld(
   s.feedback = message;
   s.good = good;
   s.lastAt = event.t;
+  if (key !== "retire") s.actionAt = event.t;
   s.events.push(event);
   return s;
 }
 export function replayWorld(start: WorldSession, events: WorldInput[]) {
   if (!Array.isArray(events) || events.length > 2049)
     throw Error("Әрекеттер саны жарамсыз");
-  return events.reduce(
-    advanceWorld,
-    createWorld(start.kind, start.id, start.seed, start.startedAt),
-  );
+  const fresh = createWorld(start.kind, start.id, start.seed, start.startedAt);
+  fresh.quizGateVersion = start.quizGateVersion ?? 0;
+  return events.reduce(advanceWorld, fresh);
 }

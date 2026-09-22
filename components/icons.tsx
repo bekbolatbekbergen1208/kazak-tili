@@ -14,4 +14,4 @@ export function Logo({ small = false }: { small?: boolean }) {
   );
 }
 
-export function Mascot({className=""}:{className?:string}){return <img className={`mascot ${className}`} src="/dossha.png" alt="Досша — виртуалды дос"/>}
+export function Mascot({className=""}:{className?:string}){return <img className={`mascot ${className}`} src="/dossha.png" alt="Досжан — виртуалды дос"/>}

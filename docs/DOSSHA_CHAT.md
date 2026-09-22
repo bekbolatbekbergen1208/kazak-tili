@@ -1,4 +1,4 @@
-# Досшамен чат
+# Досжанмен чат
 
 Available at `/student/friend` and `/learn/friend`, with a link in the learning navigation. Paid AI providers are not used. If `QAZAQDOS_AI_BASE_URL` and `QAZAQDOS_CHAT_MODEL` are set, the chat uses that server-side AI endpoint. Otherwise it uses the local Kazakh reference catalog and carries the most recent 20 messages (maximum 24,000 characters) as context for local follow-ups. Replies use plain text. Users can choose Kazakh, Russian, English, Chinese, Spanish, German or French in the UI. The existing small dictionary and browser microphone input remain available.
 

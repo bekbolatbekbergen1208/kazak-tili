@@ -64,7 +64,7 @@ def main():
         conversation = [dict(item) for item in messages if item["role"] != "system"]
         if system and conversation and conversation[0]["role"] == "user":
             conversation[0]["content"] = (
-                f"[Досшаға арналған тұрақты нұсқау]\n{system}\n\n"
+                f"[Досжанға арналған тұрақты нұсқау]\n{system}\n\n"
                 f"[Оқушының сұрағы]\n{conversation[0]['content']}"
             )
         return conversation

@@ -120,7 +120,7 @@ export async function POST(req: Request) {
       );
     if (limits.size >= 10000 && !limits.has(user!.id))
       return json(
-        { error: "Досшаға қазір сұрау көп. Кейінірек қайталап көр." },
+        { error: "Досжанға қазір сұрау көп. Кейінірек қайталап көр." },
         429,
       );
     limit.timestamps.push(now);
@@ -259,8 +259,8 @@ export async function POST(req: Request) {
       {
         error:
           error instanceof Error && error.message === "AI_BUSY"
-            ? "Досшаға қазір сұрау көп. Біраздан кейін қайта жібер."
-            : "Досша қазір қолжетімсіз. Кейінірек қайталап көр.",
+            ? "Досжанға қазір сұрау көп. Біраздан кейін қайта жібер."
+            : "Досжан қазір қолжетімсіз. Кейінірек қайталап көр.",
       },
       503,
     );

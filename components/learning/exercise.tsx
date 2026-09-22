@@ -173,7 +173,7 @@ export function ExerciseView({
             flashcard: t("Карточка", "Flashcard"),
             order: t("Порядок событий", "Event order"),
             correction: t("Исправьте порядок слов", "Fix the word order"),
-            dialogue: t("Диалог с Досшей", "Dialogue with Dossha"),
+            dialogue: t("Диалог с Досжаном", "Dialogue with Doszhan"),
             timed: t("Быстрый квиз", "Quick quiz"),
             open: t("Ваше мнение", "Your reflection"),
           }[e.kind]
@@ -188,7 +188,7 @@ export function ExerciseView({
       )}
       {e.kind === "dialogue" && (
         <blockquote>
-          Досша: Сәлеметсіз бе!{" "}
+          Досжан: Сәлеметсіз бе!{" "}
           {t(
             "Выберите ответ для этой ситуации.",
             "Choose a reply for this situation.",
