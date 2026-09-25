@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { boundedJson } from "@/utils/bounded-body";
 import { isSameOrigin } from "@/utils/request-origin";
 import { interfaceLanguages } from "@/lib/learning/languages";
-import { commonDictionary } from "@/lib/translation/dictionary";
+import { siteVocabulary, normalizeWord } from "@/lib/translation/vocabulary";
 
 const json = (body: unknown, status = 200) => NextResponse.json(body, { status, headers: { "Cache-Control": "private, no-store" } });
 
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   } catch { return json({ error: "Сөз бен аударма тілін дұрыс таңдаңыз." }, 400); }
   const word = (input.word as string).trim();
   const language = interfaceLanguages.find(x => x.code === input.language)!;
-  const known = commonDictionary.find(x => x.kk.toLocaleLowerCase() === word.toLocaleLowerCase());
+  const known = siteVocabulary().find(x => normalizeWord(x.kk) === normalizeWord(word));
   if (known?.translation[language.code]) return json({ translation: known.translation[language.code] });
   return json({ error: "Бұл сөз әзірге сөздікте жоқ." }, 404);
 }

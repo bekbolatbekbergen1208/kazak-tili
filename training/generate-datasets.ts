@@ -1,9 +1,10 @@
+import { vocabularyTrainingRows } from "./vocabulary-rows";
+import { normalizeWord } from "../lib/translation/vocabulary";
 import { createHash } from "node:crypto";
 import { mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { doshaKnowledge, type KnowledgeSource } from "../lib/dosha/knowledge";
 import { dosshaInstructions } from "../lib/dosha/prompt";
-import { grammarTopics } from "../lib/friend/grammar";
 import { visionWords } from "../lib/vision/words";
 import { writingInstructions, type WritingRequest } from "../lib/dosha/writing";
 
@@ -15,6 +16,7 @@ type Message = {
 };
 type Row = {
   id: string;
+  group?: string;
   source: string;
   messages: Message[];
 };
@@ -31,6 +33,9 @@ const imageDir = arg("--vision-images", "training/vision-images");
 const imageExtensions = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 
 function promptFor(source: KnowledgeSource) {
+  if (source.id.startsWith("national-question-")) return source.title;
+  if (source.id.startsWith("book-chapter-"))
+    return `${source.title} бөлімінің мазмұнын түсіндір.`;
   switch (source.category) {
     case "lesson":
       return `${source.title} материалын маған қысқа әрі түсінікті етіп үйрет.`;
@@ -42,6 +47,10 @@ function promptFor(source: KnowledgeSource) {
       return `${source.title} шығармасының тақырыбы мен кейіпкерлерін түсіндір.`;
     case "national-game":
       return `${source.title} ойыны қалай ойналады?`;
+    case "grammar":
+      return `${source.title} деген не? Мысалмен түсіндір.`;
+    case "vocabulary":
+      return `«${source.title}» сөзінің мағынасын және бар аудармаларын түсіндір.`;
     case "vision":
       return `«${source.title}» сөзін қазақша үйрет: аудармасы, көпше түрі және мысал керек.`;
     case "robotics":
@@ -56,6 +65,10 @@ function answerFor(source: KnowledgeSource) {
 function textRows(): Row[] {
   const rows: Row[] = doshaKnowledge().map((source) => ({
     id: source.id,
+    group:
+      source.category === "vocabulary" || source.category === "vision"
+        ? `vocabulary-${normalizeWord(source.title)}`
+        : undefined,
     source: source.category,
     messages: [
       { role: "system", content: dosshaInstructions },
@@ -64,18 +77,7 @@ function textRows(): Row[] {
     ],
   }));
   rows.push(
-    ...grammarTopics.map((topic, index) => ({
-      id: `grammar-${index + 1}`,
-      source: "grammar",
-      messages: [
-        { role: "system" as const, content: dosshaInstructions },
-        { role: "user" as const, content: `${topic.title} деген не?` },
-        {
-          role: "assistant" as const,
-          content: `${topic.text}\n\nМысал: ${topic.example}`,
-        },
-      ],
-    })),
+    ...vocabularyTrainingRows(),
     {
       id: "safety-unknown-fact",
       source: "safety",
@@ -255,15 +257,17 @@ async function main() {
   const text = textRows();
   const vision = await visionRows();
   const groups = {
-    "dosha-train.jsonl": text.filter((row) => split(row.id) === "train"),
+    "dosha-train.jsonl": text.filter(
+      (row) => split(row.group ?? row.id) === "train",
+    ),
     "dosha-validation.jsonl": text.filter(
-      (row) => split(row.id) === "validation",
+      (row) => split(row.group ?? row.id) === "validation",
     ),
     "dosha-vision-train.jsonl": vision.rows.filter(
-      (row) => split(row.id) === "train",
+      (row) => split(row.group ?? row.id) === "train",
     ),
     "dosha-vision-validation.jsonl": vision.rows.filter(
-      (row) => split(row.id) === "validation",
+      (row) => split(row.group ?? row.id) === "validation",
     ),
   };
   for (const [file, rows] of Object.entries(groups))
@@ -276,12 +280,21 @@ async function main() {
         sources: [
           "lib/curriculum.ts",
           "lib/travel/catalog.ts",
+          "lib/travel/vocabulary.ts",
+          "lib/travel/extra-words.ts",
+          "lib/data.ts",
           "lib/history/catalog.ts",
           "lib/books/catalog.ts",
           "lib/national/world-catalog.ts",
+          "lib/national/catalog.ts",
           "lib/friend/grammar.ts",
           "lib/vision/words.ts",
           "lib/dosha/knowledge.ts",
+          "lib/translation/vocabulary.ts",
+          "lib/translation/expanded.ts",
+          "training/vocabulary-rows.ts",
+          "lib/translation/dictionary.ts",
+          "lib/learning/content.ts",
           "lib/dosha/prompt.ts",
         ],
         counts: Object.fromEntries(

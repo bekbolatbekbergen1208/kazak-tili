@@ -1,3 +1,4 @@
+import { findVocabulary, vocabularyText } from "../translation/vocabulary";
 import { readingBooks } from "../books/catalog";
 import { grammarTopics } from "./grammar";
 export const friendSuggestions = [
@@ -263,6 +264,12 @@ export function referenceAnswer(
         )
         .join("\n\n"),
       topic: selected.map(({ topic }) => topic.title).join(", "),
+    };
+  const word = findVocabulary(message);
+  if (word)
+    return {
+      reply: `${vocabularyText(word)}\n\nШағын тапсырма: «${word.kk}» сөзімен сөйлем құрап көр.`,
+      topic: word.kk,
     };
   return {
     reply:

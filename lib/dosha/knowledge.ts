@@ -1,3 +1,10 @@
+import { grammarTopics } from "../friend/grammar";
+import { questions } from "../national/catalog";
+import {
+  siteVocabulary,
+  vocabularyText,
+  findVocabulary,
+} from "../translation/vocabulary";
 import { readingBooks } from "@/lib/books/catalog";
 import { courseLessons } from "@/lib/curriculum";
 import { historyCities } from "@/lib/history/catalog";
@@ -24,7 +31,9 @@ export type KnowledgeSource = {
     | "literature"
     | "national-game"
     | "vision"
-    | "robotics";
+    | "robotics"
+    | "vocabulary"
+    | "grammar";
   title: string;
   href?: string;
   excerpt: string;
@@ -55,6 +64,64 @@ let cached: KnowledgeSource[] | undefined;
 export function doshaKnowledge(): KnowledgeSource[] {
   if (cached) return cached;
   cached = [
+    ...siteVocabulary().map((entry) => ({
+      id: `vocabulary-${entry.kk.toLocaleLowerCase("kk")}`,
+      category: "vocabulary" as const,
+      title: entry.kk,
+      excerpt: vocabularyText(entry),
+    })),
+    ...grammarTopics.map((topic, index) => ({
+      id: `grammar-${index + 1}`,
+      category: "grammar" as const,
+      title: topic.title,
+      excerpt: `${topic.text} Мысал: ${topic.example}`,
+    })),
+    ...regions.flatMap((region) =>
+      [
+        ...region.nature,
+        ...region.animals,
+        ...region.plants,
+        ...region.history,
+        ...region.landmarks,
+        ...region.culture,
+        ...region.foods,
+        ...region.famousPeople,
+        ...region.resources,
+        ...region.industries,
+        ...region.agriculture,
+        ...region.importance,
+      ].map((card, index) => ({
+        id: `region-detail-${region.id}-${index}`,
+        category: "region" as const,
+        title: `${region.nameKk}: ${card.title}`,
+        href: `/kazakhstan/${region.slug}`,
+        excerpt: card.text,
+      })),
+    ),
+    ...readingBooks.flatMap((book) =>
+      book.chapters.map((chapter, index) => ({
+        id: `book-chapter-${book.id}-${index}`,
+        category: "literature" as const,
+        title: `${book.title}: ${chapter.title}`,
+        href: `/learn/books/${book.id}`,
+        excerpt: chapter.text,
+      })),
+    ),
+    ...historyCities.flatMap((city) =>
+      city.objects.map((object) => ({
+        id: `history-object-${city.id}-${object.id}`,
+        category: "history" as const,
+        title: `${city.name}: ${object.title}`,
+        href: `/learn/history/${city.id}`,
+        excerpt: `${object.fact} ${object.word.term}: ${object.word.meaning}`,
+      })),
+    ),
+    ...questions.map((question, index) => ({
+      id: `national-question-${index}`,
+      category: "national-game" as const,
+      title: question.prompt,
+      excerpt: question.explanation,
+    })),
     ...courseLessons.map((lesson) => ({
       id: `lesson-${lesson.id}`,
       category: "lesson" as const,
@@ -68,7 +135,7 @@ export function doshaKnowledge(): KnowledgeSource[] {
       title: region.nameKk,
       href: `/kazakhstan/${region.slug}`,
       excerpt: `${region.shortDescription}. Орталығы: ${region.capital ?? "көрсетілмеген"}. ${region.interestingFacts.slice(0, 3).join(" ")} Сөздер: ${region.vocabulary
-        .slice(0, 10)
+
         .map((word) => `${word.kk} — ${word.definition}`)
         .join("; ")}.`,
     })),
@@ -118,21 +185,25 @@ export function searchDoshaKnowledge(
 ) {
   const queryTerms = terms(query);
   const normalizedQuery = normalize(query);
+  const word = findVocabulary(query);
   return doshaKnowledge()
     .map((source) => {
       const title = normalize(source.title);
       const body = normalize(source.excerpt);
       let score = title.includes(normalizedQuery) && normalizedQuery ? 18 : 0;
+      if (word && source.category === "vocabulary" && source.title === word.kk)
+        score += 60;
       for (const term of queryTerms) {
         const titleMatch = title
           .split(" ")
           .some(
             (word) =>
-              word.includes(term) ||
-              term.includes(word) ||
+              word === term ||
+              (word.length >= 4 && term.startsWith(word)) ||
+              (term.length >= 4 && word.startsWith(term)) ||
               (term.length >= 5 && word.startsWith(term.slice(0, 5))),
           );
-        if (titleMatch) score += 8;
+        if (titleMatch) score += source.category === "vocabulary" ? 2 : 8;
         if (body.includes(term)) score += 2;
       }
       if (
