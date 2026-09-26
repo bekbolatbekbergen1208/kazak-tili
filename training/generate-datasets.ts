@@ -1,3 +1,4 @@
+import { kazakhExamples } from "../lib/dosha/kazakh-examples";
 import { vocabularyTrainingRows } from "./vocabulary-rows";
 import { normalizeWord } from "../lib/translation/vocabulary";
 import { createHash } from "node:crypto";
@@ -33,6 +34,7 @@ const imageDir = arg("--vision-images", "training/vision-images");
 const imageExtensions = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 
 function promptFor(source: KnowledgeSource) {
+  if (source.id.startsWith("kazakh-example-")) return source.title;
   if (source.category === "exercise") return source.title;
   if (source.id.startsWith("national-question-")) return source.title;
   if (source.id.startsWith("book-chapter-"))
@@ -60,7 +62,8 @@ function promptFor(source: KnowledgeSource) {
 }
 
 function answerFor(source: KnowledgeSource) {
-  if (source.category === "exercise") return source.excerpt;
+  if (source.category === "exercise" || source.id.startsWith("kazakh-example-"))
+    return source.excerpt;
   return `${source.excerpt}\n\nШағын тапсырма: осы материал бойынша бір қазақша сөйлем құрап көр.`;
 }
 
@@ -70,9 +73,11 @@ function textRows(): Row[] {
     group:
       source.category === "vocabulary" || source.category === "vision"
         ? `vocabulary-${normalizeWord(source.title)}`
-        : source.category === "exercise"
-          ? `exercise-${normalizeWord(source.question ?? source.title)}`
-          : undefined,
+        : source.id.startsWith("kazakh-example-")
+          ? source.id
+          : source.category === "exercise"
+            ? `exercise-${normalizeWord(source.question ?? source.title)}`
+            : undefined,
     source: source.category,
     messages: [
       { role: "system", content: dosshaInstructions },
@@ -82,6 +87,18 @@ function textRows(): Row[] {
   }));
   rows.push(
     ...vocabularyTrainingRows(),
+    ...kazakhExamples.flatMap((example) =>
+      example.questions.map((question, index) => ({
+        id: `kazakh-practice-${example.id}-${index}`,
+        group: `kazakh-example-${example.id}`,
+        source: `kazakh-${example.kind}`,
+        messages: [
+          { role: "system" as const, content: dosshaInstructions },
+          { role: "user" as const, content: question },
+          { role: "assistant" as const, content: example.answer },
+        ],
+      })),
+    ),
     {
       id: "safety-unknown-fact",
       source: "safety",
@@ -292,6 +309,9 @@ async function main() {
           "lib/national/world-catalog.ts",
           "lib/national/catalog.ts",
           "lib/friend/grammar.ts",
+          "lib/friend/grammar-basic.ts",
+          "lib/friend/grammar-extended.ts",
+          "lib/dosha/kazakh-examples.ts",
           "lib/vision/words.ts",
           "lib/dosha/knowledge.ts",
           "lib/dosha/exercises.ts",

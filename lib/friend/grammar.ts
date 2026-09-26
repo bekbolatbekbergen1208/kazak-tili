@@ -1,4 +1,9 @@
+import { basicGrammarTopics } from "./grammar-basic";
+import { extendedGrammarTopics } from "./grammar-extended";
+
 export const grammarTopics = [
+  ...basicGrammarTopics,
+  ...extendedGrammarTopics,
   {
     keys: ["есімше", "причасти"],
     title: "Есімше",

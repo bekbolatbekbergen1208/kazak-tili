@@ -1,3 +1,4 @@
+import { kazakhExamples, normalizeKazakhQuery } from "./kazakh-examples";
 import { exerciseKnowledge } from "./exercises";
 import { grammarTopics } from "../friend/grammar";
 import { questions } from "../national/catalog";
@@ -40,14 +41,11 @@ export type KnowledgeSource = {
   href?: string;
   excerpt: string;
   question?: string;
+  keywords?: string[];
   lessonId?: string | number;
 };
 
-const normalize = (value: string) =>
-  value
-    .toLocaleLowerCase("kk")
-    .replace(/[^a-zа-яәіңғүұқөһё0-9]+/giu, " ")
-    .trim();
+const normalize = normalizeKazakhQuery;
 
 const terms = (value: string) => [
   ...new Set(
@@ -69,6 +67,14 @@ export function doshaKnowledge(): KnowledgeSource[] {
   if (cached) return cached;
   cached = [
     ...exerciseKnowledge(),
+    ...kazakhExamples.map((example) => ({
+      id: `kazakh-example-${example.id}`,
+      category: "grammar" as const,
+      title: example.questions[0],
+      question: example.questions[0],
+      keywords: example.questions,
+      excerpt: example.answer,
+    })),
     ...siteVocabulary().map((entry) => ({
       id: `vocabulary-${entry.kk.toLocaleLowerCase("kk")}`,
       category: "vocabulary" as const,
@@ -79,6 +85,7 @@ export function doshaKnowledge(): KnowledgeSource[] {
       id: `grammar-${index + 1}`,
       category: "grammar" as const,
       title: topic.title,
+      keywords: topic.keys,
       excerpt: `${topic.text} Мысал: ${topic.example}`,
     })),
     ...regions.flatMap((region) =>
@@ -201,6 +208,10 @@ export function searchDoshaKnowledge(
     .map((source) => {
       const title = normalize(source.title);
       const body = normalize(source.excerpt);
+      const keywordMatch = source.keywords?.some((keyword) => {
+        const key = normalize(keyword);
+        return ` ${normalizedQuery} `.includes(` ${key} `);
+      });
       let score = title.includes(normalizedQuery) && normalizedQuery ? 18 : 0;
       if (
         source.question &&
@@ -219,6 +230,7 @@ export function searchDoshaKnowledge(
         String(source.lessonId) === String(lessonId)
       )
         score += 25;
+      if (keywordMatch) score += 45;
       if (word && source.category === "vocabulary" && source.title === word.kk)
         score += 60;
       for (const term of queryTerms) {
