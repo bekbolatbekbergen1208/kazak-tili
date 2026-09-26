@@ -53,6 +53,13 @@ export function parseChat(body: unknown): {
     rawContext.currentLesson <= 1000
   )
     context.currentLesson = rawContext.currentLesson;
+  if (
+    typeof rawContext.currentLesson === "string" &&
+    /^(tourism|work|study|daily|books)-[a-z0-9-]{1,80}$/.test(
+      rawContext.currentLesson,
+    )
+  )
+    context.currentLesson = rawContext.currentLesson;
   for (const key of [
     "currentRegion",
     "selectedTrack",

@@ -1,3 +1,4 @@
+import { searchDoshaKnowledge } from "../dosha/knowledge";
 import { findVocabulary, vocabularyText } from "../translation/vocabulary";
 import { readingBooks } from "../books/catalog";
 import { grammarTopics } from "./grammar";
@@ -213,6 +214,33 @@ export function referenceAnswer(
       clean(
         [...history].reverse().find((x) => x.role === "user")?.content ?? "",
       );
+  const sources = searchDoshaKnowledge(message);
+  const exact = sources.filter((source) =>
+    source.question?.split(" / ").some((question) => clean(question) === text),
+  );
+  if (exact.length) {
+    const answers = new Set(
+      exact.map((source) => source.excerpt.split("\n")[0]),
+    );
+    return answers.size === 1
+      ? {
+          reply: `${exact[0].title}\n\n${exact[0].excerpt}`,
+          topic: exact[0].title,
+        }
+      : {
+          reply:
+            "Бұл сұрақ бірнеше сабақта кездеседі. Сабақтың нөмірін немесе кітаптың атауын және сұрақты бірге жібер.",
+          topic: "Тапсырманы нақтылау",
+        };
+  }
+  if (
+    /(?:сабақ|урок|lesson)\s*#?\s*\d+|\d+[ -]*(?:сабақ|урок)/i.test(message) &&
+    sources[0]?.category === "lesson"
+  )
+    return {
+      reply: `${sources[0].title}\n\n${sources[0].excerpt}`,
+      topic: sources[0].title,
+    };
   const book = readingBooks.find(
     (b) =>
       text.includes(clean(b.title)) ||

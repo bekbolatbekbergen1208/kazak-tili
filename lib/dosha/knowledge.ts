@@ -1,3 +1,4 @@
+import { exerciseKnowledge } from "./exercises";
 import { grammarTopics } from "../friend/grammar";
 import { questions } from "../national/catalog";
 import {
@@ -14,7 +15,7 @@ import { visionWords } from "@/lib/vision/words";
 
 export type DoshaUserContext = {
   level?: string;
-  currentLesson?: number;
+  currentLesson?: number | string;
   currentRegion?: string;
   selectedTrack?: string;
   xp?: number;
@@ -25,6 +26,7 @@ export type DoshaUserContext = {
 export type KnowledgeSource = {
   id: string;
   category:
+    | "exercise"
     | "lesson"
     | "region"
     | "history"
@@ -37,6 +39,8 @@ export type KnowledgeSource = {
   title: string;
   href?: string;
   excerpt: string;
+  question?: string;
+  lessonId?: string | number;
 };
 
 const normalize = (value: string) =>
@@ -64,6 +68,7 @@ let cached: KnowledgeSource[] | undefined;
 export function doshaKnowledge(): KnowledgeSource[] {
   if (cached) return cached;
   cached = [
+    ...exerciseKnowledge(),
     ...siteVocabulary().map((entry) => ({
       id: `vocabulary-${entry.kk.toLocaleLowerCase("kk")}`,
       category: "vocabulary" as const,
@@ -185,12 +190,35 @@ export function searchDoshaKnowledge(
 ) {
   const queryTerms = terms(query);
   const normalizedQuery = normalize(query);
+  const requestedLesson = query.match(
+    /(?:сабақ|урок|lesson)\s*#?\s*(\d+)|(?:^|\s)(\d+)[ -]*(?:сабақ|урок)/i,
+  );
+  const lessonId = requestedLesson
+    ? Number(requestedLesson[1] ?? requestedLesson[2])
+    : context.currentLesson;
   const word = findVocabulary(query);
   return doshaKnowledge()
     .map((source) => {
       const title = normalize(source.title);
       const body = normalize(source.excerpt);
       let score = title.includes(normalizedQuery) && normalizedQuery ? 18 : 0;
+      if (
+        source.question &&
+        source.question
+          .split(" / ")
+          .map(normalize)
+          .some(
+            (q) =>
+              q === normalizedQuery ||
+              (q.length > 12 && normalizedQuery.includes(q)),
+          )
+      )
+        score += 100;
+      if (
+        source.lessonId !== undefined &&
+        String(source.lessonId) === String(lessonId)
+      )
+        score += 25;
       if (word && source.category === "vocabulary" && source.title === word.kk)
         score += 60;
       for (const term of queryTerms) {
@@ -206,11 +234,7 @@ export function searchDoshaKnowledge(
         if (titleMatch) score += source.category === "vocabulary" ? 2 : 8;
         if (body.includes(term)) score += 2;
       }
-      if (
-        context.currentLesson &&
-        source.id === `lesson-${context.currentLesson}`
-      )
-        score += 30;
+      if (lessonId && source.id === `lesson-${lessonId}`) score += 30;
       if (
         context.currentRegion &&
         normalize(`${source.title} ${source.excerpt}`).includes(

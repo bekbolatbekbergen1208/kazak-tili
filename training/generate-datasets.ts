@@ -33,6 +33,7 @@ const imageDir = arg("--vision-images", "training/vision-images");
 const imageExtensions = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 
 function promptFor(source: KnowledgeSource) {
+  if (source.category === "exercise") return source.title;
   if (source.id.startsWith("national-question-")) return source.title;
   if (source.id.startsWith("book-chapter-"))
     return `${source.title} бөлімінің мазмұнын түсіндір.`;
@@ -59,6 +60,7 @@ function promptFor(source: KnowledgeSource) {
 }
 
 function answerFor(source: KnowledgeSource) {
+  if (source.category === "exercise") return source.excerpt;
   return `${source.excerpt}\n\nШағын тапсырма: осы материал бойынша бір қазақша сөйлем құрап көр.`;
 }
 
@@ -68,7 +70,9 @@ function textRows(): Row[] {
     group:
       source.category === "vocabulary" || source.category === "vision"
         ? `vocabulary-${normalizeWord(source.title)}`
-        : undefined,
+        : source.category === "exercise"
+          ? `exercise-${normalizeWord(source.question ?? source.title)}`
+          : undefined,
     source: source.category,
     messages: [
       { role: "system", content: dosshaInstructions },
@@ -290,6 +294,9 @@ async function main() {
           "lib/friend/grammar.ts",
           "lib/vision/words.ts",
           "lib/dosha/knowledge.ts",
+          "lib/dosha/exercises.ts",
+          "lib/learning/course-tasks.ts",
+          "lib/learning/intro-questions.ts",
           "lib/translation/vocabulary.ts",
           "lib/translation/expanded.ts",
           "training/vocabulary-rows.ts",

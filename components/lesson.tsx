@@ -6,16 +6,8 @@ import {ArrowRight, Check, Headphones, Heart, Lightbulb, MessageCircle, Mic, Ref
 import {Mascot} from "./icons";
 import {words} from "@/lib/data";
 
-type Question={id:number;skill:string;type:string;title:string;hint:string;options:string[];answer:string;word:string;explanation:string};
+import {baseQuestions} from "@/lib/learning/intro-questions";
 type Mistake={questionId:number;chosen:string;round:number};
-const baseQuestions:Question[]=[
- {id:1,skill:"Тыңдалым",type:"Тыңда және таңда",title:"Мынау не?",hint:"Адамдар ұшаққа осы жерде отырады.",options:["Теміржол","Әуежай","Мектеп"],answer:"Әуежай",word:"әуежай",explanation:"Әуежай — ұшақ ұшатын және қонатын орын."},
- {id:2,skill:"Грамматика",type:"Сөйлемді толықтыр",title:"Мен Астанаға ___ барамын.",hint:"Көлік атауына «-пен» жалғауы жалғанады.",options:["ұшақпен","кітаппен","сумен"],answer:"ұшақпен",word:"ұшақ",explanation:"Қалай барамын? — ұшақпен. Көмектес септік көлік құралын білдіреді."},
- {id:3,skill:"Лексика",type:"Дұрыс жауапты таңда",title:"Сапарға шығу үшін не керек?",hint:"Оны кассадан немесе интернеттен сатып аласың.",options:["Билет","Доп","Қалам"],answer:"Билет",word:"билет",explanation:"Билет жолаушының сапарға шығу құқығын растайды."},
- {id:4,skill:"Жазылым",type:"Сөйлем құрастыр",title:"Сөздерді дұрыс ретпен қой.",hint:"Сөйлем «Мен» сөзінен басталады.",options:["Мен Астанаға барғым келеді","Барғым мен келеді Астанаға","Астанаға келеді мен"],answer:"Мен Астанаға барғым келеді",word:"қала",explanation:"Қалыпты реті: бастауыш + мекен/бағыт + қимыл."},
- {id:5,skill:"Оқылым",type:"Мәтінді түсіну",title:"Аян билетін алып, жүгін тапсырды. Ол келесіде не істейді?",hint:"Ол әуежайда және сапарға дайын.",options:["Ұшаққа отырады","Мектепке барады","Доп ойнайды"],answer:"Ұшаққа отырады",word:"жүк",explanation:"Билет пен жүк — әуежайдағы сапар ретін көрсететін тірек сөздер."},
- {id:6,skill:"Айтылым",type:"Диалог репликасы",title:"Досжан: «Сен қай қалаға барғың келеді?»",hint:"Толық әрі сыпайы жауапты таңда.",options:["Мен Астанаға барғым келеді","Астана","Білмеймін қала"],answer:"Мен Астанаға барғым келеді",word:"қала",explanation:"Диалогте толық сөйлем қолдану ойды анық жеткізеді."}
-];
 const shuffle=<T,>(items:T[])=>{const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 
 export default function Lesson(){
