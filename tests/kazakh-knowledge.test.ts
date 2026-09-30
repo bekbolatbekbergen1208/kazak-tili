@@ -6,7 +6,44 @@ import { doshaKnowledge, searchDoshaKnowledge } from "../lib/dosha/knowledge";
 import {
   findKazakhExample,
   kazakhExamples,
+  normalizeKazakhQuery,
 } from "../lib/dosha/kazakh-examples";
+import { dialogueTrainingRows } from "../training/dialogue-rows";
+
+test("worked examples have unique IDs and unambiguous normalized questions", () => {
+  const ids = new Set<string>();
+  const questions = new Map<string, string>();
+  for (const example of kazakhExamples) {
+    assert.ok(!ids.has(example.id), example.id);
+    ids.add(example.id);
+    for (const question of example.questions) {
+      const key = normalizeKazakhQuery(question);
+      const previous = questions.get(key);
+      assert.ok(
+        !previous || previous === example.id,
+        `${question}: ${previous}`,
+      );
+      questions.set(key, example.id);
+    }
+  }
+});
+
+test("follow-up dialogues stay with their source example and alternate roles", () => {
+  for (const row of dialogueTrainingRows()) {
+    const example = kazakhExamples.find(
+      (entry) => row.group === `kazakh-example-${entry.id}`,
+    );
+    assert.ok(example, row.id);
+    assert.ok(example.questions.includes(row.messages[1].content), row.id);
+    assert.ok(row.messages.length >= 5);
+    assert.equal(row.messages[0].role, "system");
+    row.messages.slice(1).forEach((message, index) => {
+      assert.equal(message.role, index % 2 === 0 ? "user" : "assistant");
+      assert.ok(message.content.trim());
+    });
+    assert.equal(row.messages.at(-1)?.role, "assistant");
+  }
+});
 
 test("all reference grammar rules are available to AI retrieval and training", () => {
   const documents = doshaKnowledge();

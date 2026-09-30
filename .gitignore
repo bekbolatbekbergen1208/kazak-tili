@@ -14,3 +14,5 @@ training/data/*.jsonl
 training/data/manifest.json
 training/artifacts/
 training/vision-images/*/
+
+__pycache__/

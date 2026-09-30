@@ -1,4 +1,6 @@
 import { kazakhExamples } from "../lib/dosha/kazakh-examples";
+import { dialogueTrainingRows } from "./dialogue-rows";
+import { assertNoEvaluationLeakage, prepareTextRows } from "./dataset-quality";
 import { vocabularyTrainingRows } from "./vocabulary-rows";
 import { normalizeWord } from "../lib/translation/vocabulary";
 import { createHash } from "node:crypto";
@@ -86,6 +88,7 @@ function textRows(): Row[] {
     ],
   }));
   rows.push(
+    ...dialogueTrainingRows(),
     ...vocabularyTrainingRows(),
     ...kazakhExamples.flatMap((example) =>
       example.questions.map((question, index) => ({
@@ -275,7 +278,9 @@ const jsonl = (rows: Row[]) =>
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  const text = textRows();
+  const prepared = prepareTextRows(textRows());
+  const text = prepared.rows;
+  assertNoEvaluationLeakage(text);
   const vision = await visionRows();
   const groups = {
     "dosha-train.jsonl": text.filter(
@@ -298,6 +303,17 @@ async function main() {
     JSON.stringify(
       {
         generatedAt: new Date().toISOString(),
+        textQuality: {
+          removedDuplicates: prepared.removedDuplicates,
+          mergedGroups: prepared.mergedGroups,
+          heldOutPromptsExcluded: true,
+        },
+        sha256: Object.fromEntries(
+          Object.entries(groups).map(([file, rows]) => [
+            file,
+            createHash("sha256").update(jsonl(rows), "utf8").digest("hex"),
+          ]),
+        ),
         sources: [
           "lib/curriculum.ts",
           "lib/travel/catalog.ts",
@@ -312,6 +328,10 @@ async function main() {
           "lib/friend/grammar-basic.ts",
           "lib/friend/grammar-extended.ts",
           "lib/dosha/kazakh-examples.ts",
+          "lib/dosha/kazakh-extra-examples.ts",
+          "lib/dosha/kazakh-practice-examples.ts",
+          "training/dialogue-rows.ts",
+          "training/practice-dialogues.ts",
           "lib/vision/words.ts",
           "lib/dosha/knowledge.ts",
           "lib/dosha/exercises.ts",

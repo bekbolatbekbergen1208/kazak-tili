@@ -13,7 +13,8 @@
     "seed:learning": "node --import tsx scripts/seed-learning.ts",
     "assets:characters": "node --import tsx scripts/render-characters.tsx",
     "seed:characters": "node --import tsx scripts/seed-characters.ts",
-    "training:dataset": "node --import tsx training/generate-datasets.ts"
+    "training:dataset": "node --import tsx training/generate-datasets.ts",
+    "training:evaluate": "node --import tsx training/evaluate-dosha.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.6",

@@ -4,10 +4,7 @@
 import argparse
 from pathlib import Path
 
-from datasets import load_dataset
-from trl import SFTConfig, SFTTrainer
-from unsloth import FastModel
-from unsloth.chat_templates import get_chat_template, train_on_responses_only
+from validate_data import validate_pair
 
 
 def arguments():
@@ -31,6 +28,13 @@ def main():
     for filename in (args.train, args.validation):
         if not Path(filename).is_file():
             raise SystemExit(f"Dataset not found: {filename}. Run npm run training:dataset")
+
+    validate_pair(args.train, args.validation)
+    # Load Unsloth before the training libraries, after data checks succeed.
+    from unsloth import FastModel
+    from unsloth.chat_templates import get_chat_template, train_on_responses_only
+    from datasets import load_dataset
+    from trl import SFTConfig, SFTTrainer
 
     model, tokenizer = FastModel.from_pretrained(
         model_name=args.model,
@@ -111,9 +115,13 @@ def main():
         ),
     )
     trainer = train_on_responses_only(trainer)
-    trainer.train()
+    train_result = trainer.train()
     model.save_pretrained(args.output)
     tokenizer.save_pretrained(args.output)
+    trainer.save_metrics("train", train_result.metrics)
+    # Short runs may finish before eval_steps=100. Always evaluate the final
+    # adapter, after saving it so an evaluation failure cannot lose the weights.
+    trainer.save_metrics("eval", trainer.evaluate())
 
 
 if __name__ == "__main__":

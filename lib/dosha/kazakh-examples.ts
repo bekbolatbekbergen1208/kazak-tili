@@ -1,3 +1,6 @@
+import { kazakhExtraExamples } from "./kazakh-extra-examples";
+import { kazakhPracticeExamples } from "./kazakh-practice-examples";
+
 export type KazakhExample = {
   id: string;
   kind: "analysis" | "correction" | "comparison";
@@ -8,6 +11,8 @@ export type KazakhExample = {
 // Explicit examples only: these answers must never be used as an automatic
 // suffix analyzer or as blanket replacements in unrelated user text.
 export const kazakhExamples: KazakhExample[] = [
+  ...kazakhExtraExamples,
+  ...kazakhPracticeExamples,
   {
     id: "balalarga",
     kind: "analysis",
