@@ -319,7 +319,7 @@ export const kazakhEvaluationCases: EvaluationCase[] = [
       "Түсінікті ниетті танып, Сіз бардыңыз деп түзетеді.",
       "Қазақ әріптерін қалпына келтіреді және сыпайы жақ сәйкестігін түсіндіреді.",
     ],
-  },,
+  },
   {
     id: "writing-literary-natural-b1",
     category: "writing",
