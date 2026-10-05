@@ -1,3 +1,5 @@
+import { languageInstructions } from "../literary/style";
+import type { Level } from "../q-level/types";
 import { visionWords } from "./words";
 import { requestLocalChat } from "@/lib/ai/local";
 
@@ -147,12 +149,16 @@ export async function requestVision({
   image,
   signal,
   fetcher = fetch,
+  level = "A1",
+  literaryContext = "",
 }: {
   key: string;
   model: string;
   image: string;
   signal?: AbortSignal;
   fetcher?: typeof fetch;
+  level?: Level;
+  literaryContext?: string;
 }): Promise<VisionResult> {
   const text = await requestLocalChat({
     model,
@@ -162,7 +168,7 @@ export async function requestVision({
     messages: [
       {
         role: "system",
-        content: `Сен QazaqDos платформасының көру арқылы сөз үйрететін көмекшісісің.
+        content: `${languageInstructions(level, "daily")}\n${literaryContext}\nСен QazaqDos платформасының көру арқылы сөз үйрететін көмекшісісің.
 Суреттегі күнделікті заттарды таны. Ең көрініп тұрған 1-6 затты қайтар. Каталогтағы зат болса exact id қолдан, сәйкес келмесе id=null. Адамды, жеке құжатты, сезімтал деректі анықтама.
 Жауап тек JSON болсын, markdown жазба. Пішім:
 {"quality":"clear|blurry|dark|uncertain|no_objects","summary":"қысқа қазақша сипаттама","tip":"қысқа кеңес","objects":[{"id":null,"kk":"қазақша атау","ru":"орысша","en":"english","plural":"көпше түрі","example":"қазақша сөйлем","description":"қысқа сипаттама","confidence":0.8}]}

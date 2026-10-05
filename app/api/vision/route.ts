@@ -8,6 +8,10 @@ import { requestVision, validateVisionImage } from "@/lib/vision/recognize";
 import { createVisionLimiter } from "@/lib/vision/limit";
 import { localAiConfigured } from "@/lib/ai/local";
 import { doshaVisionModel } from "@/lib/dosha/config";
+import { learnerLevel } from "@/lib/literary/style";
+import { visionLanguageGate } from "@/lib/literary/vision";
+import { retrieveApproved, retrievalContext } from "@/lib/literary/retrieval";
+import { createAdminClient } from "@/utils/supabase/admin";
 const acquire = createVisionLimiter();
 const json = (body: unknown, status = 200) =>
   NextResponse.json(body, {
@@ -73,14 +77,35 @@ export async function POST(req: Request) {
         400,
       );
     }
-    return json(
-      await requestVision({
-        key: "",
-        image,
-        signal: req.signal,
-        model: model!,
-      }),
+    const db = createClient(await cookies());
+    const profile = await db
+      .from("q_level_profiles")
+      .select("overall_level")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const level = learnerLevel(profile.data?.overall_level);
+    const literary = await retrieveApproved(
+      createAdminClient(),
+      "күнделікті заттар мәдениет домбыра бауырсақ",
+      level,
+      "daily",
+      true,
     );
+    const result = await visionLanguageGate(
+      async (repair) =>
+        requestVision({
+          key: "",
+          image,
+          signal: req.signal,
+          model: model!,
+          level,
+          literaryContext: [retrievalContext(literary.hits), repair ?? ""].join(
+            "\n",
+          ),
+        }),
+      level,
+    );
+    return json(result);
   } catch (error) {
     const busy = error instanceof Error && error.message === "AI_BUSY";
     return json(

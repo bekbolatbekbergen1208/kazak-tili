@@ -2,6 +2,7 @@
 
 import { FormEvent, Fragment, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { WordActions } from "@/components/literary/word";
 import {
   Check,
   Mic,
@@ -450,6 +451,9 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
                   {!message.me && <Mascot />}
                   <div className="dossha-message-body">
                     <p>{message.text}</p>
+                    {!message.me && index > 0 && (
+                      <WordActions text={message.text} source="dosha" />
+                    )}
                     {!message.me && message.interactionId && (
                       <div className="dossha-rating">
                         {message.rating ? (

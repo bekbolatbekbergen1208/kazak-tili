@@ -16,3 +16,5 @@ training/artifacts/
 training/vision-images/*/
 
 __pycache__/
+
+.next-literary/

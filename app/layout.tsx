@@ -1,3 +1,5 @@
+import { LanguageProvider } from "@/components/literary/provider";
+import "@/components/literary/literary.css";
 import type { Metadata } from "next";
 import { WordTranslator } from "@/components/word-translator";
 import "./translation.css";
@@ -40,7 +42,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="kk">
-      <body>{children}<WordTranslator /></body>
+      <body>
+        <LanguageProvider>
+          {children}
+          <WordTranslator />
+        </LanguageProvider>
+      </body>
     </html>
   );
 }

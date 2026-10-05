@@ -10,6 +10,10 @@ import {
   BookOpen,
   Square,
 } from "lucide-react";
+import { WordCard } from "@/components/literary/word";
+import { useLanguage } from "@/components/literary/provider";
+import { visionDescription } from "@/lib/literary/vision";
+import { findWord } from "@/lib/literary/words";
 import { useLearning } from "@/components/learning/provider";
 import {
   visionCategories,
@@ -34,6 +38,7 @@ type RecognitionLike = {
 };
 type RecognitionCtor = new () => RecognitionLike;
 export function VisionLab() {
+  const language = useLanguage();
   const { state, dispatch, busy } = useLearning(),
     video = useRef<HTMLVideoElement>(null),
     stream = useRef<MediaStream | null>(null),
@@ -330,8 +335,8 @@ export function VisionLab() {
       <div className="vs-privacy">
         <strong>🔒 Құпиялық</strong>
         <p>
-          Камера тек рұқсатыңмен қосылады. Түсірілген немесе жүктелген кадр
-          өз серверіміздегі AI-ға ғана жіберіледі. Сайт суретті базаға, логқа
+          Камера тек рұқсатыңмен қосылады. Түсірілген немесе жүктелген кадр өз
+          серверіміздегі AI-ға ғана жіберіледі. Сайт суретті базаға, логқа
           немесе аналитикаға сақтамайды. Жеке құжаттарды жүктеме.
         </p>
       </div>
@@ -510,6 +515,7 @@ export function VisionLab() {
                 <small>Сөйлем үлгісі</small>
                 <p>{selected.example}</p>
               </div>
+              <WordCard wordId={selected.kk} source="vision" compact />
             </div>
           )}
           {image && !word && !identifying && (
@@ -549,7 +555,11 @@ export function VisionLab() {
               <p>
                 🇷🇺 {word.ru} · 🇬🇧 {word.en}
               </p>
-              {selected && <p>{selected.description}</p>}
+              <p>
+                {selected?.description ??
+                  visionDescription(word.kk, language.level)}
+              </p>
+              <WordCard wordId={word.id} source="vision" compact />
               <ManualWords
                 onSelect={(id) => {
                   setWordId(id);
@@ -562,7 +572,9 @@ export function VisionLab() {
               />
               <div className="vs-example">
                 <small>Сөйлем үлгісі</small>
-                <p>{word.easy}</p>
+                <p>
+                  {selected?.example ?? findWord(word.id)?.example ?? word.easy}
+                </p>
               </div>
               <label>
                 Тапсырма

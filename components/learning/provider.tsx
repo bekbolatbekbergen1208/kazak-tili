@@ -57,7 +57,9 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
     try {
       localStorage.setItem("qd-translation-language", state.profile.language);
       window.dispatchEvent(new Event("qd-translation-language"));
-    } catch { /* Translation still works without persistent storage. */ }
+    } catch {
+      /* Translation still works without persistent storage. */
+    }
   }, [ready, state.profile.language]);
   const kazakhMode = [
     "/learn/history",
@@ -139,6 +141,20 @@ export function LearningProvider({ children }: { children: React.ReactNode }) {
     };
     window.addEventListener("storage", sync);
     return () => window.removeEventListener("storage", sync);
+  }, [demo, localOnly, load]);
+  useEffect(() => {
+    const refresh = () => {
+      if (!demo && !localOnly) void load();
+    };
+    window.addEventListener("qd-q-level-reward", refresh);
+    const literaryRefresh = () => {
+      void load();
+    };
+    window.addEventListener("qd-language-reward", literaryRefresh);
+    return () => {
+      window.removeEventListener("qd-q-level-reward", refresh);
+      window.removeEventListener("qd-language-reward", literaryRefresh);
+    };
   }, [demo, localOnly, load]);
   async function dispatch(action: LearningAction) {
     if (lock.current) return null;

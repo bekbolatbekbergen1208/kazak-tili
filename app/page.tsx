@@ -1,4 +1,5 @@
 import Link from "next/link";
+import "@/components/q-level/q-level.css";
 import {
   ArrowRight,
   BarChart3,
@@ -62,6 +63,7 @@ export default function Landing() {
             </div>
           </div>
         </section>
+        <section className="ql-marketing"><span className="pill">QAZAQDOS Q-LEVEL</span><h2>Қазақша деңгейің қандай?</h2><p>QazaqDos Q-Level арқылы қазақ тіліндегі оқылым, тыңдалым, айтылым және жазылым деңгейіңді анықта.</p><p><strong>Q-Level B1 · 68 Q-Score</strong> — нәтиже үлгісі</p><Link href="/learn/q-level/quick" className="btn primary">Деңгейді анықтау →</Link><p>Нәтиже бойынша QazaqDos сізге жеке оқу маршрутын ұсынады.</p><small>Ішкі диагностикалық жүйе. Ресми сертификат емес.</small></section>
         <section className="features">
           <div>
             <i>

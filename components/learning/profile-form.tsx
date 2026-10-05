@@ -28,7 +28,7 @@ export function ProfileForm({ onboarding = false }: { onboarding?: boolean }) {
     });
     if (s) {
       setSaved(true);
-      if (onboarding) router.replace("/learn");
+      if (onboarding) router.replace("/learn/q-level/quick");
     }
   }
   return (
@@ -37,6 +37,7 @@ export function ProfileForm({ onboarding = false }: { onboarding?: boolean }) {
       {!onboarding && (
         <>
           <Companion context="profile" />
+          <Link className="btn ghost" href="/learn/q-level/passport">Qazaq Passport →</Link>
           <Link className="btn ghost" href="/learn/characters">
             {t({
               ru: "Менің кейіпкерлерім · Мои персонажи",

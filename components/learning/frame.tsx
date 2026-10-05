@@ -26,6 +26,7 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
     path = usePathname();
   const nav = [
     ["/learn", Home, t("Главная", "Home")],
+    ["/learn/q-level", Trophy, "Q-Level"],
     ["/student/lessons", GraduationCap, "1000 сабақ"],
     ["/student/cartoon", Clapperboard, "Мультфильм"],
     ["/kazakhstan", Compass, "Қазақстанға саяхат"],
@@ -33,6 +34,9 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
     ["/learn/national", Trophy, "Ұлттық ойындар"],
     ["/learn/map", Compass, t("Мой маршрут", "My path")],
     ["/learn/books", BookOpen, "Кітап әлемі"],
+    ["/learn/literature", BookOpen, "Әдебиетпен үйрен"],
+    ["/learn/vocabulary", BookOpen, "Менің сөз қорым"],
+    ["/learn/writing-coach", MessageCircle, "Жазу көмекшісі"],
     ["/learn/friend", MessageCircle, "Досжанмен чат"],
     ["/learn/friends", Users, "Достық байланыс"],
     ["/learn/vision", ScanLine, "Досжан Vision"],

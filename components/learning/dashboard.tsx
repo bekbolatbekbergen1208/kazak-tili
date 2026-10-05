@@ -1,5 +1,7 @@
 "use client";
 import Link from "next/link";
+import {ExpressionCard} from "@/components/literary/word";
+import { QLevelCard } from "@/components/q-level/dashboard-card";
 import {
   achievements,
   courses,
@@ -54,6 +56,8 @@ export default function Dashboard() {
           A1 · {t("Уровень", "Level")} {levelFor(p.xp)}
         </span>
       </header>
+      <QLevelCard />
+      <ExpressionCard />
       <section className="heroCard">
         <div className="heroCopy">
           <span className="eyebrow">
