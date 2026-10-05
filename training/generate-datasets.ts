@@ -10,6 +10,7 @@ import { doshaKnowledge, type KnowledgeSource } from "../lib/dosha/knowledge";
 import { dosshaInstructions } from "../lib/dosha/prompt";
 import { visionWords } from "../lib/vision/words";
 import { writingInstructions, type WritingRequest } from "../lib/dosha/writing";
+import { literaryDnaTrainingRows } from "./literary-dna-rows";
 
 type TextPart = { type: "text"; text: string };
 type ImagePart = { type: "image"; image: string };
@@ -90,6 +91,7 @@ function textRows(): Row[] {
   rows.push(
     ...dialogueTrainingRows(),
     ...vocabularyTrainingRows(),
+    ...literaryDnaTrainingRows(),
     ...kazakhExamples.flatMap((example) =>
       example.questions.map((question, index) => ({
         id: `kazakh-practice-${example.id}-${index}`,
@@ -340,6 +342,8 @@ async function main() {
           "lib/translation/vocabulary.ts",
           "lib/translation/expanded.ts",
           "training/vocabulary-rows.ts",
+          "training/literary-dna-rows.ts",
+          "lib/literary/dna.ts",
           "lib/translation/dictionary.ts",
           "lib/learning/content.ts",
           "lib/dosha/prompt.ts",
