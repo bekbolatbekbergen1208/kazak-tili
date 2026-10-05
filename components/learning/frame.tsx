@@ -53,21 +53,40 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
           <Logo />
         </Link>
         <nav aria-label={t("Навигация", "Navigation")}>
-          {nav.map(([href, Icon, label]) => (
-            <Link
-              key={href}
-              href={href}
-              aria-label={label}
-              className={
-                path === href ||
-                (href !== "/learn" && path.startsWith(href + "/"))
-                  ? "active"
-                  : ""
-              }
-            >
-              <Icon size={20} />
-              <span>{label}</span>
-            </Link>
+          {nav.map(([href, Icon, label], index) => (
+            <div className="qd-nav-item" key={href}>
+              {[0, 8, 12, 17].includes(index) && (
+                <span className="qd-nav-heading">
+                  {index === 0
+                    ? "ОҚУ ЖОЛЫ"
+                    : index === 8
+                      ? "ТІЛ ЖӘНЕ ӘДЕБИЕТ"
+                      : index === 12
+                        ? "ДОСТАРМЕН БІРГЕ"
+                        : "ЖЕКЕ КАБИНЕТ"}
+                </span>
+              )}
+              <Link
+                key={href}
+                href={href}
+                aria-label={label}
+                aria-current={
+                  path === href ||
+                  (href !== "/learn" && path.startsWith(href + "/"))
+                    ? "page"
+                    : undefined
+                }
+                className={
+                  path === href ||
+                  (href !== "/learn" && path.startsWith(href + "/"))
+                    ? "active"
+                    : ""
+                }
+              >
+                <Icon size={20} />
+                <span>{label}</span>
+              </Link>
+            </div>
           ))}
         </nav>
         <div className="sideBottom">

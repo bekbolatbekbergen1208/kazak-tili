@@ -6,6 +6,9 @@ import {
   BrainCircuit,
   Gamepad2,
   Sparkles,
+  BookOpen,
+  Compass,
+  Check,
 } from "lucide-react";
 import { Logo, Mascot } from "@/components/icons";
 export default function Landing() {
@@ -14,7 +17,8 @@ export default function Landing() {
       <nav className="landingNav">
         <Logo />
         <div>
-          <Link href="/about-research">Зерттеу туралы</Link>
+          <Link href="#explore-title">Мүмкіндіктер</Link>
+          <Link href="/about-research">Жоба туралы</Link>
           <Link href="/login" className="btn ghost">
             Кіру
           </Link>
@@ -26,44 +30,135 @@ export default function Landing() {
       <main>
         <section className="landingHero">
           <div>
-            <span className="pill">Қазақ тілі • Ойын • AI дос</span>
+            <span className="pill">
+              <span className="statusDot" /> ҚАЗАҚШАҒА БІР ҚАДАМ ЖАҚЫН
+            </span>
             <h1>
-              Қазақ тілін
+              Қазақша үйрен.
               <br />
-              <span>саяхатпен үйрен!</span>
+              <span>Өз әлеміңді кеңейт.</span>
             </h1>
             <p>
-              Ойын, қызықты оқиға және Досжан атты виртуалды дос арқылы қазақша
-              сөйлеуге сенімді қадам жаса.
+              Қызықты сабақтар, Қазақстанға саяхат және Досжанмен әңгіме. Әр күн
+              — жаңа сөз, әр қадам — жаңа сенім.
             </p>
             <div className="heroBtns">
               <Link href="/register" className="btn primary">
                 Тегін бастау <ArrowRight />
               </Link>
-              <Link href="/teacher" className="btn ghost">
-                Зерттеуші демосы
+              <Link href="/learn?demo=1" className="btn ghost">
+                Демо көру
               </Link>
             </div>
             <div className="trust">
-              <span>✓ Аккаунт Supabase арқылы қорғалады</span>
-              <span>✓ Қысқа сабақтар, күнделікті тәжірибе</span>
+              <span>
+                <Check size={15} /> Қысқа әрі түсінікті сабақтар
+              </span>
+              <span>
+                <Check size={15} /> Өз қарқыныңмен үйрен
+              </span>
             </div>
           </div>
           <div className="landingVisual">
-            <div className="floatCard fc1">
-              🔥 <b>7 күн</b>
-              <small>серия үлгісі</small>
+            <div className="journeyScene">
+              <svg
+                className="journeyLandscape"
+                viewBox="0 0 540 520"
+                fill="none"
+                aria-hidden="true"
+              >
+                <defs>
+                  <linearGradient
+                    id="sky"
+                    x2="0"
+                    y2="520"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stopColor="#e4f0df" />
+                    <stop offset="1" stopColor="#f5e9cc" />
+                  </linearGradient>
+                </defs>
+                <rect width="540" height="520" rx="36" fill="url(#sky)" />
+                <circle cx="407" cy="109" r="49" fill="#f5c976" />
+                <path
+                  d="M0 279 99 150 192 253 300 123 447 291 540 206V520H0Z"
+                  fill="#adc6b1"
+                />
+                <path
+                  d="m99 150-34 45 35-13 27 15ZM300 123l-47 64 48-18 40 22Z"
+                  fill="#f7f8e9"
+                />
+                <path
+                  d="M0 326Q130 226 291 335T540 307V520H0Z"
+                  fill="#719b7a"
+                />
+                <path
+                  d="M0 398Q125 310 279 397T540 370V520H0Z"
+                  fill="#386b56"
+                />
+                <path
+                  d="M0 470Q130 415 286 466T540 437V520H0Z"
+                  fill="#205342"
+                />
+                <path
+                  d="M394 335q-99 43-51 77t-30 108"
+                  stroke="#e8d7ad"
+                  strokeWidth="28"
+                />
+                <path
+                  d="m52 111 12-7 12 7m54-26 9-5 9 5"
+                  stroke="#416651"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span className="sceneLabel">
+                <Compass size={15} /> Сенің тілдік саяхатың
+              </span>
+              <div className="sceneMascot">
+                <Mascot />
+              </div>
+              <div className="sceneGreeting">
+                Сәлем, жаңа дос! <span>Бірге үйренейік ✨</span>
+              </div>
             </div>
-            <div className="mascotBlob">
-              <Mascot />
+            <div className="floatCard fc1">
+              <span className="floatIcon">
+                <BookOpen size={20} />
+              </span>
+              <div>
+                <b>Бүгінгі жаңа сөз</b>
+                <small>көкжиек · horizon</small>
+              </div>
             </div>
             <div className="floatCard fc2">
-              +120 <b>ұпай</b>
-              <small>марапат үлгісі</small>
+              <span className="floatIcon">
+                <Check size={20} />
+              </span>
+              <div>
+                <b>Әр қадам маңызды</b>
+                <small>Оқы. Қолдан. Есте сақта.</small>
+              </div>
             </div>
           </div>
         </section>
-        <section className="ql-marketing"><span className="pill">QAZAQDOS Q-LEVEL</span><h2>Қазақша деңгейің қандай?</h2><p>QazaqDos Q-Level арқылы қазақ тіліндегі оқылым, тыңдалым, айтылым және жазылым деңгейіңді анықта.</p><p><strong>Q-Level B1 · 68 Q-Score</strong> — нәтиже үлгісі</p><Link href="/learn/q-level/quick" className="btn primary">Деңгейді анықтау →</Link><p>Нәтиже бойынша QazaqDos сізге жеке оқу маршрутын ұсынады.</p><small>Ішкі диагностикалық жүйе. Ресми сертификат емес.</small></section>
+        <section className="ql-marketing">
+          <div className="ql-landing-symbol" aria-hidden="true">
+            Q<span>LEVEL</span>
+          </div>
+          <div className="ql-landing-copy">
+            <span className="overline">ӨЗ ДЕҢГЕЙІҢНЕН БАСТА</span>
+            <h2>Қазақша деңгейің қандай?</h2>
+            <p>
+              Оқылым, тыңдалым, айтылым және жазылым. Деңгейіңді анықтап, өзіңе
+              сай оқу жолын тап.
+            </p>
+            <small>Ішкі диагностика. Ресми сертификат емес.</small>
+          </div>
+          <Link href="/learn/q-level/quick" className="btn primary">
+            Деңгейді анықтау <ArrowRight size={18} />
+          </Link>
+        </section>
         <section className="features">
           <div>
             <i>
