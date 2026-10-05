@@ -12,6 +12,7 @@ import { learnerLevel } from "@/lib/literary/style";
 import { visionLanguageGate } from "@/lib/literary/vision";
 import { retrieveApproved, retrievalContext } from "@/lib/literary/retrieval";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { literaryDnaGuidance } from "@/lib/literary/dna-mixer";
 const acquire = createVisionLimiter();
 const json = (body: unknown, status = 200) =>
   NextResponse.json(body, {
@@ -91,6 +92,11 @@ export async function POST(req: Request) {
       "daily",
       true,
     );
+    const literaryDna = literaryDnaGuidance(
+      "Суреттегі затты қазақша табиғи әрі деңгейге сай сипаттау",
+      level,
+      "daily",
+    );
     const result = await visionLanguageGate(
       async (repair) =>
         requestVision({
@@ -99,9 +105,13 @@ export async function POST(req: Request) {
           signal: req.signal,
           model: model!,
           level,
-          literaryContext: [retrievalContext(literary.hits), repair ?? ""].join(
-            "\n",
-          ),
+          literaryContext: [
+            literaryDna,
+            retrievalContext(literary.hits),
+            repair ?? "",
+          ]
+            .filter(Boolean)
+            .join("\n\n"),
         }),
       level,
     );
