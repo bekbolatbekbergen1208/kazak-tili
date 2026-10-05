@@ -2,6 +2,9 @@ name: Deploy QazaqDos
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["QazaqDos CI"]
+    types: [completed]
 
 permissions:
   contents: read
@@ -11,11 +14,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  verify:
-    uses: ./.github/workflows/ci.yml
-
   deploy:
-    needs: verify
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment: production
     steps:
