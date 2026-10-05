@@ -22,7 +22,6 @@ import "./dossha.css";
 import "./polish.css";
 import "./brand.css";
 import "./cartoon.css";
-import "./design.css";
 
 export const metadata: Metadata = {
   title: "QazaqDos — қазақ тілін саяхатпен үйрен",

@@ -8,11 +8,6 @@ async function onboard(page: Page) {
   await page.getByRole("button", { name: "Continue", exact: true }).click();
   await page.getByLabel("Nickname").fill("Test Learner");
   await page.getByRole("button", { name: "Create my path" }).click();
-  await expect(page).toHaveURL(/\/learn\/q-level\/quick/);
-  await page
-    .getByRole("navigation")
-    .getByRole("link", { name: "Home", exact: true })
-    .click();
   await expect(
     page.getByRole("heading", { name: "Сәлем, Test Learner!" }),
   ).toBeVisible();

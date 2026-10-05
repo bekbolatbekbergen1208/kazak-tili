@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ExpressionCard } from "@/components/literary/word";
+import {ExpressionCard} from "@/components/literary/word";
 import { QLevelCard } from "@/components/q-level/dashboard-card";
 import {
   achievements,
@@ -56,6 +56,8 @@ export default function Dashboard() {
           A1 · {t("Уровень", "Level")} {levelFor(p.xp)}
         </span>
       </header>
+      <QLevelCard />
+      <ExpressionCard />
       <section className="heroCard">
         <div className="heroCopy">
           <span className="eyebrow">
@@ -101,10 +103,6 @@ export default function Dashboard() {
           </div>
         ))}
       </section>
-      <div className="qd-discovery-grid">
-        <QLevelCard />
-        <ExpressionCard />
-      </div>
       <div className="qd-grid two">
         <section className="panel">
           <div className="sectionHead">
