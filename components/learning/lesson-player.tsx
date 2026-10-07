@@ -148,7 +148,7 @@ export default function LessonPlayer({ lessonId }: { lessonId: string }) {
           {lesson.exercises.length}
         </span>
       </div>
-      <progress value={index} max={lesson.exercises.length} />
+      <progress aria-label={t("Прогресс урока", "Lesson progress")} value={index} max={lesson.exercises.length} />
       <h1>{localized(lesson.title, state.profile.language)}</h1>
       <LessonMaterial lesson={lesson} />
       {book && (

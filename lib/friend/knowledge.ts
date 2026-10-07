@@ -3,6 +3,7 @@ import { searchDoshaKnowledge } from "../dosha/knowledge";
 import { findVocabulary, vocabularyText } from "../translation/vocabulary";
 import { readingBooks } from "../books/catalog";
 import { grammarTopics } from "./grammar";
+import { classicWorks, classicContext } from "../literary/classics";
 export const friendSuggestions = [
   "Қазақ тілінде неше септік бар?",
   "Зат есім деген не?",
@@ -57,6 +58,15 @@ export function referenceAnswer(
       reply: `${sources[0].title}\n\n${sources[0].excerpt}`,
       topic: sources[0].title,
     };
+  const classic = classicWorks.find((work) => text.includes(clean(work.title)));
+  if (classic) {
+    if (/дәйексөз|цитат|бет нөмір|қай бет/.test(text))
+      return {
+        reply: `Қолда тек тексерілген қысқа үзінді бар: «${classic.excerpt}»\n\n${classic.title} — ${classic.author}.\nБасылым мен бет нөмірі берілмеген. Өзге дәйексөзді ойдан шығармаймын.\nДереккөз: ${classic.sourceUrl}`,
+        topic: classic.title,
+      };
+    return { reply: classicContext(classic), topic: classic.title };
+  }
   const book = readingBooks.find(
     (b) =>
       text.includes(clean(b.title)) ||

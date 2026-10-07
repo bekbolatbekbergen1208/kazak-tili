@@ -11,6 +11,8 @@ import { dosshaInstructions } from "../lib/dosha/prompt";
 import { visionWords } from "../lib/vision/words";
 import { writingInstructions, type WritingRequest } from "../lib/dosha/writing";
 import { literaryDnaTrainingRows } from "./literary-dna-rows";
+import { classicWorks } from "../lib/literary/classics";
+import { classicalLiteratureTrainingRows } from "./classical-literature-rows";
 
 type TextPart = { type: "text"; text: string };
 type ImagePart = { type: "image"; image: string };
@@ -71,27 +73,31 @@ function answerFor(source: KnowledgeSource) {
 }
 
 function textRows(): Row[] {
-  const rows: Row[] = doshaKnowledge().map((source) => ({
-    id: source.id,
-    group:
-      source.category === "vocabulary" || source.category === "vision"
-        ? `vocabulary-${normalizeWord(source.title)}`
-        : source.id.startsWith("kazakh-example-")
-          ? source.id
-          : source.category === "exercise"
-            ? `exercise-${normalizeWord(source.question ?? source.title)}`
-            : undefined,
-    source: source.category,
-    messages: [
-      { role: "system", content: dosshaInstructions },
-      { role: "user", content: promptFor(source) },
-      { role: "assistant", content: answerFor(source) },
-    ],
-  }));
+  // Classics use context-grounded dialogues and one group per work below.
+  const rows: Row[] = doshaKnowledge()
+    .filter((source) => !source.id.startsWith("classic-"))
+    .map((source) => ({
+      id: source.id,
+      group:
+        source.category === "vocabulary" || source.category === "vision"
+          ? `vocabulary-${normalizeWord(source.title)}`
+          : source.id.startsWith("kazakh-example-")
+            ? source.id
+            : source.category === "exercise"
+              ? `exercise-${normalizeWord(source.question ?? source.title)}`
+              : undefined,
+      source: source.category,
+      messages: [
+        { role: "system", content: dosshaInstructions },
+        { role: "user", content: promptFor(source) },
+        { role: "assistant", content: answerFor(source) },
+      ],
+    }));
   rows.push(
     ...dialogueTrainingRows(),
     ...vocabularyTrainingRows(),
     ...literaryDnaTrainingRows(),
+    ...classicalLiteratureTrainingRows(),
     ...kazakhExamples.flatMap((example) =>
       example.questions.map((question, index) => ({
         id: `kazakh-practice-${example.id}-${index}`,
@@ -305,6 +311,17 @@ async function main() {
     JSON.stringify(
       {
         generatedAt: new Date().toISOString(),
+        classicalLiterature: {
+          mode: "source_grounded_excerpts_and_original_explanations",
+          weightsTrained: false,
+          works: classicWorks.map((work) => ({
+            id: work.id,
+            title: work.title,
+            author: work.author,
+            sourceUrl: work.sourceUrl,
+            group: `classic-${work.id}`,
+          })),
+        },
         textQuality: {
           removedDuplicates: prepared.removedDuplicates,
           mergedGroups: prepared.mergedGroups,
@@ -343,6 +360,8 @@ async function main() {
           "lib/translation/expanded.ts",
           "training/vocabulary-rows.ts",
           "training/literary-dna-rows.ts",
+          "training/classical-literature-rows.ts",
+          "lib/literary/classics.ts",
           "lib/literary/dna.ts",
           "lib/translation/dictionary.ts",
           "lib/learning/content.ts",

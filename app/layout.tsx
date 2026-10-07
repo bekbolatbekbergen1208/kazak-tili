@@ -3,6 +3,7 @@ import "@/components/literary/literary.css";
 import type { Metadata } from "next";
 import { WordTranslator } from "@/components/word-translator";
 import "./translation.css";
+import "./design-tokens.css";
 import "./globals.css";
 import "./extra.css";
 import "./extra2.css";
@@ -23,6 +24,7 @@ import "./polish.css";
 import "./brand.css";
 import "./cartoon.css";
 import "@/components/songs/songs.css";
+import "./journey-design.css";
 
 export const metadata: Metadata = {
   title: "QazaqDos — қазақ тілін саяхатпен үйрен",

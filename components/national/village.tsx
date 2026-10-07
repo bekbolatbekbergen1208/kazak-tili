@@ -49,7 +49,7 @@ export function WorldVillage() {
           <br />
           Жеңіске бірге жетейік!
         </h2>
-        <p>18 ойын · қазақша сөздер · сенің кейіпкерің</p>
+        <p>{worldGames.length} ойын · қазақша сөздер · сенің кейіпкерің</p>
       </div>
       <div
         ref={mapRef}

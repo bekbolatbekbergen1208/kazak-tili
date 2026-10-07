@@ -28,6 +28,11 @@ export default function Dashboard() {
     q = p.quests[dayKey()] ?? emptyQuest(),
     done = Object.values(p.lessons).filter((x) => x.completedAt).length,
     weekly = weeklyXP(state);
+  const pending = Object.values(p.mistakes).filter((m) => !m.resolved);
+  const latest = p.achievements.at(-1);
+  const latestAchievement = achievements.find(
+    (a) => a.id === latest?.achievementId,
+  );
   const activeStreak =
     p.streak.lastDay &&
     p.streak.lastDay >= dayKey(new Date(Date.now() - 86400000))
@@ -99,13 +104,56 @@ export default function Dashboard() {
           </div>
         ))}
       </section>
+      <section className="journey-discover" aria-label="Келесі қадамдар">
+        <Link href="/learn/review" className="journey-discover-card">
+          <span className="pill">ҚАЙТАЛАУ</span>
+          <h3>
+            {pending.length
+              ? `${pending.length} тапсырманы бекіт`
+              : "Білгеніңді бекіт"}
+          </h3>
+          <p>
+            {pending.length
+              ? "Қиын болған тапсырмаларға қайта оралып, өз қарқыныңмен жаттық."
+              : "Қайталауды қажет ететін қате жоқ. Жаңа сөздермен таныс."}
+          </p>
+          <b>Қайталауға өту →</b>
+        </Link>
+        <Link href="/learn/national/asyk" className="journey-discover-card">
+          <span className="pill">ОЙЫН ҮЗІЛІСІ</span>
+          <h3>Асық ату</h3>
+          <p>
+            Қазақша тапсырмаларды орындап, мергендігіңді сына. Бірінші деңгейден
+            ашық.
+          </p>
+          <b>Ойнап үйрен →</b>
+        </Link>
+        <Link href="/learn/characters" className="journey-discover-card">
+          <span className="pill">СЕНІҢ ЖЕТІСТІГІҢ</span>
+          <h3>
+            {latestAchievement
+              ? `${latestAchievement.icon} ${latestAchievement.title[lang]}`
+              : "Алғашқы жетістік алда"}
+          </h3>
+          <p>
+            {latestAchievement
+              ? "Әр қадам маңызды. Жаңа сапарыңды жалғастыр!"
+              : "Сабағыңды аяқтап, алғашқы марапатыңа жақында."}
+          </p>
+          <b>Достар жинағы →</b>
+        </Link>
+      </section>
       <div className="qd-grid two">
         <section className="panel">
           <div className="sectionHead">
             <h3>{t("План на сегодня", "Today’s plan")}</h3>
             <span>{q.lessons}/2</span>
           </div>
-          <progress max={2} value={Math.min(2, q.lessons)} />
+          <progress
+            aria-label={t("Уроки сегодня", "Lessons today")}
+            max={2}
+            value={Math.min(2, q.lessons)}
+          />
           <p>
             {t(
               "Спокойный темп: два коротких урока.",

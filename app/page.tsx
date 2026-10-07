@@ -6,6 +6,8 @@ import {
   BrainCircuit,
   Gamepad2,
   Sparkles,
+  Music,
+  Compass,
 } from "lucide-react";
 import { Logo, Mascot } from "@/components/icons";
 export default function Landing() {
@@ -26,11 +28,11 @@ export default function Landing() {
       <main>
         <section className="landingHero">
           <div>
-            <span className="pill">Қазақ тілі • Ойын • AI дос</span>
+            <span className="pill">Әр сөз — жаңа әлемге жол</span>
             <h1>
               Қазақ тілін
               <br />
-              <span>саяхатпен үйрен!</span>
+              <span>ойынмен, саяхатпен және Досшамен үйрен.</span>
             </h1>
             <p>
               Ойын, қызықты оқиға және Досжан атты виртуалды дос арқылы қазақша
@@ -38,32 +40,74 @@ export default function Landing() {
             </p>
             <div className="heroBtns">
               <Link href="/register" className="btn primary">
-                Тегін бастау <ArrowRight />
+                Үйренуді бастау <ArrowRight />
               </Link>
-              <Link href="/teacher" className="btn ghost">
-                Зерттеуші демосы
+              <Link href="/learn?demo=1" className="btn ghost">
+                Байқап көру
               </Link>
             </div>
             <div className="trust">
-              <span>✓ Аккаунт Supabase арқылы қорғалады</span>
+              <span>✓ Өзіңе ыңғайлы қарқын</span>
               <span>✓ Қысқа сабақтар, күнделікті тәжірибе</span>
             </div>
           </div>
-          <div className="landingVisual">
+          <div className="landingVisual journey-scene">
+            <div className="journey-sun" />
+            <svg
+              className="journey-landscape"
+              viewBox="0 0 560 460"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M0 290 130 95 240 250 350 65 560 300V460H0Z"
+                fill="var(--qd-brand-light)"
+              />
+              <path
+                d="m130 95-43 65 42-14 30 24 18-10Zm220-30-57 98 52-26 38 27 26-18Z"
+                fill="var(--qd-glass-solid)"
+              />
+              <path d="M0 320Q135 230 280 325T560 290V460H0Z" fill="#9181db" />
+              <path d="M0 388Q160 285 340 370T560 340V460H0Z" fill="var(--qd-brand-dark)" />
+              <path
+                d="M335 460Q180 370 290 340T310 292"
+                stroke="var(--qd-lavender)"
+                strokeWidth="18"
+                strokeLinecap="round"
+              />
+            </svg>
             <div className="floatCard fc1">
-              🔥 <b>7 күн</b>
-              <small>серия үлгісі</small>
+              <Compass size={22} />
+              <b>Еліңді таны</b>
+              <small>Қазақстанға саяхат</small>
             </div>
             <div className="mascotBlob">
               <Mascot />
             </div>
             <div className="floatCard fc2">
-              +120 <b>ұпай</b>
-              <small>марапат үлгісі</small>
+              <Music size={22} />
+              <b>Әнмен үйрен</b>
+              <small>Тыңда. Қосылып айт.</small>
             </div>
+            <span className="journey-caption">Сәлем! Бірге үйренейік.</span>
           </div>
         </section>
-        <section className="ql-marketing"><span className="pill">QAZAQDOS Q-LEVEL</span><h2>Қазақша деңгейің қандай?</h2><p>QazaqDos Q-Level арқылы қазақ тіліндегі оқылым, тыңдалым, айтылым және жазылым деңгейіңді анықта.</p><p><strong>Q-Level B1 · 68 Q-Score</strong> — нәтиже үлгісі</p><Link href="/learn/q-level/quick" className="btn primary">Деңгейді анықтау →</Link><p>Нәтиже бойынша QazaqDos сізге жеке оқу маршрутын ұсынады.</p><small>Ішкі диагностикалық жүйе. Ресми сертификат емес.</small></section>
+        <section className="ql-marketing">
+          <span className="pill">QAZAQDOS Q-LEVEL</span>
+          <h2>Қазақша деңгейің қандай?</h2>
+          <p>
+            QazaqDos Q-Level арқылы қазақ тіліндегі оқылым, тыңдалым, айтылым
+            және жазылым деңгейіңді анықта.
+          </p>
+          <p>
+            <strong>Q-Level B1 · 68 Q-Score</strong> — нәтиже үлгісі
+          </p>
+          <Link href="/learn/q-level/quick" className="btn primary">
+            Деңгейді анықтау →
+          </Link>
+          <p>Нәтиже бойынша QazaqDos сізге жеке оқу маршрутын ұсынады.</p>
+          <small>Ішкі диагностикалық жүйе. Ресми сертификат емес.</small>
+        </section>
         <section className="features">
           <div>
             <i>
@@ -114,10 +158,10 @@ export default function Landing() {
                 tone: "mint",
               },
               {
-                href: "/learn/books",
-                icon: "📚",
-                title: "Кітап әлемі",
-                text: "Әңгімелерді оқы, кейіпкерлерді таны, тапсырмаларды орында.",
+                href: "/learn/songs",
+                icon: "🎵",
+                title: "Әнмен үйрен",
+                text: "Ән тыңда, жаңа сөздерді тап, караокеде қосылып айт.",
                 tone: "peach",
               },
               {

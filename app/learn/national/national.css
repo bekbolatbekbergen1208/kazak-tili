@@ -1,6 +1,6 @@
 .ng-page {
-  --ng-ink: #272641;
-  --ng-purple: #7461d3;
+  --ng-ink: var(--qd-ink);
+  --ng-purple: var(--qd-brand);
   max-width: 1180px;
   margin: auto;
   padding: 24px 32px 100px;
@@ -307,7 +307,7 @@
   display: block;
   width: 100%;
   margin-top: 10px;
-  accent-color: #7862cf;
+  accent-color: var(--qd-brand);
 }
 .ng-question {
   margin: 16px auto;
@@ -430,7 +430,7 @@
 .ng-page progress {
   width: 100%;
   height: 12px;
-  accent-color: #7862cf;
+  accent-color: var(--qd-brand);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -739,14 +739,14 @@
   place-items: center;
   padding: 0;
   border-radius: 6px;
-  background: #eff5f0;
-  border: 1px solid #c7d8ca;
-  color: #4e7164;
+  background: var(--qd-glass-solid);
+  border: 1px solid var(--qd-border);
+  color: var(--qd-brand-dark);
 }
 .ng-page .ng-settings button[aria-pressed="true"] {
-  background: #d1e8da;
-  border-color: #438b70;
-  color: #23583f;
+  background: var(--qd-lavender);
+  border-color: var(--qd-brand);
+  color: var(--qd-brand-dark);
 }
 @media (max-width: 650px) {
   .qa-wallet {

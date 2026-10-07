@@ -1,4 +1,5 @@
 import type { CorpusItem, Lesson } from "./types";
+import { classicCorpus } from "./classics";
 const date = "2026-10-05T00:00:00Z";
 const rows: [
   string,
@@ -100,34 +101,37 @@ const rows: [
     ["сәлем", "дос", "қалай", "диалог"],
   ],
 ];
-export const approvedCorpus: CorpusItem[] = rows.map(
-  ([id, title, level, style, topic, text, keywords]) => ({
-    id: `lit-${id}`,
-    title,
-    source_type: "educational",
-    author: "QazaqDos · арнайы жасалған оқу мәтіні",
-    copyright_status: "open_license",
-    license: "CC0-1.0",
-    rights_evidence:
-      "Original QazaqDos educational seed authored for this project; no external literary passages copied.",
-    level,
-    genre: style === "storytelling" ? "әңгіме" : "оқу мәтіні",
-    style,
-    topic,
-    region: "Қазақстан",
-    age_group: "all",
-    text,
-    keywords,
-    approved_by: "QazaqDos seed v1",
-    status: "approved",
-    created_at: date,
-    quality_score: 90,
-    language_quality: 90,
-    educational_value: 90,
-    age_suitability: 100,
-    revision: 1,
-  }),
-);
+export const approvedCorpus: CorpusItem[] = [
+  ...rows.map<CorpusItem>(
+    ([id, title, level, style, topic, text, keywords]) => ({
+      id: `lit-${id}`,
+      title,
+      source_type: "educational",
+      author: "QazaqDos · арнайы жасалған оқу мәтіні",
+      copyright_status: "open_license",
+      license: "CC0-1.0",
+      rights_evidence:
+        "Original QazaqDos educational seed authored for this project; no external literary passages copied.",
+      level,
+      genre: style === "storytelling" ? "әңгіме" : "оқу мәтіні",
+      style,
+      topic,
+      region: "Қазақстан",
+      age_group: "all",
+      text,
+      keywords,
+      approved_by: "QazaqDos seed v1",
+      status: "approved",
+      created_at: date,
+      quality_score: 90,
+      language_quality: 90,
+      educational_value: 90,
+      age_suitability: 100,
+      revision: 1,
+    }),
+  ),
+  ...classicCorpus,
+];
 export const literatureLessons: Lesson[] = [
   {
     id: "morning",

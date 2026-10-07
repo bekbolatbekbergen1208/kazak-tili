@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useState } from "react";
 import { useLearning } from "@/components/learning/provider";
 import { equipmentFor, selectedCharacter } from "@/lib/characters/state";
 import { nextLesson } from "@/lib/learning/state";
@@ -19,6 +20,7 @@ export function Companion({
   exercise?: Exercise;
   context?: "map" | "books" | "profile";
 }) {
+  const [dismissed, setDismissed] = useState(false);
   const { state, t } = useLearning(),
     c = selectedCharacter(state),
     lang = state.profile.language;
@@ -40,21 +42,25 @@ export function Companion({
     c.id === "danaqulaq" &&
     (context === "books" || state.profile.goal === "books")
   )
-    extra = (
-      books.find(
-        (b) =>
-          b.id ===
-          (exercise
-            ? lessonById(exercise.id.replace(/-\d+$/, ""))?.bookId
-            : undefined),
-      ) ?? books[0]
-    ).summary[lang] ?? (books.find(
-      (b) =>
-        b.id ===
-        (exercise
-          ? lessonById(exercise.id.replace(/-\d+$/, ""))?.bookId
-          : undefined),
-    ) ?? books[0]).summary.ru;
+    extra =
+      (
+        books.find(
+          (b) =>
+            b.id ===
+            (exercise
+              ? lessonById(exercise.id.replace(/-\d+$/, ""))?.bookId
+              : undefined),
+        ) ?? books[0]
+      ).summary[lang] ??
+      (
+        books.find(
+          (b) =>
+            b.id ===
+            (exercise
+              ? lessonById(exercise.id.replace(/-\d+$/, ""))?.bookId
+              : undefined),
+        ) ?? books[0]
+      ).summary.ru;
   const equipment = equipmentFor(state);
   if (c.id === "tilmash" && exercise && !equipment.hand)
     equipment.hand = "dictionary";
@@ -70,14 +76,23 @@ export function Companion({
     >
       <CharacterArt characterId={c.id} mood={actualMood} equipped={equipment} />
       <div className="char-speech">
+        <button
+          type="button"
+          className="journey-tip-toggle"
+          aria-expanded={!dismissed}
+          aria-label={dismissed ? "Кеңесті көрсету" : "Кеңесті жасыру"}
+          onClick={() => setDismissed(!dismissed)}
+        >
+          {dismissed ? "?" : "×"}
+        </button>
         <Link className="char-companion-name" href="/learn/characters">
           {c.name} <span>↗</span>
         </Link>
-        <p>
+        <p hidden={dismissed}>
           {localized(c.dialogueLines[actualMood], lang)}
           {text && <span className="char-context">{text}</span>}
         </p>
-        {extra && <small>{extra}</small>}
+        {extra && !dismissed && <small>{extra}</small>}
       </div>
     </div>
   );

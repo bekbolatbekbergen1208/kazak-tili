@@ -2,7 +2,7 @@
   max-width: 1160px;
   margin: auto;
   padding-bottom: 70px;
-  color: #213c3d;
+  color: var(--ink);
 }
 .ql-heading {
   display: flex;
@@ -17,21 +17,21 @@
   margin: 8px 0;
 }
 .ql-dot {
-  color: #159782;
+  color: var(--qd-brand-dark);
 }
 .ql-heading p,
 .ql-panel p,
 .ql-start p {
-  color: #698080;
+  color: var(--muted);
   line-height: 1.7;
 }
 .ql-chip {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #e8f3ec;
-  color: #286a52;
-  border: 1px solid #d3e9db;
+  background: var(--qd-lavender);
+  color: var(--qd-brand-dark);
+  border: 1px solid var(--line);
   border-radius: 99px;
   padding: 9px 14px;
   font-size: 12px;
@@ -41,7 +41,7 @@
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
-  border-bottom: 1px solid #dce7e3;
+  border-bottom: 1px solid var(--line);
   padding-bottom: 14px;
   margin-bottom: 15px;
 }
@@ -49,17 +49,17 @@
   padding: 11px 14px;
   border-radius: 12px;
   font-size: 13px;
-  color: #617573;
+  color: var(--muted);
   font-weight: 600;
   white-space: nowrap;
 }
 .ql-tabs a.active {
-  background: #163f40;
+  background: var(--qd-brand-dark);
   color: white;
 }
 .ql-trust {
   font-size: 11px;
-  color: #78908a;
+  color: var(--muted);
   line-height: 1.7;
 }
 .ql-demo-bar {
@@ -68,12 +68,12 @@
   justify-content: space-between;
   gap: 12px;
   font-size: 12px;
-  color: #6a807a;
+  color: var(--muted);
   margin: 20px 0;
 }
 .ql-demo-bar button {
   border: 0;
-  color: #278c73;
+  color: var(--qd-brand-dark);
   background: transparent;
   text-decoration: underline;
   cursor: pointer;
@@ -88,7 +88,7 @@
 .ql-hero,
 .ql-result {
   border-radius: 26px;
-  background: #163f40;
+  background: var(--qd-brand-dark);
   color: #fff;
   display: grid;
   grid-template-columns: 1.4fr 1fr;
@@ -104,18 +104,19 @@
 }
 .ql-hero h2 em {
   font-style: normal;
-  color: #c6ed87;
+  color: var(--qd-lavender);
 }
 .ql-hero p {
   max-width: 470px;
   line-height: 1.7;
-  color: #bfd5ce;
+  color: var(--qd-lavender);
 }
 .ql-hero .btn,
 .ql-start .btn {
   margin: 8px 8px 0 0;
 }
 .ql-hero .btn.ghost {
+  background: #ffffff18;
   color: white;
   border-color: #ffffff40;
 }
@@ -126,8 +127,8 @@
   position: relative;
 }
 .ql-orbit {
-  border: 25px solid #d4efbe24;
-  outline: 1px solid #d4efbe33;
+  border: 25px solid #a78bfa24;
+  outline: 1px solid #a78bfa33;
   border-radius: 50%;
   width: 235px;
   height: 235px;
@@ -135,24 +136,24 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #1e5652;
-  box-shadow: 0 0 0 30px #d4efbe06;
+  background: var(--qd-brand-dark);
+  box-shadow: 0 0 0 30px #a78bfa06;
 }
 .ql-orbit span {
   font-size: 100px;
   font-weight: 900;
-  color: #c6ed87;
+  color: var(--qd-lavender);
   line-height: 1;
 }
 .ql-orbit small {
   letter-spacing: 6px;
-  color: #c6ed87;
+  color: var(--qd-lavender);
 }
 .ql-floating {
   position: absolute;
   bottom: 40px;
-  background: #eff8e9;
-  color: #255940;
+  background: var(--qd-lavender);
+  color: var(--qd-brand-dark);
   border-radius: 12px;
   padding: 14px 20px;
   transform: rotate(-4deg);
@@ -163,11 +164,11 @@
 .ql-start,
 .ql-exam {
   padding: 30px;
-  border: 1px solid #dce8e1;
+  border: 1px solid var(--line);
   border-radius: 22px;
   background: #fff;
   margin: 22px 0;
-  box-shadow: 0 4px 24px #21463604;
+  box-shadow: 0 4px 24px #5b21b604;
 }
 .ql-panel h2,
 .ql-start h2 {
@@ -181,7 +182,7 @@
 }
 .ql-start ul {
   line-height: 2;
-  color: #647974;
+  color: var(--muted);
   padding-left: 23px;
 }
 .ql-result h2 {
@@ -192,10 +193,10 @@
   font-size: 70px;
   display: block;
   line-height: 1.2;
-  color: #cbef86;
+  color: var(--qd-lavender);
 }
 .ql-result p {
-  color: #c9dcd3;
+  color: var(--qd-lavender);
   max-width: 450px;
   line-height: 1.6;
 }
@@ -209,7 +210,7 @@
   animation: ql-appear 0.6s ease;
 }
 .ql-score-ring > div {
-  background: #163f40;
+  background: var(--qd-brand-dark);
   border-radius: 50%;
   height: 100%;
   display: flex;
@@ -220,11 +221,11 @@
 .ql-score-ring strong {
   font-size: 68px;
   line-height: 1.2;
-  color: #cbef86;
+  color: var(--qd-lavender);
 }
 .ql-score-ring span {
   font-size: 12px;
-  color: #c9dcd3;
+  color: var(--qd-lavender);
 }
 .ql-two {
   display: grid;
@@ -235,7 +236,7 @@
   padding-top: 0;
 }
 .ql-insights .ql-panel svg {
-  color: #24917d;
+  color: var(--qd-brand);
   margin-bottom: 14px;
 }
 .ql-insights .overline {
@@ -255,14 +256,14 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  border-bottom: 1px solid #dce8e1;
+  border-bottom: 1px solid var(--line);
   padding: 12px 0;
   font-size: 12px;
 }
 .ql-panel small {
   display: block;
   font-size: 11px;
-  color: #70837d;
+  color: var(--muted);
   line-height: 1.7;
   margin-top: 12px;
 }
@@ -274,7 +275,7 @@
 }
 .ql-path a {
   border-radius: 14px;
-  background: #eff5ee;
+  background: var(--qd-lavender);
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -282,7 +283,7 @@
 }
 .ql-path strong {
   font-size: 28px;
-  color: #258772;
+  color: var(--qd-brand-dark);
 }
 .ql-path span {
   font-size: 13px;
@@ -294,22 +295,22 @@
   width: 100%;
   height: 8px;
   border-radius: 20px;
-  accent-color: #188b76;
+  accent-color: var(--qd-brand);
   margin: 14px 0;
 }
 .ql-passport {
-  background: linear-gradient(140deg, #123e40, #1f7665);
+  background: linear-gradient(140deg, var(--qd-brand-dark), var(--qd-brand-dark));
   color: white;
   max-width: 740px;
   padding: 36px;
   border-radius: 26px;
   margin: 28px auto;
-  box-shadow: 0 18px 50px #133e401b;
+  box-shadow: 0 18px 50px #5b21b61b;
 }
 .ql-passport header {
   display: flex;
   justify-content: space-between;
-  color: #d1ef92;
+  color: var(--qd-lavender);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 3px;
@@ -335,7 +336,7 @@
 }
 .ql-passport-user p {
   font-size: 12px;
-  color: #bdd9ca;
+  color: var(--qd-lavender);
 }
 .ql-passport-score {
   display: flex;
@@ -349,12 +350,12 @@
 }
 .ql-passport-score strong {
   font-size: 70px;
-  color: #d1ef92;
+  color: var(--qd-lavender);
   line-height: 1.3;
 }
 .ql-passport-score small {
   font-size: 12px;
-  color: #c1d9cc;
+  color: var(--qd-lavender);
 }
 .ql-passport-stats {
   display: flex;
@@ -366,7 +367,7 @@
 }
 .ql-passport .ql-skill-grid > div {
   border-color: #ffffff30;
-  color: #d9ebe2;
+  color: var(--qd-lavender);
 }
 .ql-passport > p {
   font-size: 14px;
@@ -385,8 +386,8 @@
   margin-bottom: 24px;
 }
 .ql-badges span {
-  border: 1px solid #d1ef9233;
-  color: #d1ef92;
+  border: 1px solid #a78bfa33;
+  color: var(--qd-lavender);
   border-radius: 99px;
   padding: 9px 12px;
   font-size: 11px;
@@ -395,12 +396,12 @@
   display: flex;
   justify-content: space-between;
   gap: 15px;
-  border-top: 1px solid #e4ede6;
+  border-top: 1px solid var(--line);
   padding: 18px 0;
   font-size: 13px;
 }
 .ql-timeline span {
-  color: #798b82;
+  color: var(--muted);
 }
 .ql-rank-tabs {
   display: flex;
@@ -409,7 +410,7 @@
   margin: 20px 0;
 }
 .ql-rank-tabs button {
-  border: 1px solid #dce8e1;
+  border: 1px solid var(--line);
   background: white;
   padding: 10px 15px;
   border-radius: 99px;
@@ -417,31 +418,31 @@
   cursor: pointer;
 }
 .ql-rank-tabs button.active {
-  background: #163f40;
+  background: var(--qd-brand-dark);
   color: white;
-  border-color: #163f40;
+  border-color: var(--qd-brand-dark);
 }
 .ql-rank-row {
   display: grid;
   grid-template-columns: 45px 1fr auto;
   align-items: center;
   gap: 12px;
-  border-top: 1px solid #e6eee8;
+  border-top: 1px solid var(--line);
   padding: 20px 0;
 }
 .ql-rank-row > b {
   font-size: 24px;
-  color: #99b8a8;
+  color: var(--qd-brand);
 }
 .ql-rank-row strong {
   text-align: right;
-  color: #24846c;
+  color: var(--qd-brand-dark);
   font-size: 24px;
 }
 .ql-rank-row small {
   display: block;
   font-size: 11px;
-  color: #83948b;
+  color: var(--muted);
   margin-top: 4px;
 }
 .ql-leagues {
@@ -451,14 +452,14 @@
   margin: 24px 0;
 }
 .ql-leagues > span {
-  border: 1px solid #dce8e1;
+  border: 1px solid var(--line);
   border-radius: 15px;
   padding: 18px;
   display: flex;
   align-items: center;
   flex-direction: column;
   gap: 10px;
-  color: #38826b;
+  color: var(--qd-brand-dark);
 }
 .ql-leagues small {
   font-size: 10px;
@@ -484,7 +485,7 @@
 .ql-exam footer {
   margin-top: 24px;
   font-size: 11px;
-  color: #839187;
+  color: var(--muted);
 }
 .ql-exam h2 {
   font-size: 28px;
@@ -492,8 +493,8 @@
   margin: 20px 0;
 }
 .ql-exam blockquote {
-  background: #f2f7ef;
-  border-left: 3px solid #91c47c;
+  background: var(--qd-lavender);
+  border-left: 3px solid var(--qd-brand);
   padding: 24px;
   margin: 20px 0;
   line-height: 1.9;
@@ -508,10 +509,10 @@
 .ql-steps span {
   padding: 6px;
   font-size: 10px;
-  color: #8a9c90;
+  color: var(--muted);
 }
 .ql-steps span.active {
-  color: #21836a;
+  color: var(--qd-brand-dark);
   font-weight: bold;
 }
 .ql-options {
@@ -522,7 +523,7 @@
 }
 .ql-options button {
   background: white;
-  border: 1px solid #dae6dd;
+  border: 1px solid var(--line);
   border-radius: 14px;
   padding: 18px;
   display: flex;
@@ -530,20 +531,20 @@
   gap: 12px;
   text-align: left;
   cursor: pointer;
-  color: #29483e;
+  color: var(--ink);
   font-size: 15px;
 }
 .ql-options button > span {
-  background: #f0f5ef;
+  background: var(--qd-lavender);
   border-radius: 8px;
   padding: 6px 10px;
   font-size: 12px;
-  color: #8ba78f;
+  color: var(--muted);
 }
 .ql-options button.selected {
-  border-color: #278c70;
-  background: #edf7ef;
-  box-shadow: 0 0 0 1px #278c70;
+  border-color: var(--qd-brand-dark);
+  background: var(--qd-lavender);
+  box-shadow: 0 0 0 1px var(--qd-brand-dark);
 }
 .ql-options button:disabled {
   cursor: wait;
@@ -551,7 +552,7 @@
 .ql-exam textarea {
   box-sizing: border-box;
   width: 100%;
-  border: 1px solid #d7e3d9;
+  border: 1px solid var(--line);
   border-radius: 14px;
   padding: 18px;
   font: inherit;
@@ -562,13 +563,13 @@
   gap: 18px;
   align-items: center;
   justify-content: space-between;
-  background: #edf4ef;
+  background: var(--qd-lavender);
   border-radius: 18px;
   padding: 24px;
 }
 .ql-audio button {
   border: 0;
-  background: #248774;
+  background: var(--qd-brand-dark);
   color: white;
   width: 55px;
   height: 55px;
@@ -581,7 +582,7 @@
 .ql-audio > span {
   font-size: 10px;
   white-space: nowrap;
-  color: #749586;
+  color: var(--muted);
 }
 .ql-wave {
   display: flex;
@@ -593,7 +594,7 @@
 }
 .ql-wave i {
   display: block;
-  background: #8bc3a7;
+  background: var(--qd-brand);
   width: 4px;
   flex-shrink: 0;
   border-radius: 8px;
@@ -618,7 +619,7 @@
   margin: 15px 0;
 }
 .ql-recorder {
-  background: #edf4ef;
+  background: var(--qd-lavender);
   border-radius: 15px;
   padding: 20px;
   display: flex;
@@ -628,7 +629,7 @@
 }
 .ql-recorder button {
   border: 0;
-  background: #238974;
+  background: var(--qd-brand-dark);
   color: white;
   display: flex;
   align-items: center;
@@ -648,19 +649,19 @@
   font-size: 11px;
   margin: 0;
   flex-basis: 100%;
-  color: #6e857a;
+  color: var(--muted);
 }
 .ql-dashboard {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  background: #edf5e9;
-  border: 1px solid #d5e5cc;
+  background: var(--qd-lavender);
+  border: 1px solid var(--line);
   border-radius: 20px;
   padding: 25px;
   margin: 22px 0;
-  color: #245548;
+  color: var(--ink);
 }
 .ql-dashboard h2 {
   margin: 8px 0;
@@ -669,10 +670,10 @@
 .ql-dashboard p {
   font-size: 13px;
   margin: 0;
-  color: #6a8975;
+  color: var(--muted);
 }
 .ql-mini-ring {
-  border: 6px solid #98c987;
+  border: 6px solid var(--qd-brand);
   border-radius: 50%;
   height: 94px;
   width: 94px;
@@ -689,7 +690,7 @@
   font-weight: normal;
 }
 .ql-marketing {
-  background: #edf5e9;
+  background: var(--qd-lavender);
   padding: 45px;
   border-radius: 25px;
   margin: 40px auto;
@@ -707,7 +708,7 @@
 }
 .ql-page button:focus-visible,
 .ql-page a:focus-visible {
-  outline: 3px solid #8ed8b7;
+  outline: 3px solid var(--qd-brand);
   outline-offset: 3px;
 }
 @keyframes ql-wave {
@@ -862,13 +863,13 @@
 .appShell .ql-page nav.ql-tabs a {
   display: inline-flex;
   padding: 11px 14px;
-  color: #617573;
+  color: var(--muted);
   font-size: 13px;
   box-shadow: none;
 }
 .appShell .ql-page nav.ql-tabs a.active {
   color: white;
-  background: #163f40;
+  background: var(--qd-brand-dark);
   box-shadow: none;
 }
 @media (max-width: 700px) {
@@ -882,7 +883,7 @@
   gap: 12px;
   align-items: center;
   padding: 18px;
-  border: 1px solid #dae6dd;
+  border: 1px solid var(--line);
   border-radius: 14px;
   font-size: 14px;
 }
@@ -891,7 +892,7 @@
   width: 100%;
   min-width: 0;
   padding: 12px;
-  border: 1px solid #dae6dd;
+  border: 1px solid var(--line);
   border-radius: 10px;
   font: inherit;
 }
@@ -914,7 +915,7 @@
 }
 .ql-review-row {
   padding: 18px 0;
-  border-bottom: 1px solid #dce8e1;
+  border-bottom: 1px solid var(--line);
   overflow-wrap: anywhere;
 }
 .ql-review-row h4 {

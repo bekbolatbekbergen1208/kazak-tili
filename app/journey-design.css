@@ -1,0 +1,983 @@
+/* QazaqDos journey system. Legacy aliases keep every existing feature compatible. */
+
+body {
+  background: var(--qd-paper);
+  line-height: 1.55;
+}
+::selection {
+  background: var(--qd-lavender);
+  color: var(--ink);
+}
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+p,
+button,
+a,
+summary {
+  overflow-wrap: anywhere;
+}
+button,
+a,
+input,
+textarea,
+select {
+  touch-action: manipulation;
+}
+:where(button, input, select, summary, .btn) {
+  min-height: 44px;
+}
+:where(a, button, input, textarea, select, summary):focus-visible {
+  outline: 3px solid var(--qd-brand-dark);
+  outline-offset: 4px;
+}
+:where(input, textarea, select) {
+  accent-color: var(--qd-brand);
+  scroll-margin-block: 100px;
+}
+.btn {
+  border-radius: var(--qd-radius-small);
+  min-height: 46px;
+  transition:
+    transform var(--qd-fast),
+    background var(--qd-fast),
+    box-shadow var(--qd-fast);
+  line-height: 1.4;
+}
+.btn.primary {
+  background: var(--qd-brand);
+  box-shadow: 0 4px 0 var(--qd-brand-dark);
+  color: white;
+}
+.btn.primary:hover:not(:disabled) {
+  background: var(--qd-brand-dark);
+  box-shadow: 0 6px 0 var(--qd-brand-dark);
+}
+.btn.ghost {
+  background: var(--qd-glass-solid);
+  border-color: var(--line);
+  color: var(--ink);
+}
+.btn.white {
+  color: var(--qd-brand-dark);
+  background: var(--qd-glass-solid);
+}
+.btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+button:disabled,
+.btn:disabled {
+  opacity: 0.52;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+button[aria-busy="true"] {
+  cursor: progress;
+}
+.pill,
+.demoTag {
+  background: var(--qd-lavender);
+  color: var(--qd-brand-dark);
+  letter-spacing: 0.06em;
+}
+.landing,
+.appShell {
+  background:
+    radial-gradient(ellipse at 100% 0, var(--qd-lavender) 0, transparent 45%),
+    var(--qd-paper);
+}
+.landingNav {
+  height: 92px;
+  max-width: 1240px;
+  border-color: var(--line);
+}
+.landingHero {
+  max-width: 1240px;
+  gap: 32px;
+  margin: 28px auto 60px;
+  padding-block: 36px;
+}
+.landingHero h1 {
+  font-size: clamp(36px, 4.2vw, 59px);
+  line-height: 1.13;
+  letter-spacing: -0.05em;
+}
+.landingHero h1 span {
+  color: var(--qd-brand);
+}
+.landingHero p {
+  font-size: 17px;
+  max-width: 510px;
+  color: var(--muted);
+}
+.trust {
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.journey-scene {
+  height: 490px;
+  isolation: isolate;
+  border-radius: 48% 48% 28px 28px;
+  background: var(--qd-lavender);
+  overflow: hidden;
+  border: 1px solid var(--qd-lavender);
+}
+.journey-sun {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--qd-lavender);
+  top: 35px;
+  right: 60px;
+}
+.journey-landscape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.journey-scene .mascotBlob {
+  position: absolute;
+  bottom: 35px;
+  left: 20%;
+  width: 60%;
+  height: 310px;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+.journey-scene .mascotBlob .mascot {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 12px 12px #5b21b614);
+}
+.journey-scene .floatCard {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 2px 8px;
+  padding: 12px 15px;
+  border-color: #ffffffb3;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px #5b21b614;
+  font-size: 13px;
+  background: var(--qd-glass-solid);
+}
+.journey-scene .floatCard svg {
+  grid-row: span 2;
+  color: var(--qd-brand);
+}
+.journey-scene .floatCard small {
+  font-size: 11px;
+}
+.journey-scene .fc1 {
+  top: 105px;
+  left: 18px;
+  transform: rotate(-5deg);
+}
+.journey-scene .fc2 {
+  right: 12px;
+  bottom: 110px;
+  color: var(--ink);
+  transform: rotate(4deg);
+}
+.journey-caption {
+  position: absolute;
+  bottom: 18px;
+  background: var(--qd-glass-solid);
+  padding: 9px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 800;
+}
+.features {
+  max-width: 1240px;
+  gap: 18px;
+}
+.features > div,
+.exploreCard {
+  border: 1px solid var(--line);
+  box-shadow: var(--qd-shadow);
+  border-radius: var(--qd-radius);
+}
+.features i {
+  background: var(--qd-lavender);
+  color: var(--qd-brand);
+}
+.landing .ql-marketing {
+  background: var(--qd-brand-dark);
+  color: white;
+  border: 0;
+  box-shadow: none;
+}
+.landing .ql-marketing p,
+.landing .ql-marketing small {
+  color: var(--qd-lavender);
+}
+.landing .ql-marketing .pill {
+  background: #5b21b614;
+  color: var(--qd-lavender);
+}
+.appShell > aside {
+  background: var(--qd-glass-solid);
+  border-color: var(--line);
+  padding: 24px 14px;
+  scrollbar-width: thin;
+}
+.appShell nav a {
+  color: var(--muted);
+  min-height: 46px;
+  border-radius: 12px;
+  font-size: 13px;
+  gap: 10px;
+}
+.appShell nav a svg {
+  flex-shrink: 0;
+}
+.appShell nav a.active {
+  background: var(--qd-lavender);
+  color: var(--qd-brand-dark);
+  box-shadow: inset 3px 0 var(--qd-brand);
+}
+.appShell nav a:hover {
+  background: var(--qd-lavender);
+}
+.qd-bar {
+  border-bottom: 1px solid var(--line);
+  background: #5b21b614;
+  min-height: 68px;
+}
+.page .top h1 {
+  font-size: var(--qd-title);
+}
+.heroCard,
+.qd-dashboard .heroCard {
+  background: linear-gradient(115deg, var(--qd-brand), var(--qd-brand-dark));
+  border: 1px solid var(--qd-brand-dark);
+  border-radius: 28px;
+  box-shadow: 0 14px 28px #5b21b614;
+}
+.heroCard:after {
+  border-color: #5b21b614;
+}
+.heroCard h2 {
+  font-size: clamp(25px, 3vw, 36px);
+}
+.panel,
+.stat,
+.qd-exercise {
+  border-radius: var(--qd-radius);
+  border-color: var(--line);
+  box-shadow: var(--qd-shadow);
+}
+.stat {
+  border-top: 3px solid var(--qd-brand);
+}
+.stat:nth-child(2) {
+  border-top-color: var(--qd-lavender);
+}
+.stat:nth-child(3) {
+  border-top-color: var(--qd-lavender);
+}
+.stat strong {
+  color: var(--ink);
+  font-size: 24px;
+}
+.qd-dashboard .sectionHead {
+  gap: 16px;
+}
+progress {
+  accent-color: var(--qd-brand);
+  height: 10px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--qd-lavender);
+}
+progress::-webkit-progress-bar {
+  background: var(--qd-lavender);
+  border-radius: 20px;
+}
+progress::-webkit-progress-value {
+  background: linear-gradient(90deg, var(--qd-brand), var(--qd-brand));
+  border-radius: 20px;
+  transition: width var(--qd-enter);
+}
+progress::-moz-progress-bar {
+  background: var(--qd-brand);
+}
+.qd-map-node {
+  position: relative;
+  border-radius: 16px;
+  margin: 12px 0;
+  padding: 18px;
+  background: var(--qd-glass-solid);
+  border: 1px solid var(--line);
+}
+.qd-map-node.available,
+.qd-map-node.started {
+  background: var(--qd-lavender);
+  border-color: var(--qd-brand);
+}
+.qd-map-node.completed,
+.qd-map-node.perfect {
+  border-color: var(--qd-brand);
+}
+.qd-map-node .qd-node {
+  background: var(--qd-lavender);
+  color: var(--qd-brand-dark);
+  box-shadow: none;
+}
+.qd-map-node.locked {
+  opacity: 1;
+  background: var(--qd-glass-solid);
+  color: var(--muted);
+}
+.qd-content-filters {
+  padding: 20px;
+  background: var(--qd-glass-solid);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+}
+.qd-lesson {
+  max-width: 960px;
+}
+.qd-exercise {
+  background: white;
+  padding: clamp(20px, 4vw, 40px);
+  border-top: 4px solid var(--qd-brand);
+}
+.qd-option,
+.qd-choice {
+  border-radius: 14px;
+  min-height: 54px;
+  transition:
+    border-color var(--qd-fast),
+    background var(--qd-fast),
+    transform var(--qd-fast);
+}
+.qd-option:has(input:checked),
+.qd-choice.active {
+  background: var(--qd-lavender);
+  border-color: var(--qd-brand);
+  box-shadow: 0 0 0 1px var(--qd-brand);
+}
+.qd-feedback.correct {
+  background: #e8f5ec;
+  color: #21563e;
+  border: 1px solid #a9ceb4;
+  animation: journey-enter var(--qd-enter) both;
+}
+.qd-feedback.incorrect {
+  background: #fff3e3;
+  color: #79542a;
+  border: 1px solid #e4c49d;
+  animation: none;
+}
+.qd-token-bank button,
+.qd-answer-box button {
+  border-radius: 12px;
+  min-height: 46px;
+  box-shadow: 0 3px 0 var(--qd-lavender);
+}
+.qd-result {
+  background: radial-gradient(ellipse at top, var(--qd-lavender), transparent 65%);
+  padding-top: 48px;
+}
+.qd-overlay {
+  z-index: var(--qd-dialog-layer);
+  backdrop-filter: blur(6px);
+}
+.qd-error,
+.song-error {
+  border-radius: 14px;
+  background: #fff1e7;
+  color: #813f2c;
+  border: 1px solid #e4b6a6;
+  padding: 18px;
+}
+.qd-loading {
+  color: var(--muted);
+  border: 1px dashed var(--qd-brand);
+  border-radius: 22px;
+  background: var(--qd-glass-solid);
+  padding: 32px;
+}
+.qd-calendar .active {
+  background: var(--qd-brand);
+  color: white;
+}
+.qd-badges .earned {
+  background: var(--qd-glass-solid);
+  border-color: var(--qd-lavender);
+}
+.appShell .ng-card,
+.appShell .travel-panel,
+.appShell .song-card {
+  border-radius: 22px;
+  border-color: var(--line);
+  box-shadow: var(--qd-shadow);
+}
+.appShell .song-hero {
+  background: linear-gradient(120deg, var(--qd-lavender), var(--qd-glass-solid));
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.song-karaoke-window {
+  background: var(--qd-brand-dark);
+  color: white;
+  border: 0;
+}
+.song-karaoke-window .song-current-line {
+  color: var(--qd-lavender);
+  font-size: clamp(24px, 4vw, 40px);
+}
+.song-find-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.journey-menu-toggle {
+  display: none;
+}
+.journey-skip {
+  position: fixed;
+  top: -100px;
+  left: 16px;
+  background: white;
+  padding: 12px;
+  z-index: 110;
+}
+.journey-skip:focus {
+  top: 12px;
+}
+@keyframes journey-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .page > .top,
+  .landingHero,
+  .qd-exercise {
+    animation: journey-enter var(--qd-enter) both;
+  }
+  .features > div,
+  .statsGrid > .stat {
+    animation: journey-enter var(--qd-enter) both;
+  }
+  .features > div:nth-child(2),
+  .statsGrid > .stat:nth-child(2) {
+    animation-delay: 50ms;
+  }
+  .features > div:nth-child(3),
+  .statsGrid > .stat:nth-child(3) {
+    animation-delay: 100ms;
+  }
+  .features > div:nth-child(4),
+  .statsGrid > .stat:nth-child(4) {
+    animation-delay: 150ms;
+  }
+}
+@media (max-width: 900px) {
+  .landingHero {
+    gap: 24px;
+  }
+  .journey-scene {
+    height: 410px;
+  }
+  .journey-scene .mascotBlob {
+    height: 260px;
+  }
+}
+@media (max-width: 760px) {
+  .landingNav {
+    height: 76px;
+    padding: 0 16px;
+  }
+  .landingNav > div > a:first-child {
+    display: none;
+  }
+  .landingNav > div {
+    gap: 8px;
+  }
+  .landingNav .btn {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+  .landingHero {
+    grid-template-columns: 1fr;
+    margin: 8px auto 36px;
+    padding: 24px 20px;
+  }
+  .landingHero h1 {
+    font-size: 38px;
+  }
+  .landingHero p {
+    font-size: 16px;
+  }
+  .heroBtns {
+    flex-wrap: wrap;
+  }
+  .journey-scene {
+    height: 360px;
+    max-width: 500px;
+    width: 100%;
+    margin: auto;
+  }
+  .journey-scene .mascotBlob {
+    height: 245px;
+  }
+  .journey-scene .fc1 {
+    top: 60px;
+  }
+  .journey-scene .fc2 {
+    bottom: 90px;
+  }
+  .features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0 20px 40px;
+    gap: 12px;
+  }
+  .features > div {
+    padding: 20px;
+  }
+  .qd-shell.appShell {
+    display: block;
+  }
+  .qd-shell.appShell > aside {
+    position: relative;
+    height: auto;
+    padding: 0;
+    border: 0;
+    display: none;
+  }
+  .qd-shell.journey-menu-open > aside {
+    display: block;
+  }
+  .qd-shell.appShell > aside nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+    padding: 12px;
+    gap: 4px;
+  }
+  .qd-shell.appShell > aside nav a {
+    flex-direction: row;
+    white-space: normal;
+    font-size: 12px;
+    padding: 10px;
+    min-width: 0;
+  }
+  .qd-shell.appShell > aside nav a span {
+    display: block;
+  }
+  .journey-menu-toggle {
+    display: inline-flex;
+    flex-shrink: 0;
+    padding: 8px 10px;
+  }
+  .qd-bar {
+    gap: 12px;
+    padding: 12px 16px;
+    font-size: 11px;
+  }
+  .qd-bar > span {
+    flex: 1;
+  }
+  .qd-bar .avatar {
+    flex-shrink: 0;
+  }
+  .qd-shell .page {
+    padding: 24px 16px 50px;
+  }
+  .page .top {
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .qd-map-node {
+    padding: 14px;
+  }
+  .qd-map-node > div {
+    min-width: 0;
+    flex: 1;
+  }
+  .qd-map-node .btn,
+  .qd-lock-note {
+    margin-left: 0;
+    max-width: 100%;
+  }
+  .qd-content-filters {
+    padding: 14px;
+  }
+  .qd-actions {
+    flex-wrap: wrap;
+  }
+  .qd-actions .btn {
+    flex: 1 1 140px;
+  }
+  .qd-lesson .qd-content-material {
+    margin-block: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+.journey-discover {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.journey-discover-card {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--qd-lavender);
+  transition: transform var(--qd-fast);
+}
+.journey-discover-card:nth-child(2) {
+  background: var(--qd-lavender);
+}
+.journey-discover-card:nth-child(3) {
+  background: var(--qd-lavender);
+}
+.journey-discover-card h3 {
+  font-size: 20px;
+  margin: 18px 0 10px;
+}
+.journey-discover-card p {
+  font-size: 13px;
+  color: var(--muted);
+}
+.journey-discover-card > b {
+  font-size: 13px;
+  color: var(--qd-brand-dark);
+}
+.journey-discover-card:hover {
+  transform: translateY(-3px);
+}
+.journey-tip-toggle {
+  float: right;
+  width: 44px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 20px;
+  border-radius: 12px;
+}
+@media (max-width: 1000px) {
+  .journey-discover {
+    grid-template-columns: 1fr;
+  }
+  .journey-discover-card {
+    padding: 20px;
+  }
+}
+.qd-app progress::-webkit-progress-bar {
+  background: var(--qd-lavender);
+}
+.qd-app progress::-webkit-progress-value {
+  background: linear-gradient(90deg, var(--qd-brand), var(--qd-brand));
+}
+.appShell .song-mode-nav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.appShell .song-mode-nav a {
+  min-height: 46px;
+  padding: 10px 8px;
+  text-align: center;
+  justify-content: center;
+  font-size: 12px;
+  background: var(--qd-glass-solid);
+  border: 1px solid var(--line);
+}
+.appShell .song-mode-nav a[aria-current="page"] {
+  background: var(--qd-lavender);
+  color: var(--qd-brand-dark);
+  border-color: var(--qd-brand);
+}
+.journey-state {
+  max-width: 560px;
+  margin: 10vh auto;
+  padding: 32px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--qd-radius);
+  box-shadow: var(--qd-shadow);
+}
+.journey-state-symbol {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  background: var(--qd-lavender);
+  border-radius: 18px;
+  color: var(--qd-brand);
+  font-size: 28px;
+}
+@media (max-width: 760px) {
+  .landingNav > div > a.btn {
+    display: inline-flex;
+  }
+  .landingNav .qd-brand-wordmark {
+    width: 100px;
+  }
+  .landingNav .qd-brand-symbol {
+    width: 30px;
+    flex-basis: 30px;
+  }
+  .journey-state {
+    margin: 32px 16px;
+    padding: 24px;
+  }
+}
+.appShell .vw-intro h2,
+.appShell .vw-section-title h2 {
+  color: var(--ink);
+}
+.appShell .vw-intro > span {
+  color: var(--qd-brand-dark);
+}
+.appShell .vw-intro p,
+.appShell .vw-section-title p {
+  color: var(--muted);
+}
+.appShell .vw-game-link {
+  border-color: var(--line);
+  background: var(--qd-glass-solid);
+  border-radius: 22px;
+  box-shadow: var(--qd-shadow);
+}
+.appShell .vw-number {
+  background: var(--qd-lavender);
+  color: var(--qd-brand-dark);
+}
+.appShell .vw-places span {
+  background: var(--qd-brand);
+  box-shadow: 0 4px 0 var(--qd-brand-dark);
+  border-color: var(--qd-lavender);
+}
+.appShell .vw-map {
+  border-color: var(--qd-glass-solid);
+  box-shadow: var(--qd-shadow);
+}
+.appShell .ng-heading h1,
+.appShell .vw-game-link h3 {
+  color: var(--ink);
+}
+.appShell .vw-game-link p {
+  color: var(--muted);
+}
+/* Keep the keyboard-only link clipped even in full-page captures after scrolling. */
+.journey-skip:not(:focus) {
+  width:1px;
+  height:1px;
+  padding:0;
+  overflow:hidden;
+  clip-path:inset(50%);
+  white-space:nowrap;
+}
+
+/* Shared glass finish. Opaque first: readable even without backdrop-filter. */
+:is(.panel, .stat, .qd-exercise, .features > div, .exploreCard,
+.journey-discover-card, .journey-state, .qd-content-filters,
+.appShell .song-card, .appShell .ng-card, .appShell .travel-panel,
+.appShell .vw-game-link, .landingFaq details, .startSteps li) {
+  background: var(--qd-glass-solid);
+  border: 1px solid var(--qd-border);
+  box-shadow: var(--qd-glass-shadow);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :is(.panel, .stat, .features > div, .exploreCard, .journey-discover-card,
+  .journey-state, .appShell .song-card, .appShell .ng-card,
+  .appShell .travel-panel, .appShell .vw-game-link) {
+    background: var(--qd-glass);
+    -webkit-backdrop-filter: blur(var(--qd-glass-blur));
+    backdrop-filter: blur(var(--qd-glass-blur));
+  }
+  .qd-bar, .appShell > aside, .journey-scene .floatCard {
+    background: #faf8fff0;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+}
+.btn.primary {
+  background-image: var(--qd-gloss), linear-gradient(115deg, var(--qd-brand), var(--qd-brand-dark));
+  background-size: 250% 100%, 100% 100%;
+  background-position: 100% 0, 0 0;
+  border: 1px solid #ffffff55;
+  box-shadow: inset 0 1px 0 #ffffff55, 0 5px 16px #5b21b626;
+}
+.btn.primary:hover:not(:disabled) {
+  background-color: var(--qd-brand-dark);
+  box-shadow: inset 0 1px 0 #ffffff55, 0 8px 22px #5b21b630;
+}
+.btn.primary:active:not(:disabled) { transform: translateY(1px) scale(.98); }
+.landing, .appShell {
+  background: radial-gradient(ellipse at 90% 0, #e5dcfa 0, transparent 48%), var(--qd-background);
+}
+.appShell:has(.qd-lesson, .ng-game, .song-exercise) { background: var(--qd-background); }
+.appShell nav a.active, .appShell .song-mode-nav a[aria-current="page"] {
+  background: var(--qd-lavender);
+  color: var(--qd-brand-dark);
+  box-shadow: inset 3px 0 var(--qd-brand);
+}
+.journey-scene {
+  background: radial-gradient(ellipse at 15% 0, white, var(--qd-lavender) 65%);
+  border-color: #ffffff;
+  box-shadow: inset 0 2px 0 white, 0 20px 60px #5b21b614;
+}
+.journey-sun { background: #ffffffb3; box-shadow: 0 0 45px #ffffff99; }
+.journey-caption { color: var(--qd-brand-dark); }
+.landing .ql-marketing { background: linear-gradient(120deg, #35205b, var(--qd-brand-dark)); }
+.landing .ql-marketing :is(p, small) { color: #f1ebff; }
+.landing .ql-marketing .pill { background: #ffffff20; color: white; }
+.startSection { background: var(--qd-lavender); }
+.exploreLink, .startSteps b { color: var(--qd-brand-dark); }
+.stat, .stat:nth-child(2), .stat:nth-child(3) { border-top-color: var(--qd-brand-light); }
+.stat i, .stat i.green, .stat i.coral { background: var(--qd-lavender); color: var(--qd-brand-dark); }
+.qd-map-node.available, .qd-map-node.started { border-color: var(--qd-brand-light); }
+.qd-option:has(input:checked), .qd-choice.active { color: var(--qd-ink); }
+.qd-exercise { border-top: 3px solid var(--qd-brand-light); }
+.qd-calendar .active, .appShell .vw-places span { background: var(--qd-brand); }
+.qd-app progress, progress { accent-color: var(--qd-brand); }
+.qd-app progress::-webkit-progress-value, progress::-webkit-progress-value {
+  background: linear-gradient(90deg, var(--qd-brand), var(--qd-brand-dark));
+  transition: width var(--qd-progress-duration) ease;
+}
+progress::-moz-progress-bar { background: var(--qd-brand); }
+.appShell .ng-page { --ng-purple: var(--qd-brand); --ng-ink: var(--qd-ink); }
+.appShell .song-karaoke-window { background: var(--qd-ink); color: white; }
+.appShell .song-karaoke-window .song-current-line { color: #ede9fe; }
+:where(button, a, input, select, textarea, summary):focus-visible {
+  outline: 3px solid var(--qd-brand-dark);
+  outline-offset: 4px;
+}
+.heroCard :focus-visible, .song-karaoke-window :focus-visible, .ql-marketing :focus-visible { outline-color: white; }
+.page h1, .page h2, .panel h3 { overflow-wrap: anywhere; }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  :is(.exploreCard, .journey-discover-card, .appShell .song-card, .appShell .vw-game-link):hover {
+    transform: translateY(-3px);
+    border-color: var(--qd-brand-light);
+    box-shadow: var(--qd-glass-hover-shadow);
+    background-color: var(--qd-glass-solid);
+    background-image: var(--qd-gloss), var(--qd-glass);
+    background-size: 250% 100%, 100% 100%;
+    animation: qd-reflect 550ms ease-out both;
+  }
+  .btn.primary:hover { animation: qd-reflect 550ms ease-out both; }
+}
+@keyframes qd-reflect {
+  from { background-position: 100% 0, 0 0; }
+  to { background-position: 0 0, 0 0; }
+}
+@keyframes qd-achievement {
+  0%, 100% { box-shadow: 0 0 0 transparent; }
+  45% { box-shadow: 0 0 32px #a78bfa55; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .journey-discover-card:not(:hover), .song-card:not(:hover) { animation: journey-enter var(--qd-enter) ease both; }
+  .qd-result { animation: qd-achievement 800ms ease-out 1; }
+}
+@media (hover: none) {
+  .journey-discover-card:hover, .btn:hover { transform: none; }
+}
+@media (max-width: 760px) {
+  :is(.panel, .stat, .features > div, .exploreCard, .journey-discover-card,
+  .journey-state, .appShell .song-card, .appShell .ng-card,
+  .appShell .travel-panel, .appShell .vw-game-link, .appShell > aside) {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--qd-glass-solid);
+  }
+  .qd-bar, .journey-scene .floatCard { -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+}
+
+/* Settings and diagnostics share the same surface and selected-state language. */
+.startSteps li > b { flex: 0 0 auto; white-space: nowrap; }
+.startSteps li { padding: 12px; border-radius: 18px; }
+.appShell .song-card-icon { background: var(--qd-lavender); color: var(--qd-brand-dark); }
+.ql-panel, .ql-start, .ql-exam { background: var(--qd-glass-solid); box-shadow: var(--qd-shadow); }
+.ql-exam { backdrop-filter: none; }
+.qd-profile .qd-option { background: var(--qd-glass-solid); color: var(--ink); }
+.qd-profile .qd-option.selected {
+  background: var(--qd-lavender);
+  border-color: var(--qd-brand);
+  box-shadow: 0 0 0 1px var(--qd-brand);
+}
+.lit-page, .lit-heading h1 { color: var(--ink); }
+.lit-heading p, .lit-panel small, .lit-stats span { color: var(--muted); }
+.lit-stats > div, .lit-notice { background: var(--qd-lavender); border-color: var(--line); }
+.lit-stats strong, .lit-notice, .lit-panel summary { color: var(--qd-brand-dark); }
+.lit-panel { background: var(--qd-glass-solid); border-color: var(--line); box-shadow: var(--qd-shadow); }
+.appShell .travel-page {
+  --travel-ink: var(--ink);
+  --travel-soft: var(--muted);
+  --travel-line: var(--line);
+}
+.appShell .travel-page p { color: var(--muted); }
+.appShell .travel-page .btn.primary {
+  background: var(--qd-gloss), linear-gradient(115deg, var(--qd-brand), var(--qd-brand-dark));
+  border-color: var(--qd-brand);
+}
+.appShell .travel-page :is(button, a, input, select):focus-visible {
+  outline-color: var(--qd-brand-dark);
+}
+.appShell :is(.travel-welcome, .travel-destination, .travel-map-block, .travel-title-badge) {
+  background: var(--qd-glass-solid);
+  border-color: var(--line);
+}
+.appShell :is(.travel-eyebrow, .travel-heading small, .travel-panel > small, .travel-intro-heading h1 em) { color: var(--qd-brand-dark); }
+
+/* Feature controls inherit the brand; scenery keeps its illustrative colours. */
+.appShell .ng-page { --ng-purple: var(--qd-brand); --ng-ink: var(--qd-ink); }
+.appShell :is(.ng-page, .song-page) :is(button, a, input, select):focus-visible {
+  outline: 3px solid var(--qd-brand-dark);
+  outline-offset: 4px;
+}
+.appShell :is(.ng-game-stats, .song-mode-nav) { color: var(--qd-ink); }
+.appShell :is(.ng-game-card, .song-panel, .qd-profile .panel) {
+  background: var(--qd-glass-solid);
+  border-color: var(--qd-border);
+  box-shadow: var(--qd-glass-shadow);
+}
+.appShell:has(.ng-game-stats, .song-player, .ql-exam) { background: var(--qd-background); }
+@media (prefers-reduced-motion: no-preference) {
+  .ng-result { animation: qd-achievement 800ms ease-out 1; }
+}
+
+.appShell .song-card .song-card-icon,
+.appShell .song-summary span {
+  background: var(--qd-lavender);
+  color: var(--qd-brand-dark);
+}
+.appShell .song-completed {
+  background: var(--qd-glass-solid);
+  border-color: var(--qd-brand-light);
+}

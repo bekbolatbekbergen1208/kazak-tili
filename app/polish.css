@@ -1,7 +1,4 @@
 /* Shared finishing touches, with motion kept optional. */
-:root {
-  --muted: #65718b;
-}
 ::selection {
   background: #dddfff;
   color: #24295b;

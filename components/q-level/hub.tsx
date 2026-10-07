@@ -123,11 +123,12 @@ export default function QLevelHub({ screen = "" }: { screen?: string }) {
       canvas.height = 1080;
       const ctx = canvas.getContext("2d")!;
       const g = ctx.createLinearGradient(0, 0, 1080, 1080);
-      g.addColorStop(0, "#103d40");
-      g.addColorStop(1, "#128d7a");
+      const palette = getComputedStyle(document.documentElement);
+      g.addColorStop(0, palette.getPropertyValue("--qd-ink").trim());
+      g.addColorStop(1, palette.getPropertyValue("--qd-brand-dark").trim());
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, 1080, 1080);
-      ctx.fillStyle = "#c1f46f";
+      ctx.fillStyle = palette.getPropertyValue("--qd-lavender").trim();
       ctx.font = "bold 45px sans-serif";
       ctx.fillText("QazaqDos / QAZAQ PASSPORT", 80, 110);
       ctx.fillStyle = "white";
@@ -544,7 +545,7 @@ export default function QLevelHub({ screen = "" }: { screen?: string }) {
                         <Line
                           type="monotone"
                           dataKey="score"
-                          stroke="#168b79"
+                          stroke="var(--qd-brand)"
                           strokeWidth={4}
                           dot={{ r: 6 }}
                         />

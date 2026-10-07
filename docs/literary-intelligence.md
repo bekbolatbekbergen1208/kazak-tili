@@ -1,6 +1,6 @@
 # Qazaq Literary Intelligence Layer
 
-The existing Dosha and Vision endpoints are extended; the application, learning state, authentication and Q-Level are preserved. No external books have been scraped, downloaded, or silently licensed. The shipped corpus contains 10 original QazaqDos educational texts, six literature-based lessons and 28 detailed lexical/phrase entries, plus the existing Vision catalog. They are labelled original educational examples, not quotations by literary authors.
+The existing Dosha and Vision endpoints are extended; the application, learning state, authentication and Q-Level are preserved. The shipped corpus contains 10 original QazaqDos educational texts, three source-checked short literary excerpts with original explanatory notes, six literature-based lessons and 28 detailed lexical/phrase entries, plus the existing Vision catalog. Full external books have not been downloaded. Original examples and commentary are explicitly distinguished from author quotations.
 
 ## Setup
 
@@ -42,3 +42,19 @@ The 768-dimensional vector migration and real Ollama inference need verification
 The previously blank friendships migration was restored from the repository version so fresh databases create `qd_friend_profiles` and the related friendship tables. If a deployed database already recorded the blank migration as applied, run the restored SQL once in the Supabase SQL Editor to create the missing tables; do not reset production data.
 
 Implementation references: [Supabase pgvector](https://supabase.com/docs/guides/database/extensions/pgvector), [Ollama embedding API](https://github.com/ollama/ollama/blob/main/docs/capabilities/embeddings.mdx).
+
+## Classical literature — 2026-10-07
+
+`lib/literary/classics.ts` adds Абай Құнанбайұлы’s «Он жетінші сөз» and Ыбырай Алтынсарин’s «Бақша ағаштары» and «Өрмекші, құмырсқа, қарлығаш». Each record has a source URL, a checked quotation under 25 words, an original explanation, vocabulary and original practice sentences. The short excerpts are labelled `short_approved_excerpt`; no complete edition or modern editorial commentary is copied. Seed quality scores are curation inputs, not measured model performance or human expert approval.
+
+Sources: [Абай академиясы: Он жетінші сөз](https://abaiacademy.kz/kz/abaevedenie/abaj-ara-szderini-tsindirmesi/Onzhetinshi-sz), [Wikisource: Бақша ағаштары, revision 387169](https://wikisource.org/w/index.php?title=Бақша_ағаштары&oldid=387169), [Wikisource: Өрмекші, құмырсқа, қарлығаш, revision 953772](https://wikisource.org/w/index.php?title=Өрмекші,_құмырсқа,_қарлығаш&oldid=953772).
+
+The material enters the existing approved retrieval corpus and Dosha knowledge search. Exact curated questions work in reference mode; named-work queries return the checked context. Requests for unavailable quotes/page numbers receive a clear limitation. These are short source-based learning records, not complete-book understanding.
+
+`training/classical-literature-rows.ts` generates 21 source-grounded dialogues: comprehension, literary devices, vocabulary, original examples and missing-quote refusals. Every dialogue for one work uses the same group, so the exporter cannot place that work in both train and validation. The general exporter excludes duplicated classic knowledge records in favour of these context-grounded dialogues. The manifest records titles, authors, source URLs and groups.
+
+Current export: 11,001 train rows and 486 validation rows. Run `npm run training:dataset` then `python3 training/validate_data.py` to reproduce it. Generated datasets remain Git-ignored; source files are versionable.
+
+Model weights have **not** been fine-tuned here. This arm64 environment has no NVIDIA GPU, PyTorch, Unsloth, MLX or Ollama CLI. The existing QLoRA pipeline requires a compatible NVIDIA environment. After copying the repository to that environment, `DOSHA_FULL_TRAIN=1 bash training/run-dosha-training.sh` performs dataset validation, smoke training, full training and export. Training needs model/dependency downloads and GPU capacity. Run held-out evaluation and human language review before selecting the exported model for the app.
+
+Validation for this addition: `npm run build`, `npm run lint`, all 146 Node tests, 9 Python validator tests and dataset validation passed. The deterministic split places all 21 new classic dialogues in training; the existing 486-row validation set has no new-classic rows. This is not an evaluation of generalization on unseen literary works. New tests cover source labels, corpus eligibility, Q-Level retrieval boundaries, reference responses, absent-page refusals and per-work grouping.

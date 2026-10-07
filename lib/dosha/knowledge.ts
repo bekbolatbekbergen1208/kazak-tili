@@ -14,6 +14,7 @@ import { historyCities } from "@/lib/history/catalog";
 import { worldGames } from "@/lib/national/world-catalog";
 import { regions } from "@/lib/travel/catalog";
 import { visionWords } from "@/lib/vision/words";
+import { classicWorks, classicContext } from "../literary/classics";
 
 export type DoshaUserContext = {
   level?: string;
@@ -73,6 +74,24 @@ export function doshaKnowledge(): KnowledgeSource[] {
   if (cached && cachedRevision === learningContentRevision) return cached;
   cachedRevision = learningContentRevision;
   cached = [
+    ...classicWorks.flatMap((work) => [
+      {
+        id: `classic-overview-${work.id}`,
+        category: "literature" as const,
+        title: `${work.title} — ${work.author}`,
+        keywords: [work.title],
+        href: work.sourceUrl,
+        excerpt: classicContext(work),
+      },
+      ...work.questions.map((item, index) => ({
+        id: `classic-answer-${work.id}-${index}`,
+        category: "literature" as const,
+        title: item.question,
+        question: item.question,
+        href: work.sourceUrl,
+        excerpt: `${item.answer}\n\nШығарма: ${work.title} — ${work.author}.\nТүсіндірме: QazaqDos. Дереккөз: ${work.sourceUrl}`,
+      })),
+    ]),
     ...exerciseKnowledge(),
     ...lessons
       .filter((l) => l.introduction && l.status === "published")

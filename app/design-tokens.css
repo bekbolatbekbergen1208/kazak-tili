@@ -1,0 +1,49 @@
+/* QazaqDos: one shared palette for all routes and legacy components. */
+:root {
+  /* Original QazaqDos brand, preserved from globals.css. */
+  --qd-brand: #5c67e8;
+  --qd-brand-dark: #5b21b6;
+  --qd-brand-light: #a78bfa;
+  --qd-lavender: #ede9fe;
+  --qd-background: #f8f5ff;
+  --qd-ink: #24143d;
+  --qd-muted: #655a78;
+  --qd-border: #ddd5ef;
+  --qd-success: #258366;
+  --qd-glass-solid: #faf8ff;
+  --qd-glass: linear-gradient(135deg, #ffffffed, #f3eeffcc);
+  --qd-gloss: linear-gradient(115deg, transparent 25%, #ffffff38 45%, transparent 65%);
+  --ink: var(--qd-ink);
+  --muted: var(--qd-muted);
+  --purple: var(--qd-brand);
+  --purple2: var(--qd-brand-dark);
+  --soft: var(--qd-background);
+  --line: var(--qd-border);
+  --orange: #b65b36;
+  --green: var(--qd-success);
+  --yellow: #edbd55;
+  --qd-paper: var(--qd-background);
+  /* Compatibility aliases for existing feature styles. */
+  --qd-teal: var(--qd-brand);
+  --qd-mint: var(--qd-lavender);
+  --qd-gold: var(--qd-lavender);
+  --qd-space-1: 4px;
+  --qd-space-2: 8px;
+  --qd-space-3: 16px;
+  --qd-space-4: 24px;
+  --qd-space-5: 40px;
+  --qd-radius: 22px;
+  --qd-radius-small: 12px;
+  --qd-shadow: 0 10px 32px #5b21b614;
+  --qd-glass-shadow: inset 0 1px 0 white, 0 10px 32px #5b21b60a;
+  --qd-glass-hover-shadow: inset 0 1px 0 white, 0 12px 28px #5b21b61a, 0 0 0 1px #a78bfa33;
+  --qd-glass-blur: 10px;
+  --qd-progress-duration: 400ms;
+  --qd-fast: 150ms;
+  --qd-enter: 320ms;
+  --qd-nav-layer: 30;
+  --qd-dialog-layer: 100;
+  --qd-title: clamp(1.65rem, 3vw, 2.5rem);
+  --qd-body: 1rem;
+  --qd-caption: 0.8125rem;
+}

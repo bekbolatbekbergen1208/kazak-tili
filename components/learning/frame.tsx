@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
@@ -17,6 +18,8 @@ import {
   Users,
   ScanLine,
   Music,
+  Menu,
+  X,
 } from "lucide-react";
 import { Logo } from "@/components/icons";
 import { getCollection } from "@/lib/characters/state";
@@ -25,6 +28,13 @@ export { Companion } from "@/components/characters/companion";
 export function LearningFrame({ children }: { children: React.ReactNode }) {
   const { state, t, demo, localOnly, logout } = useLearning(),
     path = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const navigation = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (menuOpen)
+      navigation.current?.querySelector<HTMLAnchorElement>("a")?.focus();
+  }, [menuOpen]);
   const nav = [
     ["/learn", Home, t("Главная", "Home")],
     ["/learn/q-level", Trophy, "Q-Level"],
@@ -49,14 +59,35 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
     ["/learn/settings", Settings, t("Настройки", "Settings")],
   ] as const;
   return (
-    <div className="appShell qd-shell">
-      <aside>
+    <div className={`appShell qd-shell ${menuOpen ? "journey-menu-open" : ""}`}>
+      <a className="journey-skip" href="#learning-main">
+        Сабаққа өту
+      </a>
+      <aside
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && menuOpen) {
+            setMenuOpen(false);
+            menuButton.current?.focus();
+          }
+        }}
+      >
         <Link href="/" className="brand">
           <Logo />
         </Link>
-        <nav aria-label={t("Навигация", "Navigation")}>
+        <nav
+          ref={navigation}
+          id="learning-navigation"
+          aria-label={t("Навигация", "Navigation")}
+        >
           {nav.map(([href, Icon, label]) => (
             <Link
+              onClick={() => setMenuOpen(false)}
+              aria-current={
+                path === href ||
+                (href !== "/learn" && path.startsWith(href + "/"))
+                  ? "page"
+                  : undefined
+              }
               key={href}
               href={href}
               aria-label={label}
@@ -79,8 +110,18 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
           </button>
         </div>
       </aside>
-      <main>
+      <main id="learning-main">
         <header className="qd-bar">
+          <button
+            ref={menuButton}
+            className="btn ghost journey-menu-toggle"
+            aria-label={menuOpen ? "Мәзірді жабу" : "Мәзірді ашу"}
+            aria-expanded={menuOpen}
+            aria-controls="learning-navigation"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? <X size={20} /> : <Menu size={20} />} Мәзір
+          </button>
           <span>
             {localOnly
               ? "Прогресс осы браузерде сақталады"

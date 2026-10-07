@@ -46,7 +46,7 @@ export function Results({ result: r }: { result: Result }) {
         <div
           className="ql-score-ring"
           style={{
-            background: `conic-gradient(#b7ed70 ${r.score}%,#ffffff24 0)`,
+            background: `conic-gradient(var(--qd-brand-light) ${r.score}%,#ffffff24 0)`,
           }}
         >
           <div>
@@ -70,8 +70,8 @@ export function Results({ result: r }: { result: Result }) {
                 <PolarAngleAxis dataKey="skill" tick={{ fontSize: 11 }} />
                 <Radar
                   dataKey="score"
-                  stroke="#168b79"
-                  fill="#168b79"
+                  stroke="var(--qd-brand)"
+                  fill="var(--qd-brand)"
                   fillOpacity={0.2}
                 />
               </RadarChart>

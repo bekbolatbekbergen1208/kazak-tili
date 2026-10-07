@@ -8,6 +8,8 @@ async function onboard(page: Page) {
   await page.getByRole("button", { name: "Continue", exact: true }).click();
   await page.getByLabel("Nickname").fill("Test Learner");
   await page.getByRole("button", { name: "Create my path" }).click();
+  await page.waitForURL("**/learn/q-level/quick");
+  await page.goto("/learn");
   await expect(
     page.getByRole("heading", { name: "Сәлем, Test Learner!" }),
   ).toBeVisible();
@@ -55,6 +57,8 @@ test("onboarding → lesson → rewards → persisted progress → language and 
   await expect(page.getByText("105 XP", { exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByText("105 XP", { exact: true })).toBeVisible();
+  if (await page.getByRole("button", { name: "Мәзірді ашу" }).isVisible())
+    await page.getByRole("button", { name: "Мәзірді ашу" }).click();
   await page
     .getByRole("navigation")
     .getByRole("link", { name: "Settings", exact: true })
@@ -63,6 +67,8 @@ test("onboarding → lesson → rewards → persisted progress → language and 
   await page.getByRole("button", { name: /Повседневная жизнь/ }).click();
   await page.getByRole("button", { name: "Сохранить", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("Настройки сохранены");
+  if (await page.getByRole("button", { name: "Мәзірді ашу" }).isVisible())
+    await page.getByRole("button", { name: "Мәзірді ашу" }).click();
   await page
     .getByRole("navigation")
     .getByRole("link", { name: "Главная", exact: true })
