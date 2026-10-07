@@ -1,3 +1,4 @@
+import { songLesson } from "../songs/content";
 import { learningMemoryContext } from "./memory";
 import { requestLocalChat } from "@/lib/ai/local";
 import type { DoshaUserContext } from "@/lib/dosha/knowledge";
@@ -17,6 +18,7 @@ export function parseChat(body: unknown): {
   language: string;
   context: DoshaUserContext;
   writing?: WritingRequest;
+  song?: { lessonId: string; level?: string };
 } {
   if (!body || typeof body !== "object") throw Error("Invalid message");
   const b = body as Record<string, unknown>;
@@ -84,6 +86,19 @@ export function parseChat(body: unknown): {
         : "kk",
     context,
     writing: parseWriting(b.writing),
+    song:
+      b.song &&
+      typeof b.song === "object" &&
+      songLesson((b.song as { lessonId: string }).lessonId)
+        ? {
+            lessonId: (b.song as { lessonId: string }).lessonId,
+            level: ["A1", "A2", "B1"].includes(
+              String((b.song as { level?: string }).level),
+            )
+              ? String((b.song as { level?: string }).level)
+              : undefined,
+          }
+        : undefined,
   };
 }
 export function boundedHistory(messages: ChatMessage[], max = 20) {

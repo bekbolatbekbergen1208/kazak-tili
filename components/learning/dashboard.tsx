@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import {ExpressionCard} from "@/components/literary/word";
+import { ExpressionCard } from "@/components/literary/word";
 import { QLevelCard } from "@/components/q-level/dashboard-card";
 import {
   achievements,
@@ -56,6 +56,14 @@ export default function Dashboard() {
           A1 · {t("Уровень", "Level")} {levelFor(p.xp)}
         </span>
       </header>
+      <Link href="/learn/songs" className="panel song-dashboard-link">
+        <span aria-hidden="true">♫</span>
+        <div>
+          <b>Әнмен үйрен</b>
+          <p>Қазақша тыңда. Бірге айт. Еркін сөйле.</p>
+        </div>
+        <span>→</span>
+      </Link>
       <QLevelCard />
       <ExpressionCard />
       <section className="heroCard">

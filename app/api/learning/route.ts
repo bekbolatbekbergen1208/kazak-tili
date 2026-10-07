@@ -53,6 +53,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
   const allowed = [
+    "song-start",
+    "song-level",
+    "song-word",
+    "song-answer",
+    "song-next",
+    "song-speech",
+    "song-writing",
+    "song-check",
+    "song-finish",
+    "song-review",
+    "song-draft",
     "vision-found",
     "vision-answer",
     "history-visit",

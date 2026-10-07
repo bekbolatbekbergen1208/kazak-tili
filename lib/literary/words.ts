@@ -1,3 +1,4 @@
+import { songWord } from "../songs/content";
 import type { LiteraryWord } from "./types";
 import { expandedVocabulary } from "../translation/expanded";
 import { commonDictionary } from "../translation/dictionary";
@@ -309,6 +310,21 @@ export const literaryWords: LiteraryWord[] = data.map(
   }),
 );
 export function findWord(id: string): LiteraryWord | undefined {
+  const song = songWord(id);
+  if (song)
+    return {
+      id: song.id,
+      word: song.word,
+      base: song.base,
+      meaning: song.meaning,
+      simple: song.meaning,
+      example: song.example,
+      forms: song.forms,
+      synonyms: [],
+      antonyms: [],
+      related: [],
+      level: "A1",
+    };
   if (id.startsWith("dict:")) return findWord(id.slice(5));
   const own = literaryWords.find(
     (w) => w.id === id || w.word.toLocaleLowerCase() === id.toLocaleLowerCase(),

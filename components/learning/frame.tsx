@@ -16,6 +16,7 @@ import {
   MessageCircle,
   Users,
   ScanLine,
+  Music,
 } from "lucide-react";
 import { Logo } from "@/components/icons";
 import { getCollection } from "@/lib/characters/state";
@@ -34,6 +35,7 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
     ["/learn/national", Trophy, "Ұлттық ойындар"],
     ["/learn/map", Compass, t("Мой маршрут", "My path")],
     ["/learn/books", BookOpen, "Кітап әлемі"],
+    ["/learn/songs", Music, "Әнмен үйрен"],
     ["/learn/literature", BookOpen, "Әдебиетпен үйрен"],
     ["/learn/vocabulary", BookOpen, "Менің сөз қорым"],
     ["/learn/writing-coach", MessageCircle, "Жазу көмекшісі"],

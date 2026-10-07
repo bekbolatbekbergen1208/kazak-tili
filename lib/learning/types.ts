@@ -154,9 +154,11 @@ export type UserProgress = {
   reading?: ReadingProgress;
   history?: HistoryProgress;
   vision?: VisionProgress;
+  songs?: import("../songs/types").SongProgress;
 };
 export type LearningState = { profile: UserProfile; progress: UserProgress };
 export type LearningAction =
+  | import("../songs/types").SongAction
   | import("../national/world-state").WorldAction
   | VisionAction
   | HistoryAction
