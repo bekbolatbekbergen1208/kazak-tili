@@ -1,6 +1,7 @@
 import type { LearningState } from "../learning/types";
 import { songLesson, songTopics, songWord } from "./content";
 import type { SongAction, SongProgress, SongRecord, SongTask } from "./types";
+import { speechTokens, validTimings } from "./practice";
 export const songsOf = (s: LearningState): SongProgress =>
   s.progress.songs ?? { lessons: {}, reviews: {} };
 export const freshSong = (): SongRecord => ({
@@ -33,7 +34,9 @@ export function taskCorrect(t: SongTask, a: unknown): boolean {
 }
 export const availableTasks = (id: string) => {
   const l = songLesson(id)!;
-  return l.tasks.filter((t) => t.kind !== "listening" || !!l.audio);
+  return l.tasks.filter(
+    (t) => t.kind !== "listening" || (!!l.audio && l.mediaStatus === "ready"),
+  );
 };
 export function enoughWriting(text: string, lessonId: string) {
   const l = songLesson(lessonId)!;
@@ -101,9 +104,90 @@ export function applySong(
     p.lessons[l.id].updatedAt = now.toISOString();
     return;
   }
+  if (a.type === "song-mode-answer" || a.type === "song-mode-complete")
+    p.lessons[l.id] ??= freshSong();
   const r = p.lessons[l.id];
   if (!r) throw Error("Алдымен сабақты баста.");
   r.updatedAt = now.toISOString();
+  if (a.type === "song-mode-answer") {
+    const task = l.wordFind?.find((t) => t.id === a.taskId);
+    if (
+      !validTimings(l) ||
+      !task ||
+      typeof a.answer !== "string" ||
+      a.answer.length > 100
+    )
+      throw Error("Бұл тыңдалым тапсырмасы әлі қолжетімсіз.");
+    const mode = ((r.modes ??= {}).find ??= { answers: {}, xp: 0 });
+    const correct =
+      speechTokens(a.answer).join(" ") === speechTokens(task.answer).join(" ");
+    mode.answers[task.id] = {
+      answer: a.answer,
+      correct,
+      attempts: (mode.answers[task.id]?.attempts ?? 0) + 1,
+    };
+    if (!correct && task.wordId) {
+      p.reviews[task.wordId] ??= {
+        wordId: task.wordId,
+        dueAt: now.toISOString(),
+        attempts: 0,
+        correct: 0,
+      };
+      p.reviews[task.wordId].lastCorrect = false;
+      p.reviews[task.wordId].dueAt = now.toISOString();
+    }
+    return;
+  }
+  if (a.type === "song-mode-complete") {
+    if (!["find", "karaoke", "speak"].includes(a.mode))
+      throw Error("Режим табылмады.");
+    const modes = (r.modes ??= {});
+    if (modes[a.mode]?.completedAt && a.mode !== "speak") return;
+    if (a.mode === "find") {
+      if (
+        !validTimings(l) ||
+        !l.wordFind?.length ||
+        l.wordFind.some((t) => !modes.find?.answers[t.id]?.correct)
+      )
+        throw Error("Сөз табу тапсырмаларын аяқта.");
+      modes.find!.completedAt = now.toISOString();
+      modes.find!.xp = 10;
+    } else if (a.mode === "karaoke") {
+      if (!l.audio || l.mediaStatus !== "ready")
+        throw Error("Караоке аудиосы әзірленіп жатыр.");
+      modes.karaoke = { completedAt: now.toISOString(), xp: 5 };
+    } else {
+      if (
+        !l.excerpts?.some((e) => e.id === a.excerptId) ||
+        typeof a.text !== "string" ||
+        a.text.length > 700 ||
+        speechTokens(a.text).length < 2 ||
+        !["manual", "stt"].includes(a.source ?? "") ||
+        (a.confidence !== undefined &&
+          (!Number.isFinite(a.confidence) ||
+            a.confidence < 0 ||
+            a.confidence > 1))
+      )
+        throw Error("Айту жаттығуын мәтінмен белгіле.");
+      modes.speak = {
+        completedAt: modes.speak?.completedAt ?? now.toISOString(),
+        xp: 5,
+        last: {
+          excerptId: a.excerptId!,
+          text: a.text,
+          source: a.source!,
+          confidence: a.confidence,
+        },
+      };
+    }
+    reward(
+      `song-mode-${l.id}-${a.mode}`,
+      a.mode === "find" ? 10 : 5,
+      0,
+      `Ән жаттығуы · ${a.mode}`,
+    );
+    return;
+  }
   if (a.type === "song-word") {
     if (!l.words.some((w) => w.id === a.wordId))
       throw Error("Сөз осы сабақта жоқ.");

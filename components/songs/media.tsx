@@ -44,7 +44,7 @@ export function SongPlayer({
   };
   return (
     <section className={`song-player ${karaoke ? "karaoke" : ""}`}>
-      {lesson.audio && !failed ? (
+      {lesson.audio && lesson.mediaStatus === "ready" && !failed ? (
         <>
           <audio
             ref={audio}
@@ -133,14 +133,15 @@ export function SongPlayer({
           >
             <span>{String(i + 1).padStart(2, "0")}</span>
             {line.text}
-            {lesson.audio && !failed && line.start !== undefined && (
-              <Play size={16} />
-            )}
+            {lesson.audio &&
+              lesson.mediaStatus === "ready" &&
+              !failed &&
+              line.start !== undefined && <Play size={16} />}
           </button>
         ))}
       </div>
       <small>
-        {lesson.audio && !failed
+        {lesson.audio && lesson.mediaStatus === "ready" && !failed
           ? "Уақыт белгісі бар жолды басып, жеке тыңдай аласың."
           : "Жолды басып белгіле де, өзің дауыстап оқы. Бұл — мәтіндік жаттығу."}
       </small>
@@ -150,8 +151,14 @@ export function SongPlayer({
 }
 export function SongRecorder({
   onTranscript,
+  onRecording,
+  onRecordingStart,
+  allowBrowserRecognition = true,
 }: {
   onTranscript: (text: string) => void;
+  onRecording?: (blob: Blob | null) => void;
+  onRecordingStart?: () => void;
+  allowBrowserRecognition?: boolean;
 }) {
   const mounted = useRef(true),
     requestingRef = useRef(false);
@@ -167,7 +174,11 @@ export function SongRecorder({
     [error, setError] = useState(""),
     [transcript, setTranscript] = useState("");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const stopTracks = () => stream.current?.getTracks().forEach((t) => t.stop());
+  const stopTracks = () => {
+    const tracks = stream.current?.getTracks();
+    stream.current = null;
+    tracks?.forEach((t) => t.stop());
+  };
   useEffect(() => {
     mounted.current = true;
     return () => {
@@ -191,6 +202,7 @@ export function SongRecorder({
     if (urlRef.current) URL.revokeObjectURL(urlRef.current);
     urlRef.current = "";
     setUrl("");
+    onRecording?.(null);
   };
   async function start() {
     if (requestingRef.current || recorder.current?.state === "recording")
@@ -233,6 +245,7 @@ export function SongRecorder({
         }
         urlRef.current = URL.createObjectURL(blob);
         setUrl(urlRef.current);
+        onRecording?.(blob);
         setRecording(false);
       };
       r.onerror = () => {
@@ -242,6 +255,7 @@ export function SongRecorder({
         setError("Дауыс жазу үзілді. Қайта байқап көр немесе мәтінмен жаттық.");
       };
       r.start(250);
+      onRecordingStart?.();
       setRecording(true);
       timer.current = setTimeout(() => {
         if (r.state === "recording") r.stop();
@@ -297,8 +311,8 @@ export function SongRecorder({
     <section className="song-recorder">
       <h3>Өзіңді тыңдап көр</h3>
       <p>
-        Жазба тек осы бетте сақталады, серверге жіберілмейді. Бет жабылғанда
-        жойылады. Бір жазба — ең көбі 60 секунд.
+        Жазба әдепкіде тек осы бетте сақталады, серверге автоматты түрде
+        жіберілмейді. Бет жабылғанда жойылады. Бір жазба — ең көбі 60 секунд.
       </p>
       <div className="song-actions">
         {recording ? (
@@ -338,30 +352,32 @@ export function SongRecorder({
           }
         />
       )}
-      <details>
-        <summary>Сөйлеуді мәтінге айналдыру</summary>
-        <p>
-          Браузердің сөйлеуді тану қызметі аудионы өз провайдеріне жіберуі
-          мүмкін. Бұл мүмкіндік айтылым сапасын бағаламайды.
-        </p>
-        {recognizing ? (
-          <button
-            className="btn ghost"
-            onClick={() => recognition.current?.stop()}
-          >
-            Тануды тоқтату
-          </button>
-        ) : (
-          <button
-            className="btn ghost"
-            disabled={recording || requesting}
-            onClick={recognize}
-          >
-            Сөйлеуді тануды бастау
-          </button>
-        )}
-        {transcript && <p role="status">Танылған мәтін: {transcript}</p>}
-      </details>
+      {allowBrowserRecognition && (
+        <details>
+          <summary>Сөйлеуді мәтінге айналдыру</summary>
+          <p>
+            Браузердің сөйлеуді тану қызметі аудионы өз провайдеріне жіберуі
+            мүмкін. Бұл мүмкіндік айтылым сапасын бағаламайды.
+          </p>
+          {recognizing ? (
+            <button
+              className="btn ghost"
+              onClick={() => recognition.current?.stop()}
+            >
+              Тануды тоқтату
+            </button>
+          ) : (
+            <button
+              className="btn ghost"
+              disabled={recording || requesting}
+              onClick={recognize}
+            >
+              Сөйлеуді тануды бастау
+            </button>
+          )}
+          {transcript && <p role="status">Танылған мәтін: {transcript}</p>}
+        </details>
+      )}
       {error && (
         <p role="alert" className="song-error">
           {error}

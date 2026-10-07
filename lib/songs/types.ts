@@ -37,8 +37,26 @@ export type SongLesson = {
   minutes: number;
   objective: string;
   grammar: string;
-  lyrics: { text: string; start?: number; end?: number }[];
+  lyrics: {
+    text: string;
+    start?: number;
+    end?: number;
+    words?: { text: string; start: number; end: number }[];
+  }[];
   audio?: { src: string; license: string };
+  instrumental?: { src: string; license: string };
+  mediaStatus?: "draft" | "ready";
+  rights?: { text: string; audio?: string };
+  wordFind?: {
+    id: string;
+    line: number;
+    token: number;
+    answer: string;
+    options: string[];
+    wordId?: string;
+    explanation: string;
+  }[];
+  excerpts?: { id: string; line: number }[];
   words: SongWord[];
   tasks: SongTask[];
   questions: string[];
@@ -64,6 +82,27 @@ export type SongRecord = {
   completedAt?: string;
   updatedAt?: string;
   xp: number;
+  modes?: {
+    find?: {
+      answers: Record<
+        string,
+        { answer: string; correct: boolean; attempts: number }
+      >;
+      completedAt?: string;
+      xp: number;
+    };
+    karaoke?: { completedAt: string; xp: number };
+    speak?: {
+      completedAt: string;
+      xp: number;
+      last?: {
+        excerptId: string;
+        text: string;
+        confidence?: number;
+        source: "stt" | "manual";
+      };
+    };
+  };
 };
 export type SongProgress = {
   lessons: Record<string, SongRecord>;
@@ -83,6 +122,21 @@ export type SongProgress = {
   draft?: { topic: string; text: string };
 };
 export type SongAction =
+  | {
+      type: "song-mode-answer";
+      lessonId: string;
+      taskId: string;
+      answer: string;
+    }
+  | {
+      type: "song-mode-complete";
+      lessonId: string;
+      mode: "find" | "karaoke" | "speak";
+      excerptId?: string;
+      text?: string;
+      confidence?: number;
+      source?: "stt" | "manual";
+    }
   | { type: "song-start"; lessonId: string }
   | { type: "song-level"; level: SongLevel }
   | { type: "song-word"; lessonId: string; wordId: string }

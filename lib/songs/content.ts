@@ -1,4 +1,5 @@
 import type { SongLesson, SongWord } from "./types";
+import { prepareSongModes } from "./mode-content";
 const w = (
   id: string,
   word: string,
@@ -598,6 +599,7 @@ const comprehension: Record<string, [string, string, string, string]> = {
   ],
 };
 for (const l of songLessons) {
+  prepareSongModes(l);
   const [prompt, answer, ...wrong] = comprehension[l.id];
   l.tasks.push({
     id: "read",

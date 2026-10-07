@@ -50,7 +50,13 @@ export function SongsHub() {
         ),
       )[0];
   const earnedXP = songLessons.reduce(
-    (sum, l) => sum + (p.lessons[l.id]?.xp ?? 0),
+    (sum, l) =>
+      sum +
+      (p.lessons[l.id]?.xp ?? 0) +
+      Object.values(p.lessons[l.id]?.modes ?? {}).reduce(
+        (n, m) => n + (m?.xp ?? 0),
+        0,
+      ),
     0,
   );
   const next =
@@ -115,7 +121,14 @@ export function SongsHub() {
         </div>
       </section>
       <div className="song-method">
-        {["Тыңда", "Түсін", "Ойна", "Айт", "Қолдан", "Қайтала"].map((s, i) => (
+        {[
+          "Тыңда",
+          "Сөзді тап",
+          "Мағынасын түсін",
+          "Бірге айт",
+          "Өзің айт",
+          "Өмірде қолдан",
+        ].map((s, i) => (
           <span key={s}>
             <b>{i + 1}</b>
             {s}
@@ -236,39 +249,47 @@ export function SongsHub() {
       </header>
       <div className="song-cards">
         {lessons.map((l, i) => (
-          <Link
-            className={`song-card song-tone-${i % 3}`}
-            href={`/learn/songs/${l.id}`}
-            key={l.id}
-          >
-            <div className="song-card-top">
-              <span className="song-card-icon">
-                <Music2 size={27} />
-              </span>
-              <span className="pill">{l.level}</span>
-            </div>
-            <h3>{l.title}</h3>
-            <span className="song-topic">{l.topic}</span>
-            <p>{l.objective}</p>
-            <div className="song-card-meta">
-              <span>
-                <Clock size={15} />
-                {l.minutes} минут
-              </span>
-              <span>
-                <BookOpen size={15} />
-                {l.words.length} сөз
-              </span>
-            </div>
-            <div className="song-card-status">
-              {p.lessons[l.id]?.completedAt
-                ? "✓ Аяқталды"
-                : p.lessons[l.id]
-                  ? `Жалғастыру · ${p.lessons[l.id].stage + 1}/6 кезең`
-                  : "Сабақты ашу"}
-              <ArrowRight size={17} />
-            </div>
-          </Link>
+          <article className={`song-card song-tone-${i % 3}`} key={l.id}>
+            <Link className="song-card-main" href={`/learn/songs/${l.id}`}>
+              <div className="song-card-top">
+                <span className="song-card-icon">
+                  <Music2 size={27} />
+                </span>
+                <span className="pill">{l.level}</span>
+              </div>
+              <h3>{l.title}</h3>
+              <span className="song-topic">{l.topic}</span>
+              <p>{l.objective}</p>
+              <div className="song-card-meta">
+                <span>
+                  <Clock size={15} />
+                  {l.minutes} минут
+                </span>
+                <span>
+                  <BookOpen size={15} />
+                  {l.words.length} сөз
+                </span>
+              </div>
+              <div className="song-card-status">
+                {p.lessons[l.id]?.completedAt
+                  ? "✓ Аяқталды"
+                  : p.lessons[l.id]
+                    ? `Жалғастыру · ${p.lessons[l.id].stage + 1}/6 кезең`
+                    : "Сабақты ашу"}
+                <ArrowRight size={17} />
+              </div>
+            </Link>
+            <p className="song-note">
+              {l.mediaStatus === "ready"
+                ? "Аудио дайын"
+                : "Аудио режимдері — жоба"}
+            </p>
+            <nav className="song-mode-nav" aria-label={`${l.title}: режимдер`}>
+              <Link href={`/learn/songs/${l.id}/find`}>Сөзді тап</Link>
+              <Link href={`/learn/songs/${l.id}/karaoke`}>Караоке</Link>
+              <Link href={`/learn/songs/${l.id}/speak`}>Өзің айт — тексер</Link>
+            </nav>
+          </article>
         ))}
       </div>
       {!lessons.length && (
