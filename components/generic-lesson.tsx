@@ -1,21 +1,35 @@
 "use client";
 
-import {useEffect, useMemo, useState} from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import {useRouter} from "next/navigation";
-import {ArrowLeft, ArrowRight, CheckCircle2, Headphones, Keyboard, Lightbulb, Lock, RotateCcw, Volume2} from "lucide-react";
-import {type CourseLesson} from "@/lib/curriculum";
-import {completeLesson, useLessonProgress} from "@/lib/lesson-progress";
-import {courseTasks} from "@/lib/learning/course-tasks";
+import { useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  Headphones,
+  Keyboard,
+  Lightbulb,
+  Lock,
+  RotateCcw,
+  Volume2,
+} from "lucide-react";
+import { type CourseLesson } from "@/lib/curriculum";
+import { completeLesson, useLessonProgress } from "@/lib/lesson-progress";
+import { courseTasks } from "@/lib/learning/course-tasks";
 import LessonScene from "./lesson-scene";
 
-type ErrorItem = {step: number; given: string; expected: string};
+type ErrorItem = { step: number; given: string; expected: string };
 const normalize = (text: string) =>
-  text.toLocaleLowerCase("kk-KZ").replace(/[.,!?]/g, "").replace(/\s+/g, " ").trim();
+  text
+    .toLocaleLowerCase("kk-KZ")
+    .replace(/[.,!?]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 
-export default function GenericLesson({lesson}: {lesson: CourseLesson}) {
+export default function GenericLesson({ lesson }: { lesson: CourseLesson }) {
   const router = useRouter();
-  const {unlockedLesson, progressReady} = useLessonProgress();
+  const { unlockedLesson, progressReady } = useLessonProgress();
   const tasks = useMemo(() => {
     return courseTasks(lesson);
   }, [lesson]);
@@ -41,12 +55,21 @@ export default function GenericLesson({lesson}: {lesson: CourseLesson}) {
       setAudioError("Бұл браузер дыбысты ойнатуды қолдамайды.");
       return;
     }
+    const voice = window.speechSynthesis
+      .getVoices()
+      .find((v) => /^kk(?:-|$)/i.test(v.lang));
+    if (!voice) {
+      setAudioError("Қазақша жүйелік дауыс жоқ. Мәтінді оқып жаттыға аласың.");
+      return;
+    }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(lesson.sentence);
     utterance.lang = "kk-KZ";
-    utterance.rate = .82;
+    utterance.voice = voice;
+    utterance.rate = 0.82;
     utterance.pitch = 1;
-    utterance.onerror = () => setAudioError("Дыбысты ойнату мүмкін болмады. Қайта басып көр.");
+    utterance.onerror = () =>
+      setAudioError("Дыбысты ойнату мүмкін болмады. Қайта басып көр.");
     utterance.onstart = () => setAudioError("");
     window.speechSynthesis.speak(utterance);
   }
@@ -54,7 +77,11 @@ export default function GenericLesson({lesson}: {lesson: CourseLesson}) {
   function check() {
     if (!value.trim()) return;
     setChecked(true);
-    if (!correct) setErrors((current) => [...current, {step, given: value, expected: task.answer}]);
+    if (!correct)
+      setErrors((current) => [
+        ...current,
+        { step, given: value, expected: task.answer },
+      ]);
   }
 
   function next() {
@@ -82,50 +109,196 @@ export default function GenericLesson({lesson}: {lesson: CourseLesson}) {
     setReview(false);
   }
 
-  if (!progressReady || lesson.id > unlockedLesson) return <div className="lessonGate"><Lock /> <p>Сабақ ретімен ашылады…</p></div>;
+  if (!progressReady || lesson.id > unlockedLesson)
+    return (
+      <div className="lessonGate">
+        <Lock /> <p>Сабақ ретімен ашылады…</p>
+      </div>
+    );
 
-  if (done) return <div className="genericDone">
-    <CheckCircle2 /><span>{lesson.level} • №{lesson.id}</span>
-    <h1>Сабақ меңгерілді!</h1>
-    <p>«{lesson.title}» сабағындағы тыңдалым, сөздер мен грамматикалық үлгіні дұрыс орындадың.</p>
-    <div><Link className="btn ghost" href="/student/lessons">Каталогқа</Link>{lesson.id < 1000 && <Link className="btn primary" href={`/student/lesson/${lesson.id + 1}`}>Келесі сабақ <ArrowRight /></Link>}</div>
-  </div>;
+  if (done)
+    return (
+      <div className="genericDone">
+        <CheckCircle2 />
+        <span>
+          {lesson.level} • №{lesson.id}
+        </span>
+        <h1>Сабақ меңгерілді!</h1>
+        <p>
+          «{lesson.title}» сабағындағы тыңдалым, сөздер мен грамматикалық үлгіні
+          дұрыс орындадың.
+        </p>
+        <div>
+          <Link className="btn ghost" href="/student/lessons">
+            Каталогқа
+          </Link>
+          {lesson.id < 1000 && (
+            <Link
+              className="btn primary"
+              href={`/student/lesson/${lesson.id + 1}`}
+            >
+              Келесі сабақ <ArrowRight />
+            </Link>
+          )}
+        </div>
+      </div>
+    );
 
-  if (review) return <div className="typingReview">
-    <h1>Нақты қателер</h1><p>Қай жерде қате кеткенін қарап, тапсырманы қайта орында.</p>
-    {errors.map((error, index) => <article key={index}><small>{tasks[error.step].title}</small><div><span>Сен таңдадың: <b>{error.given}</b></span><span>Дұрысы: <b>{error.expected}</b></span></div></article>)}
-    <button onClick={retry} className="btn primary"><RotateCcw /> Қателерді қайта орындау</button>
-  </div>;
+  if (review)
+    return (
+      <div className="typingReview">
+        <h1>Нақты қателер</h1>
+        <p>Қай жерде қате кеткенін қарап, тапсырманы қайта орында.</p>
+        {errors.map((error, index) => (
+          <article key={index}>
+            <small>{tasks[error.step].title}</small>
+            <div>
+              <span>
+                Сен таңдадың: <b>{error.given}</b>
+              </span>
+              <span>
+                Дұрысы: <b>{error.expected}</b>
+              </span>
+            </div>
+          </article>
+        ))}
+        <button onClick={retry} className="btn primary">
+          <RotateCcw /> Қателерді қайта орындау
+        </button>
+      </div>
+    );
 
-  const sectionName = task.kind === "typing" ? "ЖАЗЫЛЫМ ЖӘНЕ ГРАММАТИКА" : task.kind === "listening" ? "ТЫҢДАЛЫМ" : "ЛЕКСИКА";
+  const sectionName =
+    task.kind === "typing"
+      ? "ЖАЗЫЛЫМ ЖӘНЕ ГРАММАТИКА"
+      : task.kind === "listening"
+        ? "ТЫҢДАЛЫМ"
+        : "ЛЕКСИКА";
 
-  return <div className="genericLesson">
-    <header><Link href="/student/lessons"><ArrowLeft /></Link><div><i style={{width: `${(step / tasks.length) * 100}%`}} /></div><span>{lesson.level} • №{lesson.id}</span></header>
-    <main>
-      <div className="lessonContext"><span>{lesson.theme}</span><b>{lesson.grammar}</b></div>
-      <small>{step + 1}/{tasks.length} • {sectionName}</small>
-      <LessonScene lesson={lesson} step={step} />
-      <h1>{task.title}</h1>
-      {task.prompt && <blockquote>{task.prompt}</blockquote>}
-      {task.kind === "listening" && <div className="listeningPlayer">
-        <Headphones />
-        <div><b>Қазақша аудио</b><span>Сөйлемді мұқият тыңда</span></div>
-        <button type="button" onClick={speak} aria-label="Сөйлемді тыңдау"><Volume2 /> Тыңдау</button>
-      </div>}
-      {audioError && <p className="audioError" role="alert">{audioError}</p>}
-      {showHint && <div className="dosshaHint" role="status">
-        <Lightbulb />
-        <div><b>Досжанның көмегі</b><p>{task.hint}</p></div>
-        <button type="button" onClick={() => setShowHint(false)} aria-label="Көмекті жабу">×</button>
-      </div>}
-      {task.kind === "typing"
-        ? <label className="typingBox"><Keyboard /><textarea autoFocus value={value} disabled={checked} onChange={(event) => setValue(event.target.value)} placeholder="Жауапты қазақша жаз..." /><span>ә ғ қ ң ө ұ ү һ і</span></label>
-        : <div className="genericChoices">{task.options!.map((option) => <button disabled={checked} className={value === option ? "selected" : ""} onClick={() => setValue(option)} key={option}>{option}</button>)}</div>}
-      {checked && <div className={correct ? "inlineResult correct" : "inlineResult wrong"}><b>{correct ? "Дұрыс!" : "Қате бар"}</b><p>{correct ? "Жауап дұрыс таңдалды." : <>Дұрыс нұсқа: <strong>{task.answer}</strong></>}</p></div>}
-      <footer>{!checked
-        ? <><button type="button" onClick={() => setShowHint((visible) => !visible)} className={`hint ${showHint ? "active" : ""}`}><Lightbulb /> {showHint ? "Көмекті жасыру" : "Көмек"}</button><button disabled={!value.trim()} onClick={check} className="btn primary">Тексеру</button></>
-        : <button onClick={next} className="btn primary">{step === tasks.length - 1 ? "Нәтиже" : "Келесі"} <ArrowRight /></button>}
-      </footer>
-    </main>
-  </div>;
+  return (
+    <div className="genericLesson">
+      <header>
+        <Link href="/student/lessons">
+          <ArrowLeft />
+        </Link>
+        <div>
+          <i style={{ width: `${(step / tasks.length) * 100}%` }} />
+        </div>
+        <span>
+          {lesson.level} • №{lesson.id}
+        </span>
+      </header>
+      <main>
+        <div className="lessonContext">
+          <span>{lesson.theme}</span>
+          <b>{lesson.grammar}</b>
+        </div>
+        <small>
+          {step + 1}/{tasks.length} • {sectionName}
+        </small>
+        <LessonScene lesson={lesson} step={step} />
+        <h1>{task.title}</h1>
+        {task.prompt && <blockquote>{task.prompt}</blockquote>}
+        {task.kind === "listening" && (
+          <div className="listeningPlayer">
+            <Headphones />
+            <div>
+              <b>Қазақша аудио</b>
+              <span>Сөйлемді мұқият тыңда</span>
+            </div>
+            <button type="button" onClick={speak} aria-label="Сөйлемді тыңдау">
+              <Volume2 /> Тыңдау
+            </button>
+          </div>
+        )}
+        {audioError && (
+          <p className="audioError" role="alert">
+            {audioError}
+          </p>
+        )}
+        {showHint && (
+          <div className="dosshaHint" role="status">
+            <Lightbulb />
+            <div>
+              <b>Досжанның көмегі</b>
+              <p>{task.hint}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowHint(false)}
+              aria-label="Көмекті жабу"
+            >
+              ×
+            </button>
+          </div>
+        )}
+        {task.kind === "typing" ? (
+          <label className="typingBox">
+            <Keyboard />
+            <textarea
+              autoFocus
+              value={value}
+              disabled={checked}
+              onChange={(event) => setValue(event.target.value)}
+              placeholder="Жауапты қазақша жаз..."
+            />
+            <span>ә ғ қ ң ө ұ ү һ і</span>
+          </label>
+        ) : (
+          <div className="genericChoices">
+            {task.options!.map((option) => (
+              <button
+                disabled={checked}
+                className={value === option ? "selected" : ""}
+                onClick={() => setValue(option)}
+                key={option}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        )}
+        {checked && (
+          <div
+            className={correct ? "inlineResult correct" : "inlineResult wrong"}
+          >
+            <b>{correct ? "Дұрыс!" : "Қате бар"}</b>
+            <p>
+              {correct ? (
+                "Жауап дұрыс таңдалды."
+              ) : (
+                <>
+                  Дұрыс нұсқа: <strong>{task.answer}</strong>
+                </>
+              )}
+            </p>
+          </div>
+        )}
+        <footer>
+          {!checked ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowHint((visible) => !visible)}
+                className={`hint ${showHint ? "active" : ""}`}
+              >
+                <Lightbulb /> {showHint ? "Көмекті жасыру" : "Көмек"}
+              </button>
+              <button
+                disabled={!value.trim()}
+                onClick={check}
+                className="btn primary"
+              >
+                Тексеру
+              </button>
+            </>
+          ) : (
+            <button onClick={next} className="btn primary">
+              {step === tasks.length - 1 ? "Нәтиже" : "Келесі"} <ArrowRight />
+            </button>
+          )}
+        </footer>
+      </main>
+    </div>
+  );
 }

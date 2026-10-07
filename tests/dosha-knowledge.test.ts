@@ -10,7 +10,8 @@ test("unified Dosha knowledge includes every learning domain", () => {
   const documents = doshaKnowledge();
   assert.equal(
     documents.filter((item) => item.category === "lesson").length,
-    1000,
+    1000 +
+      lessons.filter((l) => l.introduction && l.status === "published").length,
   );
   for (const category of [
     "region",
@@ -39,10 +40,9 @@ test("retrieval is bounded, relevant, and honors lesson context", () => {
   });
   assert.equal(lesson[0]?.id, "lesson-777");
   assert.match(formatKnowledgeContext(lesson), /777-сабақ/);
-  assert.equal(
-    searchDoshaKnowledge("сенсор қозғалтқыш алгоритм")[0]?.category,
-    "robotics",
-  );
+  const technology = searchDoshaKnowledge("сенсор қозғалтқыш алгоритм");
+  assert.ok(technology.some((item) => item.category === "robotics"));
+  assert.match(technology[0].excerpt, /сенсор|қозғалтқыш|алгоритм|мотор/i);
 });
 
 import { exerciseKnowledge, exerciseAnswer } from "../lib/dosha/exercises";

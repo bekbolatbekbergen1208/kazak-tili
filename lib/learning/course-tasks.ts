@@ -40,18 +40,19 @@ export function courseTasks(lesson: CourseLesson): Task[] {
       title: `«${lesson.theme}» тақырыбына қатысты сөзді таңда`,
       options: placeAnswer(lesson.words[0], wrongWords, lesson.id),
       answer: lesson.words[0],
-      hint: `Көрініске қара. Дұрыс сөз «${lesson.words[0]}».`,
+      hint: "Көріністегі зат пен тақырыптағы сөздердің мағынасын салыстыр.",
     },
     {
-      kind: "listening",
-      title: "Сөйлемді тыңдап, дұрыс аудармасын таңда",
+      kind: "choice",
+      title: "Сөйлемді оқып, дұрыс аудармасын таңда",
+      prompt: lesson.sentence,
       options: placeAnswer(
         lesson.translation,
         wrongTranslations,
         lesson.id + 1,
       ),
       answer: lesson.translation,
-      hint: "Сөйлемді тағы бір рет тыңдап, негізгі сөздерге назар аудар.",
+      hint: "Сөйлемдегі негізгі әрекетке және зат атауына назар аудар.",
     },
     {
       kind: "typing",

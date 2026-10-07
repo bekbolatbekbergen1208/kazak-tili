@@ -188,7 +188,7 @@ export function ExerciseView({
       )}
       {e.kind === "dialogue" && (
         <blockquote>
-          Досжан: Сәлеметсіз бе!{" "}
+          Досжан: {e.dialogueCue ?? "Сәлеметсіз бе!"}{" "}
           {t(
             "Выберите ответ для этой ситуации.",
             "Choose a reply for this situation.",
@@ -329,8 +329,12 @@ export function ExerciseView({
                   maxLength={2000}
                   onChange={(ev) => setValue(ev.target.value)}
                   placeholder={t(
-                    "Не менее 12 символов. Оцените свою мысль по образцу.",
-                    "At least 12 characters. Reflect using the model answer.",
+                    e.response
+                      ? `Кемінде ${e.response.minWords} сөз. Қолдан: ${e.response.targetWords.join(" / ")}.`
+                      : "Не менее 12 символов. Оцените свою мысль по образцу.",
+                    e.response
+                      ? `At least ${e.response.minWords} words. Use: ${e.response.targetWords.join(" / ")}.`
+                      : "At least 12 characters. Reflect using the model answer.",
                   )}
                 />
               ) : (
@@ -384,15 +388,17 @@ export function ExerciseView({
         )}
         {hint && (
           <p>
-            {t("Первое слово образца", "First word in the example")}:{" "}
-            <span lang="kk">{e.example.split(" ")[0]}</span>
+            {e.hint
+              ? localized(e.hint, lang)
+              : t("Первое слово образца", "First word in the example")}
+            : {!e.hint && <span lang="kk">{e.example.split(" ")[0]}</span>}
           </p>
         )}
       </form>
       {feedback && (
         <div className="qd-feedback" role="status">
           <h3>
-            {e.kind === "open"
+            {e.kind === "open" && !e.response
               ? t("Спасибо за размышление!", "Thank you for reflecting!")
               : feedback.correct
                 ? t("Дұрыс! Верно!", "Дұрыс! Correct!")

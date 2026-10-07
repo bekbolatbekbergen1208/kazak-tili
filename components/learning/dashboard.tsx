@@ -53,7 +53,7 @@ export default function Dashboard() {
           </p>
         </div>
         <span className="pill">
-          A1 · {t("Уровень", "Level")} {levelFor(p.xp)}
+          XP · {t("Уровень", "Level")} {levelFor(p.xp)}
         </span>
       </header>
       <Link href="/learn/songs" className="panel song-dashboard-link">

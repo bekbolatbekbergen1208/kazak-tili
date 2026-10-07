@@ -16,6 +16,7 @@ import {
   courses,
   exerciseById,
   lessonById,
+  lessons,
   quests,
 } from "./content";
 import { interfaceLanguageCodes } from "./languages";
@@ -91,14 +92,28 @@ export const emptyQuest = (): UserQuestProgress => ({
 export const normalize = (s: string) =>
   s
     .normalize("NFKC")
-    .toLocaleLowerCase()
-    .replace(/[.,!?«»“”]/g, "")
+    .toLocaleLowerCase("kk-KZ")
+    .replace(/[\p{P}]/gu, "")
     .trim()
     .replace(/\s+/g, " ");
 export function isCorrect(e: Exercise, answer: string) {
+  if (e.kind === "open" && e.response) {
+    const words = answer.match(/\p{L}+/gu) ?? [];
+    return (
+      words.length >= e.response.minWords &&
+      e.response.targetWords.some((w) =>
+        new RegExp(
+          `(^|[^\\p{L}])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^\\p{L}])`,
+          "iu",
+        ).test(answer),
+      )
+    );
+  }
   return e.kind === "open"
     ? answer.trim().length >= 12
-    : normalize(answer) === normalize(e.answer);
+    : [e.answer, ...(e.acceptedAnswers ?? [])].some(
+        (a) => normalize(answer) === normalize(a),
+      );
 }
 export function validateProfile(p: UserProfile) {
   if (
@@ -117,7 +132,9 @@ export function validateProfile(p: UserProfile) {
 }
 export function accessible(s: LearningState, lessonId: string) {
   const l = lessonById(lessonId);
-  if (!l) return false;
+  if (!l || (l.status && l.status !== "published")) return false;
+  if (l.prerequisites)
+    return l.prerequisites.every((id) => !!s.progress.lessons[id]?.completedAt);
   const ids = courses
       .find((c) => c.id === l.goal)!
       .sections.flatMap((x) => x.lessonIds),
@@ -127,14 +144,27 @@ export function accessible(s: LearningState, lessonId: string) {
     ["completed", "perfect"].includes(s.progress.lessons[ids[i - 1]]?.status)
   );
 }
-export function nextLesson(s: LearningState) {
+export function nextLesson(s: LearningState, afterId?: string) {
+  const after = afterId ? lessonById(afterId) : undefined;
+  if (after?.prerequisites) {
+    const siblings = lessons
+      .filter(
+        (l) => l.sectionId === after.sectionId && l.order! >= after.order!,
+      )
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const next = siblings.find(
+      (l) => !s.progress.lessons[l.id]?.completedAt && accessible(s, l.id),
+    );
+    if (next) return next.id;
+  }
   const ids = courses
     .find((c) => c.id === s.profile.goal)!
     .sections.flatMap((x) => x.lessonIds);
   return (
     ids.find(
       (id) =>
-        !["completed", "perfect"].includes(s.progress.lessons[id]?.status),
+        !["completed", "perfect"].includes(s.progress.lessons[id]?.status) &&
+        accessible(s, id),
     ) ?? ids[ids.length - 1]
   );
 }

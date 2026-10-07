@@ -1,3 +1,4 @@
+import { lessons } from "../learning/content";
 import { songWord } from "../songs/content";
 import type { LiteraryWord } from "./types";
 import { expandedVocabulary } from "../translation/expanded";
@@ -310,6 +311,27 @@ export const literaryWords: LiteraryWord[] = data.map(
   }),
 );
 export function findWord(id: string): LiteraryWord | undefined {
+  if (id.startsWith("content:")) {
+    const w = lessons
+      .flatMap((l) => l.vocabulary ?? [])
+      .find(
+        (w) => w.id === id || w.kk.toLocaleLowerCase("kk-KZ") === id.slice(8),
+      );
+    if (!w) return;
+    return {
+      id,
+      word: w.kk,
+      base: w.kk,
+      meaning: w.meaning,
+      simple: w.meaning,
+      example: w.example,
+      forms: [w.kk, ...(w.forms ?? [])],
+      synonyms: [],
+      antonyms: [],
+      related: [],
+      level: "A1",
+    };
+  }
   const song = songWord(id);
   if (song)
     return {

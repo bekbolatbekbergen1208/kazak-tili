@@ -295,7 +295,7 @@ export function SongSession({ lesson }: { lesson: SongLesson }) {
           {!lesson.audio && (
             <p className="song-audio-notice">
               ♫ Тыңдалған үзінді бойынша тапсырма аудио дайын болғанда ашылады.
-              Қазір үш мәтіндік ойын қолжетімді.
+              Қазір төрт мәтіндік ойын қолжетімді.
             </p>
           )}
         </>
@@ -407,7 +407,15 @@ export function SongSession({ lesson }: { lesson: SongLesson }) {
           </h2>
           <div className="song-summary">
             <span>✓ {lesson.words.length} сөзбен таныстың</span>
-            <span>✓ {availableTasks(lesson.id).length} ойынды орындадың</span>
+            <span>
+              ✓{" "}
+              {
+                availableTasks(lesson.id).filter(
+                  (t) => record.answers[t.id]?.correct,
+                ).length
+              }{" "}
+              ойынды орындадың
+            </span>
             <span>✓ Өз сөйлемдеріңді құрдың</span>
           </div>
           <p>
@@ -524,9 +532,11 @@ export function SongSession({ lesson }: { lesson: SongLesson }) {
                 learning.busy ||
                 (stage === 1 && record.seen.length < lesson.words.length) ||
                 (stage === 2 &&
-                  availableTasks(lesson.id).some(
-                    (t) => !record.answers[t.id]?.correct,
-                  )) ||
+                  availableTasks(lesson.id)
+                    .filter(
+                      (t) => record.contentVersion === 2 || t.id !== "read",
+                    )
+                    .some((t) => !record.answers[t.id]?.correct)) ||
                 (stage === 3 && !record.speech) ||
                 (stage === 4 && !record.writing)
               }

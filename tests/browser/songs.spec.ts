@@ -76,6 +76,11 @@ test("song: all stages, wrong answer review, shared vocabulary, persisted XP and
   for (const [i, w] of songLessons[0].words.slice(0, 3).entries())
     await games.nth(2).getByRole("combobox").nth(i).selectOption(w.ru);
   await games.nth(2).getByRole("button", { name: "Жауапты тексеру" }).click();
+  await games
+    .nth(3)
+    .getByRole("radio", { name: "Амандасу және танысу", exact: true })
+    .check();
+  await games.nth(3).getByRole("button", { name: "Жауапты тексеру" }).click();
   await page.getByRole("button", { name: /Келесі кезең: Айт/ }).click();
   await page.reload();
   await expect(

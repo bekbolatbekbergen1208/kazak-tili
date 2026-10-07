@@ -48,6 +48,11 @@ export type Exercise = {
   audio?: string;
   words?: string[];
   pairs?: { kk: string; translation: Localized }[];
+  acceptedAnswers?: string[];
+  objective?: string;
+  hint?: Localized;
+  dialogueCue?: string;
+  response?: { minWords: number; targetWords: string[] };
 };
 export type Lesson = {
   id: string;
@@ -57,6 +62,21 @@ export type Lesson = {
   exercises: Exercise[];
   kind: "lesson" | "game" | "review" | "test";
   bookId?: string;
+  slug?: string;
+  level?: "A1" | "A2" | "B1" | "B2";
+  topic?: string;
+  order?: number;
+  status?: "published" | "draft" | "archived";
+  minutes?: number;
+  objective?: string;
+  prerequisites?: string[];
+  vocabulary?: import("./editorial/model").WordEntry[];
+  introduction?: string;
+  explanation?: string;
+  dialogue?: { speaker: string; text: string }[];
+  reviewWords?: string[];
+  regionId?: string;
+  sources?: string[];
 };
 export type Section = { id: string; title: Localized; lessonIds: string[] };
 export type Course = {

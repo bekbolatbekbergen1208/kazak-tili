@@ -5,6 +5,7 @@ export const songsOf = (s: LearningState): SongProgress =>
   s.progress.songs ?? { lessons: {}, reviews: {} };
 export const freshSong = (): SongRecord => ({
   stage: 0,
+  contentVersion: 2,
   seen: [],
   answers: {},
   checks: [],
@@ -196,7 +197,11 @@ export function applySong(
         throw Error("Барлық негізгі сөзді ашып оқы.");
       r.stage = 2;
     } else if (r.stage === 2) {
-      if (availableTasks(l.id).some((t) => !r.answers[t.id]?.correct))
+      if (
+        availableTasks(l.id)
+          .filter((t) => r.contentVersion === 2 || t.id !== "read")
+          .some((t) => !r.answers[t.id]?.correct)
+      )
         throw Error("Ойын тапсырмаларын дұрыс орында.");
       r.stage = 3;
     } else if (r.stage === 3) {
@@ -216,7 +221,9 @@ export function applySong(
       l.checks.some((_, i) => !r.checks.includes(i)) ||
       !r.writing ||
       !r.speech ||
-      availableTasks(l.id).some((t) => !r.answers[t.id]?.correct)
+      availableTasks(l.id)
+        .filter((t) => r.contentVersion === 2 || t.id !== "read")
+        .some((t) => !r.answers[t.id]?.correct)
     )
       throw Error("Алты кезең мен қысқа тексеруді аяқта.");
     r.completedAt = now.toISOString();

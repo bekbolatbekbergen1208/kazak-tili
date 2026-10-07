@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
+    "content:seed": "node --import tsx scripts/seed-content.ts",
+    "content:validate": "node --import tsx scripts/validate-content.ts",
     "seed:learning": "node --import tsx scripts/seed-learning.ts",
     "assets:characters": "node --import tsx scripts/render-characters.tsx",
     "seed:characters": "node --import tsx scripts/seed-characters.ts",

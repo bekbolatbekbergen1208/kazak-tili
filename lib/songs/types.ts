@@ -19,7 +19,7 @@ export type SongWord = {
 };
 export type SongTask = {
   id: string;
-  kind: "gap" | "order" | "match" | "listening";
+  kind: "gap" | "order" | "match" | "listening" | "comprehension";
   prompt: string;
   options: string[];
   answer: string | string[];
@@ -52,6 +52,7 @@ export type SongLesson = {
 };
 export type SongRecord = {
   stage: number;
+  contentVersion?: number;
   seen: string[];
   answers: Record<
     string,

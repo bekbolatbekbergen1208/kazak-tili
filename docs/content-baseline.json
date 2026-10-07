@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-07",
+  "revision": "3e59ccc",
+  "learning": {
+    "lessons": 45,
+    "exercises": 225,
+    "ids": [
+      "tourism-1",
+      "tourism-2",
+      "tourism-3",
+      "tourism-4",
+      "tourism-5",
+      "tourism-6",
+      "tourism-7",
+      "tourism-8",
+      "tourism-9",
+      "tourism-10",
+      "work-1",
+      "work-2",
+      "work-3",
+      "work-4",
+      "work-5",
+      "work-6",
+      "work-7",
+      "work-8",
+      "work-9",
+      "work-10",
+      "study-1",
+      "study-2",
+      "study-3",
+      "study-4",
+      "study-5",
+      "study-6",
+      "study-7",
+      "study-8",
+      "study-9",
+      "study-10",
+      "daily-1",
+      "daily-2",
+      "daily-3",
+      "daily-4",
+      "daily-5",
+      "daily-6",
+      "daily-7",
+      "daily-8",
+      "daily-9",
+      "daily-10",
+      "books-1",
+      "books-2",
+      "books-3",
+      "books-4",
+      "books-5"
+    ]
+  },
+  "catalog": {
+    "lessons": 1000,
+    "sentences": 20,
+    "levels": {
+      "A1": 200,
+      "A2": 200,
+      "B1": 200,
+      "B2": 200,
+      "C1": 200
+    }
+  },
+  "travel": {
+    "regions": 20,
+    "ready": [
+      "atyrau",
+      "mangystau",
+      "pavlodar"
+    ],
+    "partial": [
+      "abay",
+      "akmola",
+      "aktobe",
+      "almaty-region",
+      "west-kazakhstan",
+      "zhambyl",
+      "zhetysu",
+      "karaganda",
+      "kostanay",
+      "kyzylorda",
+      "north-kazakhstan",
+      "turkistan",
+      "ulytau",
+      "east-kazakhstan",
+      "astana",
+      "almaty-city",
+      "shymkent"
+    ],
+    "words": 257,
+    "quiz": 100
+  },
+  "reading": {
+    "books": 15,
+    "tasks": 135,
+    "battleQuestions": 150
+  },
+  "literature": {
+    "lessons": 6,
+    "texts": 10
+  },
+  "songs": {
+    "lessons": 5,
+    "activeTasks": 15
+  },
+  "history": {
+    "destinations": 10,
+    "ready": 3
+  },
+  "national": {
+    "games": 18,
+    "questions": 67
+  },
+  "databaseCounts": null
+}

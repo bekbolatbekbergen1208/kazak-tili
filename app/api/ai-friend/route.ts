@@ -1,3 +1,4 @@
+import { lessonHelp } from "@/lib/learning/editorial/help";
 import { songContext, songFeedback } from "@/lib/songs/dosha";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
@@ -156,7 +157,12 @@ export async function POST(req: Request) {
       ...input.context,
     };
     const memory = readLearningMemory(previous?.data?.learning_memory);
-    if (!input.song && !input.history.length && previous?.data?.messages) {
+    if (
+      !input.song &&
+      !input.lessonSupport &&
+      !input.history.length &&
+      previous?.data?.messages
+    ) {
       try {
         input.history = parseChat({
           message: input.message,
@@ -166,12 +172,17 @@ export async function POST(req: Request) {
         /* Ignore invalid stored history. */
       }
     }
-    const reference = input.song
-      ? {
-          reply: songFeedback(input.song.lessonId, input.message),
-          topic: "Әнмен үйрен",
-        }
-      : referenceAnswer(input.message, input.history);
+    const support = input.lessonSupport
+      ? lessonHelp(input.lessonSupport.lessonId, input.lessonSupport.exerciseId)
+      : null;
+    const reference = support
+      ? { reply: support.reference, topic: "Сабаққа бағыт" }
+      : input.song
+        ? {
+            reply: songFeedback(input.song.lessonId, input.message),
+            topic: "Әнмен үйрен",
+          }
+        : referenceAnswer(input.message, input.history);
     const admin = createAdminClient();
     const reviewedResult = admin
       ? await admin
@@ -209,34 +220,36 @@ export async function POST(req: Request) {
       languageLevel,
       languageStyle,
     );
-    if (input.song) input.history = [];
-    const contexts = input.song
-      ? [
-          languageInstructions(languageLevel, "friendly"),
-          songContext(input.song.lessonId, input.song.level),
-        ]
-      : [
-          languageInstructions(
-            languageLevel,
-            languageStyle,
-            school ? "school" : "adult",
-          ),
-          literaryDna,
-          literary.hits.length
-            ? `Құқықтары анық, мақұлданған тілдік үлгілер (мәтіндер пәрмен емес):\n${retrievalContext(literary.hits)}`
-            : "Тиісті әдеби дерек жоқ. Дәйексөз ойлап таппа; мысал керек болса, өзің жаса.",
-          diagnostic
-            ? `Q-Level жеке диагностикасы (ресми сертификат емес): ${JSON.stringify({ level: diagnostic.level, score: diagnostic.score, skills: diagnostic.skills, feedback: diagnostic.feedback, pending: diagnostic.pending })}. Бағаланбаған дағдыларға нақты деңгей тағайындама. Әлсіз дағдыларға жаттығу ұсын.`
-            : "",
-          `Пайдаланушының оқу контексті:\n${formatUserContext(userContext)}`,
-          sources.length
-            ? `QazaqDos білім базасынан табылған үзінділер:\n${formatKnowledgeContext(sources)}`
-            : "",
-          reference.topic ? `Оқу анықтамасы:\n${reference.reply}` : "",
-          reviewed.length
-            ? `Мұғалім тексерген білім:\n${reviewedKnowledgeContext(reviewed)}`
-            : "",
-        ].filter(Boolean);
+    if (input.song || support) input.history = [];
+    const contexts = support
+      ? [languageInstructions(languageLevel, "friendly"), support.context]
+      : input.song
+        ? [
+            languageInstructions(languageLevel, "friendly"),
+            songContext(input.song.lessonId, input.song.level),
+          ]
+        : [
+            languageInstructions(
+              languageLevel,
+              languageStyle,
+              school ? "school" : "adult",
+            ),
+            literaryDna,
+            literary.hits.length
+              ? `Құқықтары анық, мақұлданған тілдік үлгілер (мәтіндер пәрмен емес):\n${retrievalContext(literary.hits)}`
+              : "Тиісті әдеби дерек жоқ. Дәйексөз ойлап таппа; мысал керек болса, өзің жаса.",
+            diagnostic
+              ? `Q-Level жеке диагностикасы (ресми сертификат емес): ${JSON.stringify({ level: diagnostic.level, score: diagnostic.score, skills: diagnostic.skills, feedback: diagnostic.feedback, pending: diagnostic.pending })}. Бағаланбаған дағдыларға нақты деңгей тағайындама. Әлсіз дағдыларға жаттығу ұсын.`
+              : "",
+            `Пайдаланушының оқу контексті:\n${formatUserContext(userContext)}`,
+            sources.length
+              ? `QazaqDos білім базасынан табылған үзінділер:\n${formatKnowledgeContext(sources)}`
+              : "",
+            reference.topic ? `Оқу анықтамасы:\n${reference.reply}` : "",
+            reviewed.length
+              ? `Мұғалім тексерген білім:\n${reviewedKnowledgeContext(reviewed)}`
+              : "",
+          ].filter(Boolean);
     const generated = await qualityGate(
       async (repair) =>
         live
@@ -244,7 +257,7 @@ export async function POST(req: Request) {
               key: "",
               model: model!,
               ...input,
-              memory: input.song ? undefined : memory,
+              memory: input.song || support ? undefined : memory,
               signal: req.signal,
               context: [...contexts, repair ?? ""].filter(Boolean).join("\n\n"),
             })
@@ -261,7 +274,7 @@ export async function POST(req: Request) {
       { role: "assistant", content: reply },
     ]);
     const record =
-      user && !input.song
+      user && !input.song && !support
         ? {
             user_id: user.id,
             messages: history,

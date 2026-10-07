@@ -565,6 +565,50 @@ export const songLessons: SongLesson[] = [
     ],
   }),
 ];
+const comprehension: Record<string, [string, string, string, string]> = {
+  salem: [
+    "Әннің негізгі мақсаты қандай?",
+    "Амандасу және танысу",
+    "Қонақүйге орналасу",
+    "Төлем жасау",
+  ],
+  otbasy: [
+    "Әндегі отбасы қалай сипатталған?",
+    "Тату",
+    "Бір-бірін білмейтін",
+    "Бірге сөйлеспейтін",
+  ],
+  kun: [
+    "Әндегі адам кешке не істейді?",
+    "Отбасымен сөйлеседі",
+    "Әуежайға барады",
+    "Таңғы ас ішеді",
+  ],
+  aktau: [
+    "«Қонақүйге қалай барамын?» деген сұрақ не үшін қойылған?",
+    "Жол сұрау үшін",
+    "Есімін білу үшін",
+    "Бағдарлама жазу үшін",
+  ],
+  arman: [
+    "Әндегі адам не үшін күн сайын үйренеді?",
+    "Арманына жақындау үшін",
+    "Кафе бағасын білу үшін",
+    "Аялдаманы өзгерту үшін",
+  ],
+};
+for (const l of songLessons) {
+  const [prompt, answer, ...wrong] = comprehension[l.id];
+  l.tasks.push({
+    id: "read",
+    kind: "comprehension",
+    prompt,
+    options: [answer, ...wrong],
+    answer,
+    explanation: `Мәтіндегі негізгі әрекетке сүйенеміз: ${answer.toLocaleLowerCase("kk-KZ")}.`,
+    wordIds: [l.words[0].id],
+  });
+}
 export const songWord = (id: string) =>
   songLessons.flatMap((l) => l.words).find((w) => w.id === id);
 export const songLesson = (id: string) => songLessons.find((l) => l.id === id);

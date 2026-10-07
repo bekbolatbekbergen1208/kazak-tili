@@ -42,7 +42,9 @@ export function SongGame({
             ? "СӨЙЛЕМ ҚҰРА"
             : task.kind === "match"
               ? "СӘЙКЕСТЕНДІР"
-              : "ТЫҢДАП ТАП"}
+              : task.kind === "comprehension"
+                ? "МӘТІНДІ ТҮСІН"
+                : "ТЫҢДАП ТАП"}
       </span>
       <h3>{task.prompt}</h3>
       {task.kind === "match" ? (

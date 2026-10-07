@@ -1,3 +1,4 @@
+import { lessons, learningContentRevision } from "../learning/content";
 import { kazakhExamples, normalizeKazakhQuery } from "./kazakh-examples";
 import { exerciseKnowledge } from "./exercises";
 import { grammarTopics } from "../friend/grammar";
@@ -62,11 +63,28 @@ const terms = (value: string) => [
 ];
 
 let cached: KnowledgeSource[] | undefined;
+let cachedRevision: string | undefined;
+export function invalidateDoshaKnowledge() {
+  cached = undefined;
+  cachedRevision = undefined;
+}
 
 export function doshaKnowledge(): KnowledgeSource[] {
-  if (cached) return cached;
+  if (cached && cachedRevision === learningContentRevision) return cached;
+  cachedRevision = learningContentRevision;
   cached = [
     ...exerciseKnowledge(),
+    ...lessons
+      .filter((l) => l.introduction && l.status === "published")
+      .map((l) => ({
+        id: `lesson-${l.id}`,
+        category: "lesson" as const,
+        title: l.title.ru,
+        href: `/learn/${l.id}`,
+        lessonId: l.id,
+        keywords: [l.topic ?? "", ...(l.reviewWords ?? [])],
+        excerpt: `${l.level} · ${l.topic}. Мақсаты: ${l.objective}. Мәтін: ${l.introduction}. Түсіндірме: ${l.explanation}. Сөздік: ${l.vocabulary?.map((w) => `${w.kk}: ${w.meaning}; мысал: ${w.example}`).join(" ")}`,
+      })),
     ...kazakhExamples.map((example) => ({
       id: `kazakh-example-${example.id}`,
       category: "grammar" as const,

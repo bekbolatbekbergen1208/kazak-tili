@@ -1,4 +1,5 @@
 "use client";
+import { editorialLessons } from "@/lib/learning/editorial";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Card, Region } from "@/lib/travel/types";
@@ -33,12 +34,25 @@ export function RegionPage({ region: r }: { region: Region }) {
     importance: r.importance,
   };
   const char = selectedCharacter(state);
+  const languageLesson = editorialLessons.find((l) => l.regionId === r.id);
   return (
     <div
       ref={ref}
       className={`travel-page motion-${mode} ${paused ? "motion-paused" : ""}`}
       lang="kk"
     >
+      {languageLesson && (
+        <section className="qd-content-route">
+          <b>Осы өңірде қазақша сөйлесіп жаттық</b>
+          <p>
+            {languageLesson.title.ru} · {languageLesson.level} ·{" "}
+            {languageLesson.minutes} минут. {languageLesson.objective}
+          </p>
+          <Link className="btn ghost" href={`/learn/${languageLesson.id}`}>
+            Мәтін, диалог және бес тапсырма →
+          </Link>
+        </section>
+      )}
       <nav className="travel-breadcrumb">
         <Link href="/kazakhstan">← Қазақстан картасы</Link>
         <span>{r.nameKk}</span>

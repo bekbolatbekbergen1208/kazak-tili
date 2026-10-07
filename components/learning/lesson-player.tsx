@@ -1,4 +1,5 @@
 "use client";
+import { LessonMaterial, LessonHint } from "./material";
 import Link from "next/link";
 import { pendingReveals } from "@/lib/characters/state";
 import { LessonReward } from "@/components/national/lesson-reward";
@@ -71,7 +72,7 @@ export default function LessonPlayer({ lessonId }: { lessonId: string }) {
           {t("верно с первой попытки", "correct on the first try")} ·{" "}
           {lp.status === "perfect"
             ? t("Идеально ★", "Perfect ★")
-            : t("Все задания освоены", "All exercises mastered")}
+            : t("Все задания выполнены", "All exercises completed")}
         </p>
         <p>
           {t(
@@ -83,12 +84,12 @@ export default function LessonPlayer({ lessonId }: { lessonId: string }) {
           <Link
             className="btn primary"
             href={
-              nextLesson(state) === lessonId
+              nextLesson(state, lessonId) === lessonId
                 ? "/learn/map"
-                : `/learn/${nextLesson(state)}`
+                : `/learn/${nextLesson(state, lessonId)}`
             }
           >
-            {nextLesson(state) === lessonId
+            {nextLesson(state, lessonId) === lessonId
               ? t("Маршрут завершён · к карте", "Path complete · view map")
               : t("Следующий урок", "Next lesson")}
           </Link>
@@ -104,9 +105,13 @@ export default function LessonPlayer({ lessonId }: { lessonId: string }) {
   if (!lp)
     return (
       <div className="page qd-lesson">
-        <span className="pill">5 {t("заданий", "exercises")} · A1</span>
+        <span className="pill">
+          {lesson.exercises.length} {t("заданий", "exercises")} ·{" "}
+          {lesson.level ?? "Тіркес жаттығуы"}
+        </span>
         <h1>{localized(lesson.title, state.profile.language)}</h1>
         <Companion mood="greeting" />
+        <LessonMaterial lesson={lesson} />
         <p>
           {t(
             "Можно прерваться в любой момент: проверенные ответы сохраняются.",
@@ -145,6 +150,7 @@ export default function LessonPlayer({ lessonId }: { lessonId: string }) {
       </div>
       <progress value={index} max={lesson.exercises.length} />
       <h1>{localized(lesson.title, state.profile.language)}</h1>
+      <LessonMaterial lesson={lesson} />
       {book && (
         <details className="panel qd-book-summary" open>
           <summary>
@@ -186,6 +192,13 @@ export default function LessonPlayer({ lessonId }: { lessonId: string }) {
             feedback={feedback}
             disabled={busy}
           />
+          {lesson.objective && (
+            <LessonHint
+              lessonId={lesson.id}
+              exerciseId={exercise.id}
+              lastAnswer={feedback?.answer}
+            />
+          )}
           {feedback && (
             <button
               className="btn primary"

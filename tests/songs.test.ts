@@ -67,10 +67,10 @@ test("five original lessons have full content, 5–8 words, validated games and 
     assert.equal(l.questions.length, 3);
     assert(l.grammar);
     assert(!l.audio);
-    assert.equal(availableTasks(l.id).length, 3);
+    assert.equal(availableTasks(l.id).length, 4);
     assert.deepEqual(
       l.tasks.map((t) => t.kind),
-      ["gap", "order", "match", "listening"],
+      ["gap", "order", "match", "listening", "comprehension"],
     );
     for (const t of l.tasks) {
       assert(taskCorrect(t, t.answer));

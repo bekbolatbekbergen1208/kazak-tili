@@ -1,3 +1,6 @@
+import { enrichWork } from "./editorial/work";
+import { editorialLessons, editorialBatches } from "./editorial";
+import { visibleLessons } from "./editorial/model";
 import type {
   Achievement,
   Book,
@@ -647,7 +650,7 @@ function bookLesson(index: number): Lesson {
     ],
   };
 }
-export const lessons: Lesson[] = [
+export const legacyLessons: Lesson[] = [
   ...Object.entries(phrases).flatMap(([goal, rows]) =>
     rows.map((r, i) =>
       makeLesson(goal as Exclude<LearningGoal, "books">, r, i),
@@ -655,22 +658,44 @@ export const lessons: Lesson[] = [
   ),
   ...Array.from({ length: 5 }, (_, i) => bookLesson(i)),
 ];
+export const lessons: Lesson[] = visibleLessons([
+  ...legacyLessons.map(enrichWork),
+  ...editorialLessons,
+]);
+let contentHash = 2166136261;
+const contentText = JSON.stringify(lessons);
+for (let i = 0; i < contentText.length; i++)
+  contentHash = Math.imul(contentHash ^ contentText.charCodeAt(i), 16777619);
+export const learningContentRevision = `learning-${(contentHash >>> 0).toString(16)}`;
 export const courses: Course[] = goals.map((g) => ({
   ...g,
   topics:
     g.id === "books"
       ? books.map((b) => L(b.title, b.title))
       : phrases[g.id].map((p) => L(p[1], p[2])),
-  sections: (g.id === "books" ? ["a"] : ["a", "b"]).map((s, i) => ({
-    id: `${g.id}-${s}`,
-    title:
-      i === 0
-        ? L("Первые шаги", "First steps")
-        : L("Применяем в жизни", "Use it in real life"),
-    lessonIds: lessons
-      .filter((l) => l.sectionId === `${g.id}-${s}`)
-      .map((l) => l.id),
-  })),
+  sections: [
+    ...(g.id === "books" ? ["a"] : ["a", "b"]).map((s, i) => ({
+      id: `${g.id}-${s}`,
+      title:
+        i === 0
+          ? L("Первые шаги", "First steps")
+          : L("Применяем в жизни", "Use it in real life"),
+      lessonIds: lessons
+        .filter((l) => l.sectionId === `${g.id}-${s}`)
+        .map((l) => l.id),
+    })),
+    ...editorialBatches
+      .filter((b) => b.goal === g.id)
+      .flatMap((b) =>
+        [...new Set(b.rows.map((r) => r.level))].map((level) => ({
+          id: `${b.id}-${level.toLowerCase()}`,
+          title: L(`${b.title} · ${level}`, `${b.title} · ${level}`),
+          lessonIds: lessons
+            .filter((l) => l.sectionId === `${b.id}-${level.toLowerCase()}`)
+            .map((l) => l.id),
+        })),
+      ),
+  ],
 }));
 export const achievements: Achievement[] = [
   ["first", "Первый урок", "First lesson", "🌱"],

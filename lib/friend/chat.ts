@@ -1,3 +1,4 @@
+import { lessonHelp } from "../learning/editorial/help";
 import { songLesson } from "../songs/content";
 import { learningMemoryContext } from "./memory";
 import { requestLocalChat } from "@/lib/ai/local";
@@ -19,6 +20,7 @@ export function parseChat(body: unknown): {
   context: DoshaUserContext;
   writing?: WritingRequest;
   song?: { lessonId: string; level?: string };
+  lessonSupport?: { lessonId: string; exerciseId: string };
 } {
   if (!body || typeof body !== "object") throw Error("Invalid message");
   const b = body as Record<string, unknown>;
@@ -76,7 +78,16 @@ export function parseChat(body: unknown): {
       .filter((item): item is string => typeof item === "string")
       .slice(0, 10)
       .map((item) => item.slice(0, 80));
+  let lessonSupport: { lessonId: string; exerciseId: string } | undefined;
+  if (b.lessonSupport && typeof b.lessonSupport === "object") {
+    const v = b.lessonSupport as Record<string, unknown>;
+    if (typeof v.lessonId !== "string" || typeof v.exerciseId !== "string")
+      throw Error("Invalid lesson context");
+    lessonHelp(v.lessonId, v.exerciseId);
+    lessonSupport = { lessonId: v.lessonId, exerciseId: v.exerciseId };
+  }
   return {
+    lessonSupport,
     message: b.message.trim(),
     history: history.map(({ role, content }) => ({ role, content })),
     language:

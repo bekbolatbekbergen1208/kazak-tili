@@ -1,4 +1,4 @@
-import { writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import {
   achievements,
   books,
@@ -80,8 +80,9 @@ for (const a of achievements)
   insert("qd_achievements", ["id", "content"], [a.id, a]);
 for (const q of quests) insert("qd_daily_quests", ["id", "content"], [q.id, q]);
 statements.push("commit;");
+mkdirSync("supabase/generated", { recursive: true });
 writeFileSync(
-  "supabase/migrations/202609070002_learning_content.sql",
+  "supabase/generated/learning_content.sql",
   statements.join("\n") + "\n",
 );
 console.log(
