@@ -20,6 +20,11 @@ export function Results({ result: r }: { result: Result }) {
     );
   return (
     <>
+      <section className="ql-panel">
+        <h3>Әдістемелік негізі</h3>
+        <p>{r.methodologyVersion ? "CEFR және ҚАЗТЕСТ сипаттамаларына бағдарланған авторлық пилот." : "Бұл — бұрынғы авторлық нұсқадағы нәтиже; жаңа әдістемемен қайта есептелмеген."} Деңгей мен ұпай шектері әлі сараптамалық және статистикалық тексеруден өтпеген. Ішкі индикатор статистикалық сенімділік емес.</p>
+        <Link href="/learn/q-level/methodology">Дереккөздер мен бағалау шектеулері →</Link>
+      </section>
       <ReportDownload result={r} />
       <section className="ql-result">
         <div>
@@ -36,7 +41,7 @@ export function Results({ result: r }: { result: Result }) {
                 ? "Күнделікті тақырыптарда қазақ тілін қолдануға дайынсың."
                 : "Таныс тақырыптарда қазақша түсіну дағдың қалыптасып келеді."}
           </p>
-          <span className="ql-chip">Сенімділік: {r.confidence}%</span>
+          <span className="ql-chip">Дерек жеткіліктілігінің ішкі индикаторы: {r.confidence}%</span>
           <p>
             <small>
               {new Date(r.date).toLocaleDateString("kk-KZ")} ·{" "}

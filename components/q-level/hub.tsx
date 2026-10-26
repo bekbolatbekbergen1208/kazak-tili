@@ -207,7 +207,7 @@ export default function QLevelHub({ screen = "" }: { screen?: string }) {
           </Link>
         ))}
       </nav>
-      <p className="ql-trust">{disclaimer}</p>
+      <p className="ql-trust">{disclaimer} <Link href={`${base}/methodology`}>Әдістеме және әдебиеттер →</Link></p>
       {q.error && (
         <div role="alert" className="ql-error">
           {q.error}

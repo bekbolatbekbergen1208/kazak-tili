@@ -40,6 +40,7 @@ export type Question = {
   text_content?: string;
   difficulty: number;
   tags: string[];
+  alignment?: ReturnType<typeof import("./methodology").questionAlignment>;
 };
 export type PublicQuestion = Omit<
   Question,
@@ -60,6 +61,8 @@ export type SkillResult = {
   confidence: number;
 };
 export type Result = {
+  methodologyVersion?: string;
+  scoreModel?: "heuristic-v1";
   id: string;
   score: number;
   level: Level;
@@ -72,6 +75,7 @@ export type Result = {
   feedback: string[];
 };
 export type Attempt = {
+  methodologyVersion?: string;
   id: string;
   type: "quick" | "full";
   startedAt: string;

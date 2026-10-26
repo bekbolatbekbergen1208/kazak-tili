@@ -10,7 +10,8 @@ import {
   type Result,
   type SkillResult,
 } from "./types";
-import { productionQuestion, questionBank } from "./questions";
+import { productionQuestion, questionBank, legacyQuestionBank } from "./questions";
+import { methodologyVersion } from "./methodology";
 import { gradeQuestion } from "./grading";
 import { listeningEnabled, objectiveSkills } from "./config";
 export const scoreLevel = (n: number): Level =>
@@ -46,7 +47,7 @@ export function nextQuestion(
     );
   const skill = objectiveSkills[n % objectiveSkills.length];
   const used = new Set(a.answers.map((x) => x.questionId));
-  const candidates = questionBank.filter(
+  const candidates = (a.methodologyVersion ? questionBank : legacyQuestionBank).filter(
     (q) => q.skill === skill && !used.has(q.id),
   );
   const fresh = candidates.filter((q) => !excluded.includes(q.id));
@@ -65,6 +66,7 @@ export function startAttempt(
   const now = new Date().toISOString();
   const a: Attempt = {
     id: crypto.randomUUID(),
+    methodologyVersion,
     type,
     startedAt: now,
     updatedAt: now,
@@ -80,13 +82,13 @@ export function startAttempt(
 export function resumeAttempt(a: Attempt): Attempt {
   if (a.completed || listeningEnabled || getQuestion(a)?.skill !== "listening") return a;
   const used = new Set(a.answers.map(x => x.questionId));
-  const replacement = questionBank.filter(q => q.skill === "reading" && !used.has(q.id))
+  const replacement = (a.methodologyVersion ? questionBank : legacyQuestionBank).filter(q => q.skill === "reading" && !used.has(q.id))
     .sort((x,y) => Math.abs(x.difficulty-a.ability)-Math.abs(y.difficulty-a.ability) || x.id.localeCompare(y.id))[0];
   return replacement ? { ...a, questionId: replacement.id } : a;
 }
 export function getQuestion(a: Attempt): Question | undefined {
   return (
-    questionBank.find((q) => q.id === a.questionId) ??
+    (a.methodologyVersion ? questionBank : legacyQuestionBank).find((q) => q.id === a.questionId) ??
     (a.questionId?.startsWith("writing-")
       ? productionQuestion("writing", a.questionId.slice(8) as Level)
       : a.questionId?.startsWith("speaking-")
@@ -156,7 +158,7 @@ export function calculate(
       (x) => x.skill === skill && x.correct !== null,
     );
     const evidence = rows.length;
-    // Difficulty-weighted estimate, with smoothing for small samples.
+    // Legacy product heuristic. Neither CEFR nor QAZTEST provides these weights.
     const raw = rows.reduce(
       (sum, x) =>
         sum +
@@ -190,6 +192,8 @@ export function calculate(
     .sort((x, y) => (results[x].score ?? 0) - (results[y].score ?? 0))[0];
   return {
     id: a.id,
+    methodologyVersion: a.methodologyVersion,
+    scoreModel: "heuristic-v1",
     score,
     level: measured.length ? bottleneck : "A0",
     confidence: Math.round(
@@ -202,7 +206,7 @@ export function calculate(
     pending: results.writing.score === null || results.speaking.score === null,
     feedback: [
       `${weak ? labels[weak] : "Тіл үйрену"} бағытына көбірек көңіл бөл.`,
-      "Айтылым мен жазылым бағаланбайынша, жалпы деңгей — болжамды диагностикалық нәтиже.",
+      "Бұл — пилоттық диагностикалық болжам. CEFR/ҚАЗТЕСТ деңгейі расталған жоқ; ұпай шектері калибрленбеген.",
     ],
   };
 }

@@ -247,7 +247,7 @@ export async function POST(req: Request) {
       a,
       b.value,
       elapsed,
-      history.at(-1)?.score ?? null,
+      history.filter(r => r.methodologyVersion === a!.methodologyVersion && r.type === a!.type).at(-1)?.score ?? null,
       excluded,
     );
     if (!demo) {

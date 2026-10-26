@@ -1,4 +1,5 @@
 import type { Question, Skill, Level } from "./types";
+import { questionAlignment } from "./methodology";
 // Original editorial seed bank. Kept separate from the UI and never sent with answer keys.
 const rows: [Skill, Level, string, string[], string, string?][] = [
   [
@@ -45,28 +46,28 @@ const rows: [Skill, Level, string, string[], string, string?][] = [
   ],
   [
     "grammar",
-    "B2",
+    "A2",
     "Жұмысты уақытында аяқтау ___ жоспар құрдық.",
     ["үшін", "туралы", "сияқты", "дейін"],
     "үшін",
   ],
   [
     "grammar",
-    "B2",
+    "B1",
     "Ол келісімен, жиналыс ___.",
     ["басталды", "басталса", "басталғанша", "басталып"],
     "басталды",
   ],
   [
     "grammar",
-    "C1",
+    "B2",
     "Оның ұсынысы қолдау тапқанымен, іске асыру мерзімі ___.",
     ["нақтыланбады", "нақтыланып", "нақтыланса", "нақтыланғанша"],
     "нақтыланбады",
   ],
   [
     "grammar",
-    "C1",
+    "B2",
     "Деректер расталмайынша, қорытынды жасауға ___.",
     ["болмайды", "болады", "болған", "болып"],
     "болмайды",
@@ -81,7 +82,7 @@ const rows: [Skill, Level, string, string[], string, string?][] = [
   [
     "vocabulary",
     "A1",
-    "Таңертең адамдар не ішеді?",
+    "Айша: «Бір кесе шай беріңізші», — деді. Ол не сұрады?",
     ["шай", "үстел", "қалам", "есік"],
     "шай",
   ],
@@ -129,14 +130,14 @@ const rows: [Skill, Level, string, string[], string, string?][] = [
   ],
   [
     "vocabulary",
-    "C1",
+    "B2",
     "«Пайым» сөзінің мағынасын таңда.",
     ["ой қорытындысы", "дыбыс түрі", "өлшем бірлігі", "құрал атауы"],
     "ой қорытындысы",
   ],
   [
     "vocabulary",
-    "C1",
+    "B2",
     "Пікірталаста «дәйек» не үшін қажет?",
     [
       "пікірді негіздеу",
@@ -227,7 +228,7 @@ const rows: [Skill, Level, string, string[], string, string?][] = [
   ],
   [
     "reading",
-    "C1",
+    "B2",
     "Автор қандай жасырын болжамды сынайды?",
     [
       "көрсеткіштің өсуі әрдайым сапаның өсуіне тең",
@@ -240,7 +241,7 @@ const rows: [Skill, Level, string, string[], string, string?][] = [
   ],
   [
     "reading",
-    "C1",
+    "B2",
     "Автор зерттеу нәтижесіне қалай қарайды?",
     [
       "шектеулерін ескеріп қолданады",
@@ -368,10 +369,20 @@ export const questionBank: Question[] = rows.map(
     correct_answer,
     text_content,
     difficulty: ["A1", "A2", "B1", "B2", "C1"].indexOf(level),
-    tags: [skill, level],
+    tags: [skill, level, "pilot-unvalidated"],
+    alignment: questionAlignment(`q-${i + 1}`, skill, level),
     explanation: `Дұрыс жауап: ${correct_answer}. ${text_content ?? question}`,
   }),
 );
+// Reproduce the already-published bank for attempts started before this revision.
+export const legacyQuestionBank: Question[] = questionBank.map((q, i) => {
+  const oldLevel = i === 6 || i === 7 ? "B2" : [8,9,18,19,28,29].includes(i) ? "C1" : q.level;
+  const { alignment, ...old } = q;
+  void alignment;
+  return { ...old, level: oldLevel, difficulty: ["A1","A2","B1","B2","C1"].indexOf(oldLevel),
+    question: i === 11 ? "Таңертең адамдар не ішеді?" : q.question,
+    tags: [q.skill, oldLevel] };
+});
 export function productionQuestion(
   skill: "writing" | "speaking",
   level: Level,
@@ -401,6 +412,6 @@ export function productionQuestion(
           }[level]
         : prompts[level],
     difficulty: Math.max(0, ["A1", "A2", "B1", "B2", "C1"].indexOf(level)),
-    tags: [skill, level],
+    tags: [skill, level, "pilot-unvalidated"],
   };
 }
