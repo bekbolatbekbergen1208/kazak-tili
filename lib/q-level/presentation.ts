@@ -9,7 +9,7 @@ export function recommendations(
     .filter((s) => r.skills[s].score !== null)
     .sort((a, b) => (r.skills[a].score ?? 0) - (r.skills[b].score ?? 0));
   const weak = r.skills.speaking.score === null ? "speaking" : sorted[0];
-  const second = weak === "speaking" ? "listening" : (sorted[1] ?? "reading");
+  const second = weak === "speaking" ? "reading" : (sorted[1] ?? "reading");
   return [
     {
       skill: labels[weak],

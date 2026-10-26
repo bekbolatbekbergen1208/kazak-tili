@@ -1,4 +1,5 @@
 "use client";
+import { activeSkills as skills } from "@/lib/q-level/config";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
@@ -18,7 +19,7 @@ import {
   Target,
 } from "lucide-react";
 import { useLearning } from "@/components/learning/provider";
-import { labels, skills, type Result } from "@/lib/q-level/types";
+import { labels, type Result } from "@/lib/q-level/types";
 import { Results, LearningPath } from "./results";
 import {LanguageGrowth} from "@/components/literary/vocabulary";
 import { Recorder } from "./recorder";
@@ -253,7 +254,6 @@ export default function QLevelHub({ screen = "" }: { screen?: string }) {
                 {q.attempt!.type === "full" && (
                   <div className="ql-steps">
                     {[
-                      "Тыңдалым",
                       "Оқылым",
                       "Лексика / грамматика",
                       "Жазылым",
@@ -262,15 +262,9 @@ export default function QLevelHub({ screen = "" }: { screen?: string }) {
                       <span
                         key={s}
                         className={
-                          (q.attempt!.answers.length < 6
-                            ? 0
-                            : q.attempt!.answers.length < 12
-                              ? 1
-                              : q.attempt!.answers.length < 20
-                                ? 2
-                                : q.attempt!.answers.length === 20
-                                  ? 3
-                                  : 4) === i
+                          (["reading", "vocabulary", "grammar"].includes(current.skill)
+                            ? current.skill === "reading" ? 0 : 1
+                            : current.skill === "writing" ? 2 : 3) === i
                             ? "active"
                             : ""
                         }
@@ -408,7 +402,7 @@ export default function QLevelHub({ screen = "" }: { screen?: string }) {
                 <span className="ql-chip">
                   <Headphones size={18} />{" "}
                   {screen === "full"
-                    ? "5 бөлім · 22 тапсырма"
+                    ? "4 бөлім · 22 тапсырма"
                     : "5–7 минут · 16 тапсырма"}
                 </span>
                 <h2>
@@ -423,11 +417,11 @@ export default function QLevelHub({ screen = "" }: { screen?: string }) {
                 <ul>
                   <li>Қиындық жауаптарыңа бейімделеді.</li>
                   <li>
-                    Оқылым, тыңдалым, сөздік қор және грамматика бағаланады.
+                    Оқылым, сөздік қор және грамматика бағаланады.
                   </li>
                   <li>Айтылым мен жазылым үшін бөлек бағалау қажет.</li>
                   <li>
-                    Қазақша жүйелік дауыс немесе аудиофайл тыңдалымға қажет.
+                    Тыңдалым уақытша өшірілген және осы тестте бағаланбайды.
                   </li>
                 </ul>
                 <button

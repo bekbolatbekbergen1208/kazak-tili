@@ -37,3 +37,13 @@ The seed bank and scoring estimates need expert validation and empirical calibra
 ## Verification
 
 `npm run typecheck`, `npm run build`, unit/adaptive tests, transactional SQL/RLS tests and desktop/mobile Playwright tests. The unrelated existing friendships migration is blank in this checkout and causes the old SQL suite to fail with missing `qd_friend_profiles`; Q-Level does not overwrite this user edit.
+
+## Current diagnostic basis and result documents
+
+The question bank contains original editorial exercises with manually assigned A1–C1 labels. These labels and the score cutoffs are product heuristics, not empirically calibrated CEFR thresholds or an official examination. There is no claim of psychometric validation, standardized norms, sensitivity/specificity or external certification.
+
+Q-Score averages difficulty-weighted objective answers by measured skill. Correct answers contribute min(100, 30 + difficulty × 18), incorrect answers max(0, difficulty × 18 − 12). A1/A2/B1/B2/C1 cutoffs are 0/25/45/65/85. Ability adapts using the last three graded answers; classification also limits the overall level relative to the weakest measured skill. The displayed confidence is an evidence-count heuristic, not a statistical confidence interval. Writing and speaking remain ungraded pending an evaluated provider.
+
+Listening is temporarily disabled via `lib/q-level/config.ts`; new tests rotate reading, vocabulary and grammar. Existing incomplete listening questions resume with a reading question. The full test retains 22 tasks, including two ungraded production tasks; quick tests retain 16. Historical results keep their original schema and evidence.
+
+Each result screen offers a self-contained HTML report with date, attempt ID, estimated level, score, per-skill evidence and feedback. The report opens offline; browser Print → Save as PDF produces a PDF copy. Unassessed skills are explicitly labelled. It is a diagnostic report, not a certificate.

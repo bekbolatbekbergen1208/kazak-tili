@@ -5,6 +5,7 @@ import { createProgressWriter } from "@/utils/supabase/admin";
 import { isSameOrigin } from "@/utils/request-origin";
 import {
   beginner,
+  resumeAttempt,
   getQuestion,
   publicQuestion,
   startAttempt,
@@ -27,6 +28,7 @@ function reviewFor(a: Attempt | null) {
     : [];
 }
 function view(a: Attempt | null, demo = false) {
+  if (a) a = resumeAttempt(a);
   return a
     ? {
         review: reviewFor(a),
@@ -205,6 +207,7 @@ export async function POST(req: Request) {
       }
       return NextResponse.json({ result, ...view(null, demo) });
     }
+    if (a) a = resumeAttempt(a);
     if (b.action === "start") {
       if (a) return NextResponse.json({ ...view(a, demo), resumed: true });
       if (!["quick", "full"].includes(b.type))
@@ -227,6 +230,7 @@ export async function POST(req: Request) {
       }
       return NextResponse.json(view(a, demo));
     }
+    if (a) a = resumeAttempt(a);
     if (!a) return fail("Белсенді тест табылмады.");
     if (b.questionId !== a.questionId)
       return fail("Сұрақ өзгерген. Бетті жаңартыңыз.", 409);

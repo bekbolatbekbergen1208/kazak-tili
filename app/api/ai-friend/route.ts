@@ -15,6 +15,7 @@ import {
   selectReviewedKnowledge,
 } from "@/lib/friend/reviewed-knowledge";
 import { referenceAnswer } from "@/lib/friend/knowledge";
+import { trustedTeachingAnswer, preferTrustedAnswer } from "@/lib/friend/trusted-answer";
 import { localAiConfigured } from "@/lib/ai/local";
 import { isSameOrigin } from "@/utils/request-origin";
 import { boundedJson } from "@/utils/bounded-body";
@@ -250,9 +251,11 @@ export async function POST(req: Request) {
               ? `Мұғалім тексерген білім:\n${reviewedKnowledgeContext(reviewed)}`
               : "",
           ].filter(Boolean);
+    const trustedReply = !input.writing && !input.song && !support && input.language === "kk"
+      ? trustedTeachingAnswer(input.message) : null;
     const generated = await qualityGate(
       async (repair) =>
-        live
+        preferTrustedAnswer(trustedReply, async () => live
           ? await requestDossha({
               key: "",
               model: model!,
@@ -261,7 +264,7 @@ export async function POST(req: Request) {
               signal: req.signal,
               context: [...contexts, repair ?? ""].filter(Boolean).join("\n\n"),
             })
-          : reference.reply,
+          : reference.reply),
       languageLevel,
       languageStyle,
       reference.reply,
@@ -327,7 +330,7 @@ export async function POST(req: Request) {
           copyright_status,
         }),
       ),
-      mode: live ? "ai" : "reference",
+      mode: live && !trustedReply ? "ai" : "reference",
       saved: !!user && !saved?.error,
       memorySaved,
       interactionId: feedback?.data?.id ?? null,

@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { TimedSongFind } from "./timed-find";
 import { useEffect, useRef, useState } from "react";
 import type { SongLesson } from "@/lib/songs/types";
 import {
@@ -7,6 +8,7 @@ import {
   syncedLine,
   validTimings,
   validWordTimings,
+  maskedSongLine,
 } from "@/lib/songs/practice";
 import { songsOf } from "@/lib/songs/state";
 import { useLearning } from "@/components/learning/provider";
@@ -166,7 +168,7 @@ export function SongModes({
     setFeedback(
       correct
         ? `✓ Дұрыс: ${task.answer}. ${lesson.lyrics[task.line].text}`
-        : `↻ Қайта тыңда. ${task.explanation}`,
+        : "↻ Бұл сөз сәйкес келмеді. Жолды қайта тыңдап, басқа жауапты таңдап көр.",
     );
     if (correct) {
       advance.current = setTimeout(() => {
@@ -423,9 +425,17 @@ export function SongModes({
       {!lesson.instrumental && (
         <p className="song-note">Аспаптық сүйемелдеу әлі жоқ.</p>
       )}
+      {mode === "find" && <TimedSongFind lines={lesson.lyrics.map(line => line.text)} audioSrc={ready ? src : undefined} timings={timed ? lesson.lyrics : undefined} />}
       {mode === "find" && (
         <section className="panel song-find">
           <h2>Тыңдап, сөзді тап</h2>
+          <p>Әнді тыңда. Мәтіндегі бос орынға естіген сөзіңді таңда.</p>
+          <progress
+            className="song-find-progress"
+            aria-label="Сөз табу барысы"
+            value={Math.min(step, tasks.length)}
+            max={tasks.length || 1}
+          />
           <p>
             {Math.min(step + 1, tasks.length)}/{tasks.length} тапсырма · Таңдау
             немесе өзің жазу
@@ -438,18 +448,25 @@ export function SongModes({
           )}
           {task && (
             <>
-              <p className="song-current-line">
-                {lesson.lyrics[task.line].text
-                  .split(/\s+/)
-                  .map((token, i) =>
-                    i === task.token
-                      ? feedback.startsWith("✓")
-                        ? task.answer
-                        : "____"
-                      : token,
-                  )
-                  .join(" ")}
-              </p>
+              <div className="song-listening-sheet" aria-label="Жасырылған сөздері бар ән мәтіні">
+                {lesson.lyrics.map((line, lineIndex) => {
+                  const puzzle = tasks.find((item) => item.line === lineIndex);
+                  const reveal = lineIndex < task.line ||
+                    (lineIndex === task.line && feedback.startsWith("✓"));
+                  return (
+                    <p
+                      key={lineIndex}
+                      className={lineIndex === task.line ? "song-current-line" : "song-neighbour-line"}
+                      aria-current={lineIndex === task.line ? "step" : undefined}
+                      data-playing={active === lineIndex || undefined}
+                    >
+                      <span className="song-line-number" aria-hidden="true">{String(lineIndex + 1).padStart(2, "0")}</span>
+                      <span>{puzzle ? maskedSongLine(line.text, puzzle.token, reveal) : line.text}</span>
+                      {puzzle && reveal && <span className="song-line-solved" aria-label="Сөз табылды">✓</span>}
+                    </p>
+                  );
+                })}
+              </div>
               {timed && (
                 <>
                   <button

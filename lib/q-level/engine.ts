@@ -12,6 +12,7 @@ import {
 } from "./types";
 import { productionQuestion, questionBank } from "./questions";
 import { gradeQuestion } from "./grading";
+import { listeningEnabled, objectiveSkills } from "./config";
 export const scoreLevel = (n: number): Level =>
   n >= 85 ? "C1" : n >= 65 ? "B2" : n >= 45 ? "B1" : n >= 25 ? "A2" : "A1";
 export function shuffle<T>(items: readonly T[], random = Math.random): T[] {
@@ -43,16 +44,7 @@ export function nextQuestion(
       n === 20 ? "writing" : "speaking",
       scoreLevel(10 + a.ability * 20),
     );
-  const skill =
-    a.type === "quick"
-      ? skills[n % 4]
-      : n < 6
-        ? "listening"
-        : n < 12
-          ? "reading"
-          : n % 2 === 0
-            ? "vocabulary"
-            : "grammar";
+  const skill = objectiveSkills[n % objectiveSkills.length];
   const used = new Set(a.answers.map((x) => x.questionId));
   const candidates = questionBank.filter(
     (q) => q.skill === skill && !used.has(q.id),
@@ -84,6 +76,13 @@ export function startAttempt(
   };
   a.questionId = nextQuestion(a, excluded)?.id ?? null;
   return a;
+}
+export function resumeAttempt(a: Attempt): Attempt {
+  if (a.completed || listeningEnabled || getQuestion(a)?.skill !== "listening") return a;
+  const used = new Set(a.answers.map(x => x.questionId));
+  const replacement = questionBank.filter(q => q.skill === "reading" && !used.has(q.id))
+    .sort((x,y) => Math.abs(x.difficulty-a.ability)-Math.abs(y.difficulty-a.ability) || x.id.localeCompare(y.id))[0];
+  return replacement ? { ...a, questionId: replacement.id } : a;
 }
 export function getQuestion(a: Attempt): Question | undefined {
   return (

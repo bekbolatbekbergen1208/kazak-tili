@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   adapt,
+  resumeAttempt,
   calculate,
   getQuestion,
   publicQuestion,
@@ -66,7 +67,7 @@ test("skill bottleneck caps overall classification", () => {
   assert.equal(r.level, "A2");
   assert.ok(r.score >= 65);
 });
-test("full exam has five stages; no fabricated writing or speaking score", () => {
+test("full exam has four active stages; no fabricated writing or speaking score", () => {
   let a = startAttempt("full");
   for (let i = 0; i < 22; i++) {
     const q = getQuestion(a)!;
@@ -85,7 +86,8 @@ test("full exam has five stages; no fabricated writing or speaking score", () =>
 });
 test("unavailable listening can be skipped without being treated as a wrong answer", () => {
   let a = startAttempt("quick");
-  assert.equal(getQuestion(a)!.skill, "listening");
+  a.questionId = questionBank.find(q => q.skill === "listening")!.id;
+  assert.equal(getQuestion(resumeAttempt(a))!.skill, "reading");
   a = submitAnswer(a, "__SKIP__", 10);
   assert.equal(a.answers[0].correct, null);
   assert.equal(calculate(a).skills.listening.score, null);
@@ -158,4 +160,15 @@ test("reusable grading handles choice sets, matching, ordering and normalized sh
     ),
     true,
   );
+});
+
+test("new tests omit listening and keep it unassessed", () => {
+  let a = startAttempt("full");
+  while (!a.completed) {
+    const q = getQuestion(a)!;
+    assert.notEqual(q.skill, "listening");
+    a = submitAnswer(a, q.correct_answer ? String(q.correct_answer) : "Өткізу", 3);
+  }
+  assert.equal(a.result!.skills.listening.score, null);
+  assert.equal(a.result!.skills.listening.count, 0);
 });

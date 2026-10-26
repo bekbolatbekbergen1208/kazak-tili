@@ -1,4 +1,10 @@
 import type { SongLesson } from "./types";
+export function maskedSongLine(text: string, token: number, reveal = false) {
+  if (reveal) return text;
+  return text.split(/\s+/).map((word, index) =>
+    index === token ? word.replace(/[\p{L}\p{N}]+/gu, "____") : word,
+  ).join(" ");
+}
 export const speechTokens = (text: string) =>
   text
     .normalize("NFKC")

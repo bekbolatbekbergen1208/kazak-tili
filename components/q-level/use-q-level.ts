@@ -36,7 +36,13 @@ export function useQLevel() {
       if (demo) {
         const raw = localStorage.getItem("qd-qlevel-demo-v1");
         if (raw) {
-          const s = JSON.parse(raw);
+          let s = JSON.parse(raw);
+          if (s.question?.skill === "listening" && s.attempt && !s.attempt.completed) {
+            const response = await fetch("/api/q-level", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "start", demo: true, attempt: s.attempt }) });
+            const resumed = await response.json();
+            if (!response.ok) throw Error(resumed.error);
+            s = { ...s, ...resumed };
+          }
           setAttempt(s.attempt ?? null);
           setQuestion(s.question ?? null);
           setHistory(s.history ?? []);

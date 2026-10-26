@@ -1,0 +1,9 @@
+import { labels, skills, type Result } from "./types";
+const escape = (value: unknown) => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+export function resultDocument(r: Result) {
+  const rows = skills.map(s => {
+    const item = r.skills[s];
+    return `<tr><td>${labels[s]}</td><td>${item.score === null ? "Бағаланбаған" : escape(item.level)}</td><td>${item.score === null ? "—" : escape(item.score) + " / 100"}</td><td>${escape(item.count)}</td></tr>`;
+  }).join("");
+  return `<!doctype html><html lang="kk"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Q-Level нәтижесі</title><style>body{font:16px/1.6 Arial,sans-serif;max-width:800px;margin:40px auto;padding:24px;color:#17243b}h1{color:#454dc5}table{width:100%;border-collapse:collapse}th,td{text-align:left;border:1px solid #ccd1df;padding:10px}small{color:#536078}button{padding:12px 20px} @media print{button{display:none}body{margin:0;padding:0}tr{break-inside:avoid}}</style><body><h1>QazaqDos · Q-Level нәтижесі</h1><p>Күні: ${escape(new Date(r.date).toLocaleDateString("kk-KZ"))}<br>Нәтиже коды: ${escape(r.id)}<br>Тест: ${r.type === "quick" ? "Қысқа" : r.type === "full" ? "Толық" : "Алғашқы қадам"}</p><h2>Болжамды деңгей: ${escape(r.level)} · ${escape(r.score)} / 100</h2><p>Сенімділік: ${escape(r.confidence)}%${r.previousScore !== null ? " · Алдыңғы ұпай: " + escape(r.previousScore) : ""}</p><table><thead><tr><th>Дағды</th><th>Деңгей</th><th>Ұпай</th><th>Бағаланған жауап</th></tr></thead><tbody>${rows}</tbody></table><h2>Ұсыныстар</h2><ul>${r.feedback.map(f => `<li>${escape(f)}</li>`).join("")}</ul><p><small>Бұл — болжамды диагностикалық нәтиже, ресми тіл сертификаты емес. Бағаланбаған дағдылар нөлдік ұпай болып саналмайды.</small></p></body></html>`;
+}

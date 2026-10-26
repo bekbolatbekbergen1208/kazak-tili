@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { songLessons } from "../lib/songs/content";
 import { applyAction, initialState } from "../lib/learning/state";
-import { compareSpeech, syncedLine, validTimings } from "../lib/songs/practice";
+import { compareSpeech, maskedSongLine, syncedLine, validTimings } from "../lib/songs/practice";
 import {
   sttConfig,
   parseTranscript,
@@ -12,6 +12,18 @@ import {
   MAX_AUDIO_BYTES,
   supportsKazakh,
 } from "../lib/songs/transcription";
+test("listening masks Kazakh words without losing punctuation and restores exact lyrics", () => {
+  assert.equal(maskedSongLine("Сәлем, досым! Қалың қалай?", 0), "____, досым! Қалың қалай?");
+  assert.equal(maskedSongLine("Сәлем, досым! Қалың қалай?", 1), "Сәлем, ____! Қалың қалай?");
+  assert.equal(maskedSongLine("Әке, бүгін қайда барамыз?", 0, true), "Әке, бүгін қайда барамыз?");
+  for (const lesson of songLessons) {
+    for (const task of lesson.wordFind!) {
+      const text = lesson.lyrics[task.line].text;
+      assert(maskedSongLine(text, task.token).includes("____"));
+      assert.equal(maskedSongLine(text, task.token, true), text);
+    }
+  }
+});
 test("five shared songs have 30 valid word tasks, 20 excerpts and honest draft media", () => {
   const ids = new Set<string>();
   for (const l of songLessons) {

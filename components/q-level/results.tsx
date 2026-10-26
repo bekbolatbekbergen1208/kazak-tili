@@ -1,5 +1,7 @@
 "use client";
+import { activeSkills as skills } from "@/lib/q-level/config";
 import Link from "next/link";
+import { ReportDownload } from "./report-download";
 import {
   RadarChart,
   Radar,
@@ -8,7 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { TrendingUp, Target, ArrowUpRight } from "lucide-react";
-import { labels, skills, type Result } from "@/lib/q-level/types";
+import { labels, type Result } from "@/lib/q-level/types";
 import { recommendations, nextTarget } from "@/lib/q-level/presentation";
 const base = "/learn/q-level";
 export function Results({ result: r }: { result: Result }) {
@@ -18,6 +20,7 @@ export function Results({ result: r }: { result: Result }) {
     );
   return (
     <>
+      <ReportDownload result={r} />
       <section className="ql-result">
         <div>
           <span className="overline">
@@ -57,7 +60,7 @@ export function Results({ result: r }: { result: Result }) {
       </section>
       <section className="ql-two">
         <div className="ql-panel">
-          <h3>Алты дағды. Бір мақсат.</h3>
+          <h3>Тіл дағдылары бойынша нәтиже</h3>
           <div className="ql-chart">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart

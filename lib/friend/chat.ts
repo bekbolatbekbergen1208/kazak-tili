@@ -122,6 +122,15 @@ export function boundedHistory(messages: ChatMessage[], max = 20) {
   }
   return result;
 }
+export function finalAssistantAnswer(reply: string): string {
+  let answer = reply.trim();
+  // Some local reasoning models put their internal block in content instead of thinking.
+  const end = answer.indexOf("</think>");
+  if (end >= 0) answer = answer.slice(end + "</think>".length).trim();
+  else if (answer.startsWith("<think>")) throw Error("AI_INCOMPLETE_ANSWER");
+  if (!answer) throw Error("AI_INCOMPLETE_ANSWER");
+  return answer;
+}
 export async function requestDossha({
   key: _key,
   model,
@@ -162,5 +171,5 @@ export async function requestDossha({
       { role: "user", content: message },
     ],
   });
-  return reply.slice(0, 7000);
+  return finalAssistantAnswer(reply).slice(0, 7000);
 }

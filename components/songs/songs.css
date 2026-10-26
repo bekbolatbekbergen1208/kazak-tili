@@ -1078,6 +1078,48 @@
   text-decoration-thickness: 3px;
   color: #4842d6;
 }
+.song-find-progress {
+  width: 100%;
+  height: 8px;
+  accent-color: #4842d6;
+  margin: 8px 0 16px;
+}
+.song-listening-sheet {
+  padding: 16px;
+  margin: 16px 0;
+  background: #f6f5ff;
+  border: 1px solid #e4e1fb;
+  border-radius: 20px;
+}
+.song-listening-sheet p {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0;
+  padding: 12px;
+  border-radius: 12px;
+  transition: background 150ms ease;
+  overflow-wrap: anywhere;
+}
+.song-listening-sheet .song-current-line {
+  background: white;
+  box-shadow: 0 2px 10px #4842d610;
+  color: #3730a3;
+  font-weight: 700;
+}
+.song-listening-sheet [data-playing] {
+  outline: 2px solid #c4b5fd;
+}
+.song-line-number {
+  flex: 0 0 22px;
+  font-size: 12px;
+  opacity: .6;
+}
+.song-line-solved { margin-left: auto; color: #15803d; }
+.song-real-player audio { display: block; width: 100%; margin: 20px 0; }
+.song-real-player iframe { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 16px; display: block; margin: 20px 0; }
+.song-real-player > a { display: block; margin-top: 12px; font-size: 13px; }
+.song-answer-wrong { border-color: #b45309; color: #92400e; }
 .song-stt-consent label {
   display: flex;
   flex-direction: row;
@@ -1108,3 +1150,5 @@
     white-space: normal;
   }
 }
+
+.song-full-text-input{display:block;width:100%;margin:12px 0;padding:12px;border:1px solid #cbd5e1;border-radius:12px;font:inherit}.song-timed-lyrics{max-height:360px;overflow:auto;margin:20px 0;padding:16px;background:#f8fafc;border-radius:16px}.song-timed-lyrics p{padding:10px;margin:0;line-height:1.7}.song-timed-lyrics [aria-current=step]{background:#e8eaff;border-radius:10px}.song-find form input{max-width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}

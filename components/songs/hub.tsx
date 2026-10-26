@@ -10,6 +10,7 @@ import { songsOf } from "@/lib/songs/state";
 import type { SongLevel } from "@/lib/songs/types";
 import { SongMaker } from "./maker";
 import { SongReviews } from "./reviews";
+import { realSongs } from "@/lib/songs/real-songs";
 export function SongsHub() {
   const { state, dispatch, busy } = useLearning(),
     q = useQLevel(),
@@ -248,6 +249,13 @@ export function SongsHub() {
         </div>
       </header>
       <div className="song-cards">
+        {realSongs.map((song) => <article className="song-card song-tone-0" key={song.id}>
+          <Link className="song-card-main" href={`/learn/songs/${song.id}`}>
+            <div className="song-card-top"><span className="song-card-icon"><Music2 /></span><span className="pill">Нақты ән</span></div>
+            <h3>{song.title}</h3><p>{song.performer}</p><p>{song.description}</p>
+          </Link>
+          <div className="song-mode-nav"><Link href={`/learn/songs/${song.id}/find`}>Сөзді тап</Link><Link href={`/learn/songs/${song.id}/karaoke`}>Бірге айт</Link></div>
+        </article>)}
         {lessons.map((l, i) => (
           <article className={`song-card song-tone-${i % 3}`} key={l.id}>
             <Link className="song-card-main" href={`/learn/songs/${l.id}`}>
