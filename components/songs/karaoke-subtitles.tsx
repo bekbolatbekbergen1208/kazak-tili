@@ -12,10 +12,12 @@ export function KaraokeSubtitles({
   lines,
   time,
   playing,
+  fullTrack = false,
 }: {
   lines: readonly CaptionLine[];
   time: number;
   playing: boolean;
+  fullTrack?: boolean;
 }) {
   const [selected, setSelected] = useState(0);
   const timed =
@@ -106,9 +108,10 @@ export function KaraokeSubtitles({
           ))}
         </div>
       )}
-      {timed ? (
+      {timed && !fullTrack && (
         <small>Тек белгіленген қысқа үзінділер көрсетіледі.</small>
-      ) : (
+      )}
+      {!timed && (
         <small>Бұл жазбада уақыт белгісі жоқ. Естіген жолыңды таңда.</small>
       )}
     </div>

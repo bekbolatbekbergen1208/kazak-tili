@@ -1280,6 +1280,7 @@
   transform: translateX(-50%);
   animation: song-karaoke-spin 750ms linear infinite;
   animation-play-state: paused;
+  transition: left 180ms linear;
 }
 .song-karaoke-captions[data-singing] .song-karaoke-ball {
   animation-play-state: running;

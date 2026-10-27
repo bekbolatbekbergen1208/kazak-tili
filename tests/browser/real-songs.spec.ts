@@ -133,7 +133,7 @@ test("lyrics change with the recording and the dot moves only during sung lines"
   });
   await expect(captions).toHaveAttribute("data-singing", "true");
   await expect(captions.locator(".song-karaoke-caption-base")).toHaveText(
-    "Жасыл жайлау",
+    "Жасыл жайлау, түкті кілем, көк кілем",
   );
   await expect(ball).toBeVisible();
   const startX = await ball.evaluate(
@@ -147,20 +147,33 @@ test("lyrics change with the recording and the dot moves only during sung lines"
     .poll(() => ball.evaluate((element) => element.getBoundingClientRect().x))
     .toBeGreaterThan(startX + 10);
 
-  await audio.evaluate((element: HTMLAudioElement) => {
-    element.currentTime = 20;
-    element.dispatchEvent(new Event("timeupdate"));
-  });
+  const seekTo = async (seconds: number) => {
+    await audio.evaluate((element: HTMLAudioElement, time) => {
+      element.currentTime = time;
+      element.dispatchEvent(new Event("timeupdate"));
+    }, seconds);
+  };
+  for (const [seconds, text] of [
+    [20, "Көк кілемде көп аунаймын, көп күлем"],
+    [26, "Маңдайымнан сипап өткен самалды"],
+    [39, "Қайда жүрсем Атамекен"],
+    [60, "Жасыл жайлау, түкті кілем, көк кілем"],
+    [90, "Қайда жүрсем Атамекен"],
+    [119, "Жасыл жайлау, түкті кілем, көк кілем"],
+    [147, "Қайда жүрсем Атамекен"],
+    [162, "Қимай оны-ай батады екен"],
+  ] as const) {
+    await seekTo(seconds);
+    await expect(captions.locator(".song-karaoke-caption-base")).toHaveText(
+      text,
+    );
+    await expect(captions).toHaveAttribute("data-singing", "true");
+  }
+  await seekTo(108);
   await expect(ball).toHaveCount(0);
   await expect(captions).not.toHaveAttribute("data-singing", "true");
-  await audio.evaluate((element: HTMLAudioElement) => {
-    element.currentTime = 39;
-    element.dispatchEvent(new Event("timeupdate"));
-  });
-  await expect(captions.locator(".song-karaoke-caption-base")).toHaveText(
-    "Қайда жүрсем, атамекен",
-  );
-  await expect(captions).toHaveAttribute("data-singing", "true");
+  await seekTo(162);
+  await expect(ball).toBeVisible();
   await audio.evaluate((element: HTMLAudioElement) => element.pause());
   await expect(captions).not.toHaveAttribute("data-singing", "true");
   await expect(ball).toHaveCSS("animation-play-state", "paused");

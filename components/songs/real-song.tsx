@@ -144,6 +144,7 @@ export function RealSongSession({
             lines={audioFailed ? song.excerpts : song.captions}
             time={time}
             playing={playing}
+            fullTrack={song.id === "atameken" && !audioFailed}
           />
         )}
         {audioFailed && (
@@ -177,7 +178,9 @@ export function RealSongSession({
           <p>
             {audioFailed
               ? "Бейнежазбада уақыт белгілері жоқ. Қысқа үзінділерді тыңдап, бірге айт."
-              : "Әнді тыңдап, қысқа үзінділер шыққанда бірге айт. Олар жазбадағы уақытқа сай ауысады."}
+              : song.id === "atameken"
+                ? "Әнді тыңдап, жолдар шыққанда бірге айт. Мәтін архивтік жазбамен бірге ауысады."
+                : "Әнді тыңдап, қысқа үзінділер шыққанда бірге айт. Олар жазбадағы уақытқа сай ауысады."}
           </p>
           {song.excerpts.map((item, i) => (
             <p className="song-current-line" key={i}>
