@@ -1278,15 +1278,10 @@
     0 0 0 4px #ffcf5c2b,
     0 0 14px #ffcf5c;
   transform: translateX(-50%);
-  animation: song-karaoke-travel 4s ease-in-out infinite alternate,
-    song-karaoke-spin 750ms linear infinite;
-  animation-play-state: paused;
-}
-.song-karaoke-captions[data-synced] .song-karaoke-ball {
   animation: song-karaoke-spin 750ms linear infinite;
   animation-play-state: paused;
 }
-.song-karaoke-captions[data-playing] .song-karaoke-ball {
+.song-karaoke-captions[data-singing] .song-karaoke-ball {
   animation-play-state: running;
 }
 .song-karaoke-caption-choices {
@@ -1315,15 +1310,11 @@
   margin-top: 10px;
   color: #c7cef8;
 }
-@keyframes song-karaoke-travel {
-  from { left: 0; }
-  to { left: 100%; }
-}
 @keyframes song-karaoke-spin {
   to { transform: translateX(-50%) rotate(360deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .song-karaoke-captions[data-playing] .song-karaoke-ball {
+  .song-karaoke-ball {
     animation: none;
   }
 }

@@ -18,7 +18,7 @@ test("real recordings appear first; masked quiz retries and completes without re
           window.setTimeout(() => options.events.onStateChange({ data: 1 }), 0);
         }
         getCurrentTime() {
-          return 12;
+          return 4.5;
         }
         destroy() {}
       },
@@ -78,9 +78,13 @@ test("real recordings appear first; masked quiz retries and completes without re
     .getByRole("button", { name: "Әнді ашу · Қазақстанның Әнұраны" })
     .click();
   await expect(page.locator("iframe")).toHaveAttribute("src", /ZZnvsrlZkOA/);
-  await expect(
-    page.locator(".song-real-player .song-karaoke-captions"),
-  ).toHaveAttribute("data-playing", "true");
+  const anthemCaptions = page.locator(
+    ".song-real-player .song-karaoke-captions",
+  );
+  await expect(anthemCaptions).toHaveAttribute("data-singing", "true");
+  await expect(anthemCaptions.locator(".song-karaoke-caption-base")).toHaveText(
+    "Алтын күн аспаны",
+  );
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth > innerWidth,
@@ -88,7 +92,7 @@ test("real recordings appear first; masked quiz retries and completes without re
   ).toBe(false);
 });
 
-test("karaoke dot follows audio play and pause beneath the player", async ({
+test("lyrics change with the recording and the dot moves only during sung lines", async ({
   page,
 }) => {
   const state = initialState();
@@ -106,22 +110,60 @@ test("karaoke dot follows audio play and pause beneath the player", async ({
   await page.goto("/learn/songs/atameken/karaoke?demo=1");
   await page.getByRole("button", { name: "Әнді ашу · Атамекен" }).click();
   const player = page.locator(".song-real-player");
+  const audio = player.locator("audio");
   const captions = player.locator(".song-karaoke-captions");
-  await expect(player.locator("audio")).toBeVisible();
-  await expect(captions).toHaveAttribute("data-playing", "true");
   const ball = captions.locator(".song-karaoke-ball");
+  await expect(audio).toBeVisible();
+  await expect(captions).toHaveAttribute("data-playing", "true");
+  await expect(ball).toHaveCount(0);
+  await audio.evaluate((element: HTMLAudioElement) => {
+    let testTime = 0;
+    Object.defineProperty(element, "currentTime", {
+      configurable: true,
+      get: () => testTime,
+      set: (value: number) => {
+        testTime = value;
+      },
+    });
+  });
+
+  await audio.evaluate((element: HTMLAudioElement) => {
+    element.currentTime = 11.2;
+    element.dispatchEvent(new Event("timeupdate"));
+  });
+  await expect(captions).toHaveAttribute("data-singing", "true");
+  await expect(captions.locator(".song-karaoke-caption-base")).toHaveText(
+    "Жасыл жайлау",
+  );
   await expect(ball).toBeVisible();
-  const startX = await ball.evaluate((element) => element.getBoundingClientRect().x);
-  await page.waitForTimeout(900);
-  const movingX = await ball.evaluate((element) => element.getBoundingClientRect().x);
-  expect(movingX).toBeGreaterThan(startX + 10);
-  await player
-    .locator("audio")
-    .evaluate((audio: HTMLAudioElement) => audio.pause());
-  await expect(captions).not.toHaveAttribute("data-playing", "true");
-  const pausedX = await ball.evaluate((element) => element.getBoundingClientRect().x);
-  await page.waitForTimeout(400);
-  expect(await ball.evaluate((element) => element.getBoundingClientRect().x)).toBeCloseTo(pausedX, 0);
+  const startX = await ball.evaluate(
+    (element) => element.getBoundingClientRect().x,
+  );
+  await audio.evaluate((element: HTMLAudioElement) => {
+    element.currentTime = 12.8;
+    element.dispatchEvent(new Event("timeupdate"));
+  });
+  await expect
+    .poll(() => ball.evaluate((element) => element.getBoundingClientRect().x))
+    .toBeGreaterThan(startX + 10);
+
+  await audio.evaluate((element: HTMLAudioElement) => {
+    element.currentTime = 20;
+    element.dispatchEvent(new Event("timeupdate"));
+  });
+  await expect(ball).toHaveCount(0);
+  await expect(captions).not.toHaveAttribute("data-singing", "true");
+  await audio.evaluate((element: HTMLAudioElement) => {
+    element.currentTime = 39;
+    element.dispatchEvent(new Event("timeupdate"));
+  });
+  await expect(captions.locator(".song-karaoke-caption-base")).toHaveText(
+    "Қайда жүрсем, атамекен",
+  );
+  await expect(captions).toHaveAttribute("data-singing", "true");
+  await audio.evaluate((element: HTMLAudioElement) => element.pause());
+  await expect(captions).not.toHaveAttribute("data-singing", "true");
+  await expect(ball).toHaveCSS("animation-play-state", "paused");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth > innerWidth,

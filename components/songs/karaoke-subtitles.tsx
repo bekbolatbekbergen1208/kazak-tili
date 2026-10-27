@@ -29,10 +29,16 @@ export function KaraokeSubtitles({
   const syncedIndex = timed
     ? lines.findIndex((line) => time >= line.start! && time < line.end!)
     : -1;
-  const index = timed ? syncedIndex : Math.min(selected, lines.length - 1);
+  const index = timed
+    ? Math.max(
+        0,
+        lines.findLastIndex((line) => time >= line.start!),
+      )
+    : Math.min(selected, lines.length - 1);
   const line = lines[index];
+  const activeLine = timed && syncedIndex >= 0;
   const progress =
-    timed && line
+    activeLine && line
       ? Math.max(
           0,
           Math.min(
@@ -48,6 +54,8 @@ export function KaraokeSubtitles({
       aria-label="Әннің субтитрлері"
       data-playing={playing || undefined}
       data-synced={timed || undefined}
+      data-singing={(playing && activeLine) || undefined}
+      data-active-line={activeLine || undefined}
     >
       <div className="song-karaoke-captions-label">
         <span className="song-karaoke-live-dot" aria-hidden="true" />
@@ -56,13 +64,15 @@ export function KaraokeSubtitles({
       <div className="song-karaoke-caption-line" aria-live="polite">
         {line ? (
           <div className="song-karaoke-caption-track">
-            <span
-              className="song-karaoke-ball"
-              style={{ left: timed ? `${progress}%` : undefined }}
-              aria-hidden="true"
-            />
+            {activeLine && (
+              <span
+                className="song-karaoke-ball"
+                style={{ left: `${progress}%` }}
+                aria-hidden="true"
+              />
+            )}
             <span className="song-karaoke-caption-base">{line.text}</span>
-            {timed && (
+            {activeLine && (
               <span
                 className="song-karaoke-caption-fill"
                 style={{ clipPath: `inset(0 ${100 - progress}% 0 0)` }}
@@ -96,7 +106,9 @@ export function KaraokeSubtitles({
           ))}
         </div>
       )}
-      {!timed && (
+      {timed ? (
+        <small>Тек белгіленген қысқа үзінділер көрсетіледі.</small>
+      ) : (
         <small>Бұл жазбада уақыт белгісі жоқ. Естіген жолыңды таңда.</small>
       )}
     </div>

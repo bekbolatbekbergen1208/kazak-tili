@@ -65,6 +65,7 @@ export function RealSongSession({
         events: {
           onStateChange: (event) => {
             const playingNow = event.data === 1;
+            if (player) setTime(player.getCurrentTime());
             setPlaying(playingNow);
             if (timeTimer) window.clearInterval(timeTimer);
             timeTimer = playingNow
@@ -140,7 +141,7 @@ export function RealSongSession({
         )}
         {started && (
           <KaraokeSubtitles
-            lines={song.excerpts}
+            lines={audioFailed ? song.excerpts : song.captions}
             time={time}
             playing={playing}
           />
@@ -174,8 +175,9 @@ export function RealSongSession({
         <section className="panel">
           <h2>Орындаушымен бірге айт</h2>
           <p>
-            Әнді тыңдап, мына қысқа үзінділерді бірге айт. Мәтін жолдары аудио
-            уақытымен автоматты белгіленбейді.
+            {audioFailed
+              ? "Бейнежазбада уақыт белгілері жоқ. Қысқа үзінділерді тыңдап, бірге айт."
+              : "Әнді тыңдап, қысқа үзінділер шыққанда бірге айт. Олар жазбадағы уақытқа сай ауысады."}
           </p>
           {song.excerpts.map((item, i) => (
             <p className="song-current-line" key={i}>
