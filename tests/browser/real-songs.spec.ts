@@ -5,6 +5,25 @@ test("real recordings appear first; masked quiz retries and completes without re
 }) => {
   const state = initialState();
   state.profile.onboarded = true;
+  await page.addInitScript(() => {
+    const w = window as typeof window & { YT?: unknown };
+    w.YT = {
+      Player: class {
+        constructor(
+          _element: HTMLIFrameElement,
+          options: {
+            events: { onStateChange: (event: { data: number }) => void };
+          },
+        ) {
+          window.setTimeout(() => options.events.onStateChange({ data: 1 }), 0);
+        }
+        getCurrentTime() {
+          return 12;
+        }
+        destroy() {}
+      },
+    };
+  });
   await page.addInitScript((state) => {
     localStorage.setItem("qazaqdos-learning-demo-v1", JSON.stringify(state));
     sessionStorage.setItem("qd-demo", "1");
@@ -59,6 +78,9 @@ test("real recordings appear first; masked quiz retries and completes without re
     .getByRole("button", { name: "Әнді ашу · Қазақстанның Әнұраны" })
     .click();
   await expect(page.locator("iframe")).toHaveAttribute("src", /ZZnvsrlZkOA/);
+  await expect(
+    page.locator(".song-real-player .song-karaoke-captions"),
+  ).toHaveAttribute("data-playing", "true");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth > innerWidth,

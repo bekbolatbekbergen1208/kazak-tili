@@ -1,10 +1,22 @@
 "use client";
 import Link from "next/link";
 import { TimedSongFind } from "./timed-find";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { KaraokeSubtitles } from "./karaoke-subtitles";
 import type { RealSong } from "@/lib/songs/real-songs";
 import { maskedSongLine } from "@/lib/songs/practice";
+
+type YouTubePlayer = { getCurrentTime(): number; destroy(): void };
+type YouTubeApi = {
+  Player: new (
+    element: HTMLIFrameElement,
+    options: {
+      events: {
+        onStateChange: (event: { data: number }) => void;
+      };
+    },
+  ) => YouTubePlayer;
+};
 
 export function RealSongSession({
   song,
@@ -13,6 +25,7 @@ export function RealSongSession({
   song: RealSong;
   mode?: string;
 }) {
+  const videoRef = useRef<HTMLIFrameElement>(null);
   const [started, setStarted] = useState(false);
   const [time, setTime] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -25,6 +38,51 @@ export function RealSongSession({
     .split(/\s+/)
     [excerpt.token].replace(/[^\p{L}\p{N}]/gu, "");
   const done = step >= song.excerpts.length;
+  useEffect(() => {
+    if (!started || (song.audio && !audioFailed)) return;
+    let player: YouTubePlayer | null = null;
+    let timeTimer: number | null = null;
+    let attempts = 0;
+    const scriptId = "qazaqdos-youtube-iframe-api";
+    if (
+      !(window as typeof window & { YT?: YouTubeApi }).YT?.Player &&
+      !document.getElementById(scriptId)
+    ) {
+      const script = document.createElement("script");
+      script.id = scriptId;
+      script.src = "https://www.youtube.com/iframe_api";
+      script.async = true;
+      document.head.appendChild(script);
+    }
+    const setupTimer = window.setInterval(() => {
+      const api = (window as typeof window & { YT?: YouTubeApi }).YT;
+      if (!api?.Player || !videoRef.current) {
+        if (++attempts >= 150) window.clearInterval(setupTimer);
+        return;
+      }
+      window.clearInterval(setupTimer);
+      player = new api.Player(videoRef.current, {
+        events: {
+          onStateChange: (event) => {
+            const playingNow = event.data === 1;
+            setPlaying(playingNow);
+            if (timeTimer) window.clearInterval(timeTimer);
+            timeTimer = playingNow
+              ? window.setInterval(() => {
+                  if (player) setTime(player.getCurrentTime());
+                }, 250)
+              : null;
+          },
+        },
+      });
+    }, 100);
+    return () => {
+      window.clearInterval(setupTimer);
+      if (timeTimer) window.clearInterval(timeTimer);
+      player?.destroy();
+      setPlaying(false);
+    };
+  }, [started, audioFailed, song.audio]);
   return (
     <div className="page song-page song-real-page">
       <Link href="/learn/songs?demo=1">← Әндерге оралу</Link>
@@ -73,7 +131,8 @@ export function RealSongSession({
         ) : (
           <iframe
             title={`${song.title} — нақты орындау`}
-            src={`https://www.youtube-nocookie.com/embed/${song.video}?autoplay=1&rel=0`}
+            ref={videoRef}
+            src={`https://www.youtube-nocookie.com/embed/${song.video}?autoplay=1&rel=0&enablejsapi=1`}
             allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
             allowFullScreen
             referrerPolicy="strict-origin-when-cross-origin"
