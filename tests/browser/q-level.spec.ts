@@ -8,6 +8,12 @@ async function prepare(page: import("@playwright/test").Page) {
   await page.addInitScript((s) => {
     localStorage.setItem("qazaqdos-learning-demo-v1", JSON.stringify(s));
     sessionStorage.setItem("qd-demo", "1");
+    // Unit-speed playback stub: grading flow is tested here; native MP3 decoding is tested in listening.spec.
+    Object.defineProperty(window, "Audio", { value: class {
+      onended?: () => void;
+      play() { setTimeout(() => this.onended?.(), 10); return Promise.resolve(); }
+      pause() {}
+    }});
     Object.defineProperty(window, "SpeechSynthesisUtterance", {
       value: class {
         constructor(public text: string) {}

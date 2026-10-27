@@ -1,7 +1,7 @@
 "use client";
 import { activeSkills as skills } from "@/lib/q-level/config";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -57,6 +57,7 @@ export default function QLevelHub({ screen = "" }: { screen?: string }) {
     [optIn, setOptIn] = useState(false);
   const r = showDemo ? demoHistory.at(-1)! : q.result;
   const history = showDemo ? demoHistory : q.history;
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const current = q.question;
   const lessons = Object.values(state.progress.lessons).filter(
     (x) => x.completedAt,
@@ -68,7 +69,9 @@ export default function QLevelHub({ screen = "" }: { screen?: string }) {
     setPlays(0);
     setAudioError("");
     setPlaying(false);
-    window.speechSynthesis?.cancel();
+    audioRef.current?.pause();
+    audioRef.current = null;
+    return () => { audioRef.current?.pause(); audioRef.current = null; };
   }, [current?.id]);
   useEffect(() => () => window.speechSynthesis?.cancel(), []);
   async function start(type: "quick" | "full") {
@@ -80,42 +83,31 @@ export default function QLevelHub({ screen = "" }: { screen?: string }) {
     setAudioError("");
     const s = await q.action({ action: "audio", questionId: current.id });
     if (!s) return;
-    if (s.audioUrl) {
-      const a = new Audio(s.audioUrl);
-      setPlaying(true);
-      a.onended = () => setPlaying(false);
-      a.onerror = () => {
-        setPlaying(false);
-        setAudioError("Аудио ашылмады.");
-      };
-      await a.play().catch(() => {
-        setPlaying(false);
-        setAudioError("Аудионы ойнату мүмкін емес.");
-      });
-    } else {
-      const voice = window.speechSynthesis
-        ?.getVoices()
-        .find((v) => v.lang.toLowerCase().startsWith("kk"));
-      if (!voice) {
-        setAudioError(
-          "Құрылғыда қазақша дауыс жоқ. Тыңдалымға жауап беру үшін қазақша жүйелік дауысты қосыңыз. Жауапты болжауға міндетті емессіз.",
-        );
-        return;
-      }
-      const u = new SpeechSynthesisUtterance(s.speechText);
-      u.lang = "kk-KZ";
-      u.voice = voice;
-      u.rate = 0.85;
-      u.onend = () => setPlaying(false);
-      u.onerror = () => {
-        setPlaying(false);
-        setAudioError("Дауыс ойнатылмады.");
-      };
-      setPlaying(true);
-      window.speechSynthesis.speak(u);
+    if (!s.audioUrl) {
+      setAudioError("Бұл сұрақтың аудиосы қолжетімсіз. Аудионы өткізуге болады.");
+      return;
     }
-    setPlays((n) => n + 1);
+    audioRef.current?.pause();
+    const a = new Audio(s.audioUrl);
+    audioRef.current = a;
+    setPlaying(true);
+    a.onended = () => {
+      if (audioRef.current !== a) return;
+      setPlaying(false);
+      setPlays(n => n + 1);
+    };
+    a.onerror = () => {
+      if (audioRef.current !== a) return;
+      setPlaying(false);
+      setAudioError("Аудио ашылмады. Қайта көр немесе аудионы өткіз.");
+    };
+    await a.play().catch(() => {
+      if (audioRef.current !== a) return;
+      setPlaying(false);
+      setAudioError("Аудионы ойнату мүмкін емес. Қайта көр немесе аудионы өткіз.");
+    });
   }
+
   async function share() {
     if (!r) return;
     try {
@@ -402,7 +394,7 @@ export default function QLevelHub({ screen = "" }: { screen?: string }) {
                 <span className="ql-chip">
                   <Headphones size={18} />{" "}
                   {screen === "full"
-                    ? "4 бөлім · 22 тапсырма"
+                    ? "6 дағды · 22 тапсырма"
                     : "5–7 минут · 16 тапсырма"}
                 </span>
                 <h2>
@@ -417,11 +409,11 @@ export default function QLevelHub({ screen = "" }: { screen?: string }) {
                 <ul>
                   <li>Қиындық жауаптарыңа бейімделеді.</li>
                   <li>
-                    Оқылым, сөздік қор және грамматика бағаланады.
+                    Тыңдалым, оқылым, сөздік қор және грамматика бағаланады.
                   </li>
                   <li>Айтылым мен жазылым үшін бөлек бағалау қажет.</li>
                   <li>
-                    Тыңдалым уақытша өшірілген және осы тестте бағаланбайды.
+                    Айгүл мен Дәулеттің AI аудиосын тыңда. Аудио ашылмаса, оны ұпай жоғалтпай өткізуге болады.
                   </li>
                 </ul>
                 <button

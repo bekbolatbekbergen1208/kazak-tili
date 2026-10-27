@@ -68,5 +68,12 @@ export function courseTasks(lesson: CourseLesson): Task[] {
       answer: lesson.sentence,
       hint: "Қазақ әріптеріне назар аудар: ә, ғ, қ, ң, ө, ұ, ү, һ, і.",
     },
+    {
+      kind: "listening",
+      title: "Аудионы тыңдап, дұрыс мағынасын таңда",
+      options: placeAnswer(lesson.translation, wrongTranslations, lesson.id + 2),
+      answer: lesson.translation,
+      hint: "Әрекет пен зат атауын тыңдап ажырат. Қажет болса аудионы қайта тыңда.",
+    },
   ];
 }

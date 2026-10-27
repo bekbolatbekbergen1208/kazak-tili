@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Exercise } from "@/lib/learning/types";
 import { isCorrect } from "@/lib/learning/state";
 import { localized } from "@/lib/learning/languages";
+import { RecordedPhrase } from "@/components/listening/recorded-phrase";
 import { useLearning } from "./provider";
 export function ExerciseView({
   exercise: e,
@@ -24,7 +25,8 @@ export function ExerciseView({
     [seconds, setSeconds] = useState(30),
     [voice, setVoice] = useState(""),
     [listening, setListening] = useState(false),
-    [hint, setHint] = useState(false);
+    [hint, setHint] = useState(false),
+    [heard, setHeard] = useState(false);
   const recognition =
       useRef<
         NonNullable<Window["SpeechRecognition"]> extends new () => infer R
@@ -53,6 +55,7 @@ export function ExerciseView({
     },
     [],
   );
+  useEffect(() => { setHeard(false); }, [e.id]);
   const options = e.options
     ? [...e.options].sort((a, b) => {
         const hash = (s: string) =>
@@ -82,40 +85,6 @@ export function ExerciseView({
         : e.kind === "open"
           ? value.trim().length >= 12
           : !!value.trim();
-  function speak() {
-    if (!("speechSynthesis" in window)) {
-      setVoice(
-        t(
-          "Озвучивание недоступно. Прочитайте фразу ниже.",
-          "Audio is unavailable. Read the phrase below.",
-        ),
-      );
-      setRevealed(true);
-      return;
-    }
-    const voices = window.speechSynthesis.getVoices(),
-      kazakh = voices.find((v) => v.lang.toLowerCase().startsWith("kk"));
-    if (!kazakh) {
-      setVoice(
-        t(
-          "В браузере нет казахского голоса. Доступен текстовый вариант.",
-          "No Kazakh voice is installed. A text alternative is available.",
-        ),
-      );
-      setRevealed(true);
-      return;
-    }
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(e.audio ?? e.example);
-    u.lang = "kk-KZ";
-    u.voice = kazakh;
-    u.rate = 0.85;
-    u.onerror = () => {
-      setVoice(t("Не удалось воспроизвести звук.", "Could not play audio."));
-      setRevealed(true);
-    };
-    window.speechSynthesis.speak(u);
-  }
   function record() {
     const R = window.SpeechRecognition ?? window.webkitSpeechRecognition;
     if (!R) {
@@ -208,9 +177,7 @@ export function ExerciseView({
       )}
       {(e.kind === "listening" || e.kind === "speaking") && (
         <div className="qd-actions">
-          <button className="btn ghost" type="button" onClick={speak}>
-            🔊 {t("Послушать", "Listen")}
-          </button>
+          <RecordedPhrase key={e.id} text={e.audio ?? e.example} onHeard={setHeard} />
           <button className="btn ghost" onClick={() => setRevealed(!revealed)}>
             {t("Текст фразы", "Phrase transcript")}
           </button>
@@ -242,7 +209,7 @@ export function ExerciseView({
       <form
         onSubmit={(ev) => {
           ev.preventDefault();
-          if (!feedback && valid) {
+          if (!feedback && valid && (e.kind !== "listening" || heard)) {
             sent.current = true;
             onSubmit(response);
           }
@@ -372,7 +339,7 @@ export function ExerciseView({
         </fieldset>
         {!feedback && (
           <div className="qd-actions">
-            <button className="btn primary" disabled={disabled || !valid}>
+            <button className="btn primary" disabled={disabled || !valid || (e.kind === "listening" && !heard)}>
               {t("Проверить", "Check answer")}
             </button>
             {state.progress.inventory.includes("hint") && (

@@ -239,7 +239,7 @@ export async function POST(req: Request) {
       if (q?.skill !== "listening") return fail("Аудио сұрақ емес.");
       return NextResponse.json({
         audioUrl: q.audio_url ?? null,
-        speechText: q.text_content,
+        // Transcripts are available only in completed review.
       });
     }
     const elapsed = Math.max(0, (Date.now() - Date.parse(a.updatedAt)) / 1000);

@@ -7,16 +7,15 @@ import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
-  Headphones,
   Keyboard,
   Lightbulb,
   Lock,
   RotateCcw,
-  Volume2,
 } from "lucide-react";
 import { type CourseLesson } from "@/lib/curriculum";
 import { completeLesson, useLessonProgress } from "@/lib/lesson-progress";
 import { courseTasks } from "@/lib/learning/course-tasks";
+import { RecordedPhrase } from "./listening/recorded-phrase";
 import LessonScene from "./lesson-scene";
 
 type ErrorItem = { step: number; given: string; expected: string };
@@ -40,42 +39,17 @@ export default function GenericLesson({ lesson }: { lesson: CourseLesson }) {
   const [errors, setErrors] = useState<ErrorItem[]>([]);
   const [review, setReview] = useState(false);
   const [done, setDone] = useState(false);
-  const [audioError, setAudioError] = useState("");
+  const [heard, setHeard] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const task = tasks[step];
   const correct = normalize(value) === normalize(task.answer);
 
-  useEffect(() => () => window.speechSynthesis?.cancel(), []);
   useEffect(() => {
     if (progressReady && lesson.id > unlockedLesson) router.replace("/student");
   }, [lesson.id, progressReady, router, unlockedLesson]);
 
-  function speak() {
-    if (!("speechSynthesis" in window)) {
-      setAudioError("Бұл браузер дыбысты ойнатуды қолдамайды.");
-      return;
-    }
-    const voice = window.speechSynthesis
-      .getVoices()
-      .find((v) => /^kk(?:-|$)/i.test(v.lang));
-    if (!voice) {
-      setAudioError("Қазақша жүйелік дауыс жоқ. Мәтінді оқып жаттыға аласың.");
-      return;
-    }
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(lesson.sentence);
-    utterance.lang = "kk-KZ";
-    utterance.voice = voice;
-    utterance.rate = 0.82;
-    utterance.pitch = 1;
-    utterance.onerror = () =>
-      setAudioError("Дыбысты ойнату мүмкін болмады. Қайта басып көр.");
-    utterance.onstart = () => setAudioError("");
-    window.speechSynthesis.speak(utterance);
-  }
-
   function check() {
-    if (!value.trim()) return;
+    if (!value.trim() || (task.kind === "listening" && !heard)) return;
     setChecked(true);
     if (!correct)
       setErrors((current) => [
@@ -85,8 +59,8 @@ export default function GenericLesson({ lesson }: { lesson: CourseLesson }) {
   }
 
   function next() {
-    window.speechSynthesis?.cancel();
     if (step < tasks.length - 1) {
+      setHeard(false);
       setStep((current) => current + 1);
       setValue("");
       setChecked(false);
@@ -101,6 +75,7 @@ export default function GenericLesson({ lesson }: { lesson: CourseLesson }) {
 
   function retry() {
     const first = errors[0]?.step ?? 0;
+    setHeard(false);
     setStep(first);
     setErrors([]);
     setValue("");
@@ -199,23 +174,7 @@ export default function GenericLesson({ lesson }: { lesson: CourseLesson }) {
         <LessonScene lesson={lesson} step={step} />
         <h1>{task.title}</h1>
         {task.prompt && <blockquote>{task.prompt}</blockquote>}
-        {task.kind === "listening" && (
-          <div className="listeningPlayer">
-            <Headphones />
-            <div>
-              <b>Қазақша аудио</b>
-              <span>Сөйлемді мұқият тыңда</span>
-            </div>
-            <button type="button" onClick={speak} aria-label="Сөйлемді тыңдау">
-              <Volume2 /> Тыңдау
-            </button>
-          </div>
-        )}
-        {audioError && (
-          <p className="audioError" role="alert">
-            {audioError}
-          </p>
-        )}
+        {task.kind === "listening" && <RecordedPhrase key={`${lesson.id}-${step}`} text={lesson.sentence} onHeard={setHeard} />}
         {showHint && (
           <div className="dosshaHint" role="status">
             <Lightbulb />
@@ -285,7 +244,7 @@ export default function GenericLesson({ lesson }: { lesson: CourseLesson }) {
                 <Lightbulb /> {showHint ? "Көмекті жасыру" : "Көмек"}
               </button>
               <button
-                disabled={!value.trim()}
+                disabled={!value.trim() || (task.kind === "listening" && !heard)}
                 onClick={check}
                 className="btn primary"
               >

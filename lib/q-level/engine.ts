@@ -10,10 +10,12 @@ import {
   type Result,
   type SkillResult,
 } from "./types";
-import { productionQuestion, questionBank, legacyQuestionBank } from "./questions";
+import { productionQuestion, questionBank, legacyQuestionBank, descriptorQuestionBank } from "./questions";
 import { methodologyVersion } from "./methodology";
 import { gradeQuestion } from "./grading";
 import { listeningEnabled, objectiveSkills } from "./config";
+const bankFor = (a: Attempt) => !a.methodologyVersion ? legacyQuestionBank : a.methodologyVersion === "descriptor-pilot-2026-10" ? descriptorQuestionBank : questionBank;
+const skillsFor = (a: Attempt) => a.methodologyVersion === "descriptor-pilot-2026-10" ? objectiveSkills.filter(s => s !== "listening") : objectiveSkills;
 export const scoreLevel = (n: number): Level =>
   n >= 85 ? "C1" : n >= 65 ? "B2" : n >= 45 ? "B1" : n >= 25 ? "A2" : "A1";
 export function shuffle<T>(items: readonly T[], random = Math.random): T[] {
@@ -45,9 +47,10 @@ export function nextQuestion(
       n === 20 ? "writing" : "speaking",
       scoreLevel(10 + a.ability * 20),
     );
-  const skill = objectiveSkills[n % objectiveSkills.length];
+  const rotation = skillsFor(a);
+  const skill = rotation[n % rotation.length];
   const used = new Set(a.answers.map((x) => x.questionId));
-  const candidates = (a.methodologyVersion ? questionBank : legacyQuestionBank).filter(
+  const candidates = bankFor(a).filter(
     (q) => q.skill === skill && !used.has(q.id),
   );
   const fresh = candidates.filter((q) => !excluded.includes(q.id));
@@ -80,15 +83,15 @@ export function startAttempt(
   return a;
 }
 export function resumeAttempt(a: Attempt): Attempt {
-  if (a.completed || listeningEnabled || getQuestion(a)?.skill !== "listening") return a;
+  if (a.completed || (listeningEnabled && a.methodologyVersion !== "descriptor-pilot-2026-10") || getQuestion(a)?.skill !== "listening") return a;
   const used = new Set(a.answers.map(x => x.questionId));
-  const replacement = (a.methodologyVersion ? questionBank : legacyQuestionBank).filter(q => q.skill === "reading" && !used.has(q.id))
+  const replacement = bankFor(a).filter(q => q.skill === "reading" && !used.has(q.id))
     .sort((x,y) => Math.abs(x.difficulty-a.ability)-Math.abs(y.difficulty-a.ability) || x.id.localeCompare(y.id))[0];
   return replacement ? { ...a, questionId: replacement.id } : a;
 }
 export function getQuestion(a: Attempt): Question | undefined {
   return (
-    (a.methodologyVersion ? questionBank : legacyQuestionBank).find((q) => q.id === a.questionId) ??
+    bankFor(a).find((q) => q.id === a.questionId) ??
     (a.questionId?.startsWith("writing-")
       ? productionQuestion("writing", a.questionId.slice(8) as Level)
       : a.questionId?.startsWith("speaking-")

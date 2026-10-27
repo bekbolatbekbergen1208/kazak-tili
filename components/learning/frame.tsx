@@ -18,6 +18,7 @@ import {
   Users,
   ScanLine,
   Music,
+  Headphones,
   Menu,
   X,
 } from "lucide-react";
@@ -46,6 +47,7 @@ export function LearningFrame({ children }: { children: React.ReactNode }) {
     ["/learn/map", Compass, t("Мой маршрут", "My path")],
     ["/learn/books", BookOpen, "Кітап әлемі"],
     ["/learn/songs", Music, "Әнмен үйрен"],
+    ["/learn/listening", Headphones, "Тыңдап үйрен"],
     ["/learn/literature", BookOpen, "Әдебиетпен үйрен"],
     ["/learn/vocabulary", BookOpen, "Менің сөз қорым"],
     ["/learn/writing-coach", MessageCircle, "Жазу көмекшісі"],

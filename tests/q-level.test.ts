@@ -87,7 +87,7 @@ test("full exam has four active stages; no fabricated writing or speaking score"
 test("unavailable listening can be skipped without being treated as a wrong answer", () => {
   let a = startAttempt("quick");
   a.questionId = questionBank.find(q => q.skill === "listening")!.id;
-  assert.equal(getQuestion(resumeAttempt(a))!.skill, "reading");
+  assert.equal(getQuestion(resumeAttempt(a))!.skill, "listening");
   a = submitAnswer(a, "__SKIP__", 10);
   assert.equal(a.answers[0].correct, null);
   assert.equal(calculate(a).skills.listening.score, null);
@@ -162,13 +162,19 @@ test("reusable grading handles choice sets, matching, ordering and normalized sh
   );
 });
 
-test("new tests omit listening and keep it unassessed", () => {
+test("new tests assess recorded listening; previous descriptor attempts retain their skill rotation", () => {
   let a = startAttempt("full");
   while (!a.completed) {
     const q = getQuestion(a)!;
-    assert.notEqual(q.skill, "listening");
     a = submitAnswer(a, q.correct_answer ? String(q.correct_answer) : "Өткізу", 3);
   }
-  assert.equal(a.result!.skills.listening.score, null);
-  assert.equal(a.result!.skills.listening.count, 0);
+  assert.ok(a.result!.skills.listening.score !== null);
+  assert.equal(a.result!.skills.listening.count, 5);
+  let old: import("../lib/q-level/types").Attempt = { ...startAttempt("full"), methodologyVersion: "descriptor-pilot-2026-10", questionId: "q-1" };
+  while (!old.completed) {
+    const q = getQuestion(old)!;
+    assert.notEqual(q.skill, "listening");
+    old = submitAnswer(old, q.correct_answer ? String(q.correct_answer) : "Өткізу", 3);
+  }
+  assert.equal(old.result!.skills.listening.score, null);
 });

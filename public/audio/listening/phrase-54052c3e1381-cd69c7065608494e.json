@@ -1,0 +1,9 @@
+{
+  "provider": "edge-tts",
+  "sourceHash": "cd69c7065608494e",
+  "voices": [
+    "kk-KZ-AigulNeural"
+  ],
+  "sha256": "49e160cc8a23a23824156928191c1215f01b34a95d2f17091c57db34796589df",
+  "bytes": 98540
+}

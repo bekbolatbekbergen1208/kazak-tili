@@ -6,7 +6,7 @@ import { startAttempt, getQuestion, submitAnswer, publicQuestion } from "../lib/
 import { resultDocument } from "../lib/q-level/report";
 test("active items have traceable pilot mappings without claiming C1 or exposing answer keys", () => {
   const sourceIds = new Set<string>(assessmentSources.map(s => s.id));
-  for (const q of questionBank.filter(q => q.skill !== "listening")) {
+  for (const q of questionBank) {
     assert.ok(q.alignment?.objective);
     assert.equal(q.alignment?.status, "pilot-unvalidated");
     assert.equal(q.alignment?.targetBand, q.level);

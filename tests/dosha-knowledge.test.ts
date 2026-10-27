@@ -58,7 +58,7 @@ test("every catalog exercise is indexed with a readable answer", () => {
   const sources = exerciseKnowledge();
   const expected =
     6 +
-    courseLessons.length * 4 +
+    courseLessons.length * 5 +
     lessons.reduce((n, l) => n + l.exercises.length, 0) +
     regions.reduce((n, r) => n + r.games.quiz.length, 0) +
     historyCities.reduce((n, c) => n + c.tasks.length, 0) +

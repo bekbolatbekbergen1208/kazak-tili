@@ -1,3 +1,4 @@
+import qAudio from "../listening/q-level-assets.json";
 import type { Question, Skill, Level } from "./types";
 import { questionAlignment } from "./methodology";
 // Original editorial seed bank. Kept separate from the UI and never sent with answer keys.
@@ -357,7 +358,7 @@ export const questionBank: Question[] = rows.map(
   ([skill, level, question, options, correct_answer, text_content], i) => ({
     id: `q-${i + 1}`,
     skill,
-    level,
+    level: skill === "listening" && level === "C1" ? "B2" : level,
     type:
       skill === "listening"
         ? "audio"
@@ -368,14 +369,20 @@ export const questionBank: Question[] = rows.map(
     options,
     correct_answer,
     text_content,
-    difficulty: ["A1", "A2", "B1", "B2", "C1"].indexOf(level),
-    tags: [skill, level, "pilot-unvalidated"],
-    alignment: questionAlignment(`q-${i + 1}`, skill, level),
+    audio_url: skill === "listening" && text_content ? (qAudio as Record<string, { url: string }>)[`q-${i + 1}`]?.url : undefined,
+    difficulty: ["A1", "A2", "B1", "B2", "C1"].indexOf(skill === "listening" && level === "C1" ? "B2" : level),
+    tags: [skill, skill === "listening" && level === "C1" ? "B2" : level, "pilot-unvalidated"],
+    alignment: questionAlignment(`q-${i + 1}`, skill, skill === "listening" && level === "C1" ? "B2" : level),
     explanation: `Дұрыс жауап: ${correct_answer}. ${text_content ?? question}`,
   }),
 );
+// Retain the previous descriptor revision for in-flight attempts.
+export const descriptorQuestionBank: Question[] = questionBank.map((q, i) => ({ ...q,
+  ...(i >= 38 ? { level: "C1" as const, difficulty: 4 } : {}),
+  alignment: q.skill === "listening" ? undefined : q.alignment ? { ...q.alignment, version: "descriptor-pilot-2026-10" } : undefined,
+}));
 // Reproduce the already-published bank for attempts started before this revision.
-export const legacyQuestionBank: Question[] = questionBank.map((q, i) => {
+export const legacyQuestionBank: Question[] = descriptorQuestionBank.map((q, i) => {
   const oldLevel = i === 6 || i === 7 ? "B2" : [8,9,18,19,28,29].includes(i) ? "C1" : q.level;
   const { alignment, ...old } = q;
   void alignment;

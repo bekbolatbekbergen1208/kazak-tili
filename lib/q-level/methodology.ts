@@ -1,7 +1,7 @@
 import type { Level, Skill } from "./types";
-export const methodologyVersion = "descriptor-pilot-2026-10";
+export const methodologyVersion = "descriptor-audio-pilot-2026-10";
 export const assessmentSources = [
-  { id: "cefr2020", author: "Council of Europe", year: "2020", title: "CEFR — Companion volume", url: "https://rm.coe.int/cefr-companion-volume-with-new-descriptors-2020/16809ea0d4", use: "Оқылым және тілдік құзырет шкалалары; тапсырманың қандай әрекетті өлшейтінін сипаттау." },
+  { id: "cefr2020", author: "Council of Europe", year: "2020", title: "CEFR — Companion volume", url: "https://rm.coe.int/cefr-companion-volume-with-new-descriptors-2020/16809ea0d4", use: "Тыңдалым, оқылым және тілдік құзырет шкалалары; тапсырманың қандай әрекетті өлшейтінін сипаттау." },
   { id: "qaztest2023", author: "Ұлттық тестілеу орталығы", year: "2023", title: "Қазақ тілін меңгеру деңгейлерінің сипаттамалары", url: "https://testcenter.kz/?page_id=23654", use: "Қазақ тіліндегі коммуникативтік мазмұнды жоспарлау. ҚАЗТЕСТ тапсырмалары көшірілген жоқ." },
   { id: "alte2011", author: "ALTE / Council of Europe", year: "2011", title: "Manual for Language Test Development and Examining", url: "https://rm.coe.int/1680667a2b", use: "Спецификация, сараптау, пилоттау, сенімділік пен әділдікті тексеру үдерісі." },
 ] as const;
@@ -24,15 +24,16 @@ const objectives = [
 ] as const;
 export function questionAlignment(id: string, skill: Skill, level: Level) {
   const index = Number(id.replace("q-", "")) - 1;
-  const objective = objectives[index];
-  if (!objective || skill === "listening") return undefined;
+  const listeningObjectives = ["Таныстырудан адамның атын анықтау", "Өтініштен санды анықтау", "Бағыт сұраудан межелі орынды табу", "Уәде берілген уақытты анықтау", "Кездесудің өзгеру себебін анықтау", "Әңгімеден өзгерген әдетті тану", "Ұсыныстың негізгі ойын анықтау", "Пікірдегі шарт пен сақтықты тану", "Мүдде мен сенімділіктің байланысын тану", "Тиімділік пен теңдік туралы қорытындыны тану"];
+  const objective = skill === "listening" ? listeningObjectives[index - 30] : objectives[index];
+  if (!objective) return undefined;
   return {
     version: methodologyVersion,
     objective,
     targetBand: level,
     status: "pilot-unvalidated" as const,
-    cefrScale: skill === "reading" ? "3.1.1.3 Reading comprehension, pp. 53–58" : skill === "grammar" ? "5.1 Grammatical accuracy, p. 132" : "5.1 Vocabulary range / control, pp. 131–132",
+    cefrScale: skill === "listening" ? "3.1.1.1 Oral comprehension, pp. 48–52" : skill === "reading" ? "3.1.1.3 Reading comprehension, pp. 53–58" : skill === "grammar" ? "5.1 Grammatical accuracy, p. 132" : "5.1 Vocabulary range / control, pp. 131–132",
     sourceIds: ["cefr2020", "qaztest2023", "alte2011"],
-    limitation: skill === "reading" ? "Қысқа мәтін үлгісі ғана; толық деңгейдің дәлелі емес." : "Дұрыс нұсқаны тануды өлшейді; еркін сөйлеу мен жазуды бағаламайды.",
+    limitation: skill === "listening" ? "Қысқа синтетикалық аудио ғана; табиғи сөйлеу, акценттер мен толық деңгей әлі тексерілген жоқ." : skill === "reading" ? "Қысқа мәтін үлгісі ғана; толық деңгейдің дәлелі емес." : "Дұрыс нұсқаны тануды өлшейді; еркін сөйлеу мен жазуды бағаламайды.",
   };
 }
