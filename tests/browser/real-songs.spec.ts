@@ -109,11 +109,19 @@ test("karaoke dot follows audio play and pause beneath the player", async ({
   const captions = player.locator(".song-karaoke-captions");
   await expect(player.locator("audio")).toBeVisible();
   await expect(captions).toHaveAttribute("data-playing", "true");
-  await expect(captions.locator(".song-karaoke-ball")).toBeVisible();
+  const ball = captions.locator(".song-karaoke-ball");
+  await expect(ball).toBeVisible();
+  const startX = await ball.evaluate((element) => element.getBoundingClientRect().x);
+  await page.waitForTimeout(900);
+  const movingX = await ball.evaluate((element) => element.getBoundingClientRect().x);
+  expect(movingX).toBeGreaterThan(startX + 10);
   await player
     .locator("audio")
     .evaluate((audio: HTMLAudioElement) => audio.pause());
   await expect(captions).not.toHaveAttribute("data-playing", "true");
+  const pausedX = await ball.evaluate((element) => element.getBoundingClientRect().x);
+  await page.waitForTimeout(400);
+  expect(await ball.evaluate((element) => element.getBoundingClientRect().x)).toBeCloseTo(pausedX, 0);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth > innerWidth,
