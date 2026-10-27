@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Mic, Square, Trash2, Music2, Play, RotateCcw } from "lucide-react";
 import type { SongLesson } from "@/lib/songs/types";
+import { KaraokeSubtitles } from "./karaoke-subtitles";
 type Recognition = {
   lang: string;
   continuous: boolean;
@@ -25,6 +26,8 @@ export function SongPlayer({
   const audio = useRef<HTMLAudioElement>(null),
     [active, setActive] = useState(-1),
     [rate, setRate] = useState(1),
+    [time, setTime] = useState(0),
+    [playing, setPlaying] = useState(false),
     [error, setError] = useState(""),
     [failed, setFailed] = useState(false);
   const seek = (i: number) => {
@@ -51,12 +54,18 @@ export function SongPlayer({
             controls
             preload="metadata"
             src={lesson.audio.src}
+            onPlay={() => setPlaying(true)}
+            onPause={() => setPlaying(false)}
+            onEnded={() => setPlaying(false)}
+            onSeeked={(event) => setTime(event.currentTarget.currentTime)}
             onError={() => {
+              setPlaying(false);
               setFailed(true);
               setError("Аудиофайл ашылмады. Мәтінмен жаттығуды жалғастыр.");
             }}
             onTimeUpdate={() => {
               const time = audio.current?.currentTime ?? 0;
+              setTime(time);
               if (segmentEnd.current !== null && time >= segmentEnd.current) {
                 audio.current?.pause();
                 segmentEnd.current = null;
@@ -70,6 +79,11 @@ export function SongPlayer({
                 ),
               );
             }}
+          />
+          <KaraokeSubtitles
+            lines={lesson.lyrics}
+            time={time}
+            playing={playing}
           />
           <div className="song-media-tools">
             <button

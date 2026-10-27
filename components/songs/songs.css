@@ -1113,13 +1113,34 @@
 .song-line-number {
   flex: 0 0 22px;
   font-size: 12px;
-  opacity: .6;
+  opacity: 0.6;
 }
-.song-line-solved { margin-left: auto; color: #15803d; }
-.song-real-player audio { display: block; width: 100%; margin: 20px 0; }
-.song-real-player iframe { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 16px; display: block; margin: 20px 0; }
-.song-real-player > a { display: block; margin-top: 12px; font-size: 13px; }
-.song-answer-wrong { border-color: #b45309; color: #92400e; }
+.song-line-solved {
+  margin-left: auto;
+  color: #15803d;
+}
+.song-real-player audio {
+  display: block;
+  width: 100%;
+  margin: 20px 0;
+}
+.song-real-player iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 16px;
+  display: block;
+  margin: 20px 0;
+}
+.song-real-player > a {
+  display: block;
+  margin-top: 12px;
+  font-size: 13px;
+}
+.song-answer-wrong {
+  border-color: #b45309;
+  color: #92400e;
+}
 .song-stt-consent label {
   display: flex;
   flex-direction: row;
@@ -1151,4 +1172,147 @@
   }
 }
 
-.song-full-text-input{display:block;width:100%;margin:12px 0;padding:12px;border:1px solid #cbd5e1;border-radius:12px;font:inherit}.song-timed-lyrics{max-height:360px;overflow:auto;margin:20px 0;padding:16px;background:#f8fafc;border-radius:16px}.song-timed-lyrics p{padding:10px;margin:0;line-height:1.7}.song-timed-lyrics [aria-current=step]{background:#e8eaff;border-radius:10px}.song-find form input{max-width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}
+.song-full-text-input {
+  display: block;
+  width: 100%;
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font: inherit;
+}
+.song-timed-lyrics {
+  max-height: 360px;
+  overflow: auto;
+  margin: 20px 0;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 16px;
+}
+.song-timed-lyrics p {
+  padding: 10px;
+  margin: 0;
+  line-height: 1.7;
+}
+.song-timed-lyrics [aria-current="step"] {
+  background: #e8eaff;
+  border-radius: 10px;
+}
+.song-find form input {
+  max-width: 100%;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.song-karaoke-captions {
+  width: 100%;
+  margin: 14px 0 18px;
+  padding: clamp(16px, 3vw, 24px);
+  border: 1px solid #d9dcfa;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #181d48, #33306f);
+  box-shadow: 0 12px 28px #25214d20;
+  color: #fff;
+  text-align: center;
+}
+.song-karaoke-captions-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #c7cef8;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.song-karaoke-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #a2a4b8;
+}
+.song-karaoke-captions[data-playing] .song-karaoke-live-dot {
+  background: #7df0cf;
+  box-shadow: 0 0 12px #7df0cf;
+}
+.song-karaoke-caption-line {
+  display: grid;
+  place-items: center;
+  min-height: 100px;
+  padding: 22px 10px 10px;
+  font-size: clamp(22px, 4vw, 36px);
+  font-weight: 800;
+  line-height: 1.4;
+}
+.song-karaoke-caption-track {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  padding-top: 14px;
+  overflow-wrap: anywhere;
+}
+.song-karaoke-caption-base {
+  color: #d5d9f4;
+}
+.song-karaoke-caption-fill {
+  position: absolute;
+  inset: 14px 0 0;
+  color: #fff1a4;
+  white-space: normal;
+  pointer-events: none;
+}
+.song-karaoke-ball {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffcf5c;
+  box-shadow:
+    0 0 0 4px #ffcf5c2b,
+    0 0 14px #ffcf5c;
+  transform: translateX(-50%);
+}
+.song-karaoke-captions[data-playing] .song-karaoke-ball {
+  animation: song-karaoke-bounce 650ms ease-in-out infinite;
+}
+.song-karaoke-caption-choices {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.song-karaoke-caption-choices button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #ffffff66;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+.song-karaoke-caption-choices button.active,
+.song-karaoke-caption-choices button:focus-visible {
+  background: #ffcf5c;
+  color: #20204e;
+}
+.song-karaoke-captions small,
+.song-karaoke-wait {
+  display: block;
+  margin-top: 10px;
+  color: #c7cef8;
+}
+@keyframes song-karaoke-bounce {
+  50% {
+    transform: translate(-50%, -7px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .song-karaoke-captions[data-playing] .song-karaoke-ball {
+    animation: none;
+  }
+}

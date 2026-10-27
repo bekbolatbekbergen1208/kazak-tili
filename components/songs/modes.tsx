@@ -14,6 +14,7 @@ import { songsOf } from "@/lib/songs/state";
 import { useLearning } from "@/components/learning/provider";
 import { useLanguage } from "@/components/literary/provider";
 import { SongRecorder } from "./media";
+import { KaraokeSubtitles } from "./karaoke-subtitles";
 export const modeTitles = {
   find: "Сөзді тап",
   karaoke: "Караоке",
@@ -39,6 +40,7 @@ export function SongModes({
     [active, setActive] = useState(-1),
     [manualLine, setManualLine] = useState(0),
     [time, setTime] = useState(0),
+    [playing, setPlaying] = useState(false),
     [rate, setRate] = useState(1),
     [waiting, setWaiting] = useState(false),
     [answer, setAnswer] = useState(""),
@@ -336,17 +338,23 @@ export function SongModes({
                 play();
               }
             }}
-            onPlay={armStop}
+            onPlay={() => {
+              setPlaying(true);
+              armStop();
+            }}
             onPause={() => {
+              setPlaying(false);
               if (timer.current) clearTimeout(timer.current);
             }}
             onSeeked={armStop}
             onRateChange={armStop}
             onEnded={() => {
+              setPlaying(false);
               pause();
               setWaiting(true);
             }}
             onError={() => {
+              setPlaying(false);
               pause();
               setFailed(true);
               setError("Аудио ашылмады. Мәтіндік жаттығу қолжетімді қалды.");
@@ -363,6 +371,11 @@ export function SongModes({
                 setWaiting(true);
               }
             }}
+          />
+          <KaraokeSubtitles
+            lines={lesson.lyrics}
+            time={time}
+            playing={playing}
           />
           <div className="song-media-tools">
             <button
@@ -425,7 +438,13 @@ export function SongModes({
       {!lesson.instrumental && (
         <p className="song-note">Аспаптық сүйемелдеу әлі жоқ.</p>
       )}
-      {mode === "find" && <TimedSongFind lines={lesson.lyrics.map(line => line.text)} audioSrc={ready ? src : undefined} timings={timed ? lesson.lyrics : undefined} />}
+      {mode === "find" && (
+        <TimedSongFind
+          lines={lesson.lyrics.map((line) => line.text)}
+          audioSrc={ready ? src : undefined}
+          timings={timed ? lesson.lyrics : undefined}
+        />
+      )}
       {mode === "find" && (
         <section className="panel song-find">
           <h2>Тыңдап, сөзді тап</h2>
@@ -448,21 +467,44 @@ export function SongModes({
           )}
           {task && (
             <>
-              <div className="song-listening-sheet" aria-label="Жасырылған сөздері бар ән мәтіні">
+              <div
+                className="song-listening-sheet"
+                aria-label="Жасырылған сөздері бар ән мәтіні"
+              >
                 {lesson.lyrics.map((line, lineIndex) => {
                   const puzzle = tasks.find((item) => item.line === lineIndex);
-                  const reveal = lineIndex < task.line ||
+                  const reveal =
+                    lineIndex < task.line ||
                     (lineIndex === task.line && feedback.startsWith("✓"));
                   return (
                     <p
                       key={lineIndex}
-                      className={lineIndex === task.line ? "song-current-line" : "song-neighbour-line"}
-                      aria-current={lineIndex === task.line ? "step" : undefined}
+                      className={
+                        lineIndex === task.line
+                          ? "song-current-line"
+                          : "song-neighbour-line"
+                      }
+                      aria-current={
+                        lineIndex === task.line ? "step" : undefined
+                      }
                       data-playing={active === lineIndex || undefined}
                     >
-                      <span className="song-line-number" aria-hidden="true">{String(lineIndex + 1).padStart(2, "0")}</span>
-                      <span>{puzzle ? maskedSongLine(line.text, puzzle.token, reveal) : line.text}</span>
-                      {puzzle && reveal && <span className="song-line-solved" aria-label="Сөз табылды">✓</span>}
+                      <span className="song-line-number" aria-hidden="true">
+                        {String(lineIndex + 1).padStart(2, "0")}
+                      </span>
+                      <span>
+                        {puzzle
+                          ? maskedSongLine(line.text, puzzle.token, reveal)
+                          : line.text}
+                      </span>
+                      {puzzle && reveal && (
+                        <span
+                          className="song-line-solved"
+                          aria-label="Сөз табылды"
+                        >
+                          ✓
+                        </span>
+                      )}
                     </p>
                   );
                 })}
