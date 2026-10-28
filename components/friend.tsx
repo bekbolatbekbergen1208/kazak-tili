@@ -6,7 +6,6 @@ import { WordActions } from "@/components/literary/word";
 import {
   Check,
   Mic,
-  MicOff,
   Send,
   ShieldCheck,
   Sparkles,
@@ -14,6 +13,7 @@ import {
   ThumbsUp,
 } from "lucide-react";
 import { Mascot } from "./icons";
+import { useDosshaVoice } from "./dossha-voice";
 import { Shell, StudentTop } from "./shell";
 import { interfaceLanguages, localized } from "@/lib/learning/languages";
 import { commonDictionary } from "@/components/learning/lesson-translator";
@@ -32,29 +32,6 @@ type Message = {
   interactionId?: string;
   rating?: "helpful" | "unhelpful";
 };
-type SpeechResultEvent = {
-  results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean }>;
-};
-type SpeechRecognitionLike = {
-  lang: string;
-  interimResults: boolean;
-  continuous: boolean;
-  start(): void;
-  stop(): void;
-  abort(): void;
-  onresult: ((event: SpeechResultEvent) => void) | null;
-  onerror: ((event: { error: string }) => void) | null;
-  onend: (() => void) | null;
-};
-type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
-
-declare global {
-  interface Window {
-    SpeechRecognition?: SpeechRecognitionConstructor;
-    webkitSpeechRecognition?: SpeechRecognitionConstructor;
-  }
-}
-
 const dictionary = commonDictionary;
 const greeting: Message = {
   me: false,
@@ -87,9 +64,7 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
   currentMessages.current = msgs;
   const [translatorLang, setTranslatorLang] = useState<InterfaceLanguage>("ru");
   const [translatorInput, setTranslatorInput] = useState("Саяхат");
-  const [isListening, setIsListening] = useState(false);
-  const [voiceError, setVoiceError] = useState("");
-  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const voice = useDosshaVoice(async (text) => send(text), language);
 
   async function send(text = value) {
     const message = text.trim();
@@ -146,6 +121,7 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
           ? "Соңғы 20 хабарлама аккаунтыңда сақталды."
           : "Бұл әңгіме әзірге осы бетте ғана сақталады.",
       );
+      return data.reply;
     } catch (error) {
       setMsgs(before);
       setValue(message);
@@ -200,7 +176,6 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
     return () => {
       window.clearTimeout(timeout);
       controller.abort();
-      recognitionRef.current?.abort();
       requestRef.current?.abort();
     };
   }, []);
@@ -208,62 +183,6 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
     const el = messagesRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [msgs, pending]);
-
-  function toggleVoice() {
-    if (isListening) {
-      recognitionRef.current?.stop();
-      return;
-    }
-
-    const Recognition =
-      window.SpeechRecognition ?? window.webkitSpeechRecognition;
-    if (!Recognition) {
-      setVoiceError(
-        "Бұл браузер дауысты танымайды. Chrome немесе Edge браузерін қолданып көр.",
-      );
-      return;
-    }
-
-    const recognition = new Recognition();
-    recognition.lang = "kk-KZ";
-    recognition.interimResults = true;
-    recognition.continuous = false;
-    recognitionRef.current = recognition;
-    setVoiceError("");
-
-    recognition.onresult = (event) => {
-      let transcript = "";
-      let isFinal = false;
-      for (let index = 0; index < event.results.length; index += 1) {
-        transcript += event.results[index][0].transcript;
-        isFinal ||= event.results[index].isFinal;
-      }
-      setValue(transcript);
-      if (isFinal && transcript.trim()) send(transcript);
-    };
-    recognition.onerror = (event) => {
-      const message =
-        event.error === "not-allowed"
-          ? "Микрофонға рұқсат берілмеді. Браузер баптауынан рұқсатты қос."
-          : event.error === "no-speech"
-            ? "Дауыс естілмеді. Микрофонды басып, қайта айтып көр."
-            : "Дауысты тану мүмкін болмады. Қайта айтып көр.";
-      setVoiceError(message);
-      setIsListening(false);
-    };
-    recognition.onend = () => {
-      setIsListening(false);
-      recognitionRef.current = null;
-    };
-
-    try {
-      recognition.start();
-      setIsListening(true);
-    } catch {
-      setVoiceError("Микрофонды іске қосу мүмкін болмады. Қайта басып көр.");
-      setIsListening(false);
-    }
-  }
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -326,8 +245,9 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
     <Wrapper>
       <div
         className="page friendPage"
+        aria-hidden={voice.opened}
         data-dossha-state={
-          isListening ? "listening" : pending ? "thinking" : "idle"
+          voice.isListening ? "listening" : pending ? "thinking" : "idle"
         }
       >
         <StudentTop
@@ -596,16 +516,6 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
                 </>
               )}
             </div>
-            {isListening && (
-              <div className="voiceStatus">
-                <i /> Тыңдап тұрмын… Қазақша сөйле
-              </div>
-            )}
-            {voiceError && (
-              <div className="voiceError" role="alert">
-                {voiceError}
-              </div>
-            )}
             {chatError && (
               <div className="voiceError" role="alert">
                 {chatError}
@@ -629,7 +539,7 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
                   }
                 }}
                 placeholder={
-                  isListening
+                  voice.isListening
                     ? "Сөйлей бер…"
                     : writingMode
                       ? "Түзететін мәтініңді жаз…"
@@ -638,16 +548,14 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
                 aria-label="Хабарлама"
               />
               <button
-                className={`voiceButton ${isListening ? "listening" : ""}`}
+                className="voiceButton"
                 type="button"
                 disabled={pending || !ready}
-                onClick={toggleVoice}
-                aria-label={
-                  isListening ? "Дауысты жазуды тоқтату" : "Дауыстық хабарлама"
-                }
-                title={isListening ? "Тоқтату" : "Дауыспен айту"}
+                onClick={voice.open}
+                aria-label="Досжанмен дауыспен сөйлесу"
+                title="Досжанмен дауыспен сөйлесу"
               >
-                {isListening ? <MicOff /> : <Mic />}
+                <Mic />
               </button>
               <button
                 type="submit"
@@ -664,6 +572,7 @@ export default function Friend({ embedded = false }: { embedded?: boolean }) {
           </section>
         </div>
       </div>
+      {voice.overlay}
     </Wrapper>
   );
 }

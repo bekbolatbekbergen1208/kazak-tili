@@ -1,4 +1,5 @@
 node_modules/
+.voice/
 .next/
 .DS_Store
 *.log

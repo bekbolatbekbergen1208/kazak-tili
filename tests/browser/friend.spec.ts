@@ -140,3 +140,195 @@ test("writing mode sends the selected genre and style", async ({ page }) => {
     style: "formal",
   });
 });
+
+test("voice screen speaks one caption at a time and returns the dialog to chat", async ({
+  page,
+}) => {
+  await page.route("**/api/dossha/voice", (route) =>
+    route.fulfill({ status: 503, json: { error: "unavailable" } }),
+  );
+  await page.addInitScript(() => {
+    const w = window as typeof window & {
+      __recognition?: {
+        onresult?: ((event: unknown) => void) | null;
+      };
+      __utterances?: Array<{ text: string; onend?: () => void }>;
+      __cancelled?: number;
+    };
+    class FakeRecognition {
+      lang = "";
+      interimResults = false;
+      continuous = false;
+      onresult: ((event: unknown) => void) | null = null;
+      onerror: ((event: unknown) => void) | null = null;
+      onend: (() => void) | null = null;
+      start() {
+        w.__recognition = this;
+      }
+      stop() {
+        this.onend?.();
+      }
+      abort() {
+        this.onend?.();
+      }
+    }
+    class FakeUtterance {
+      lang = "";
+      rate = 1;
+      voice = null;
+      onend: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      constructor(public text: string) {}
+    }
+    w.__utterances = [];
+    w.__cancelled = 0;
+    Object.defineProperty(window, "SpeechRecognition", {
+      configurable: true,
+      value: FakeRecognition,
+    });
+    Object.defineProperty(window, "SpeechSynthesisUtterance", {
+      configurable: true,
+      value: FakeUtterance,
+    });
+    Object.defineProperty(window, "speechSynthesis", {
+      configurable: true,
+      value: {
+        getVoices: () => [],
+        cancel: () => {
+          w.__cancelled = (w.__cancelled ?? 0) + 1;
+        },
+        speak: (utterance: { text: string; onend?: () => void }) => {
+          w.__utterances?.push(utterance);
+        },
+      },
+    });
+  });
+  await page.route("**/api/ai-friend", (route) => {
+    if (route.request().method() === "GET")
+      return route.fulfill({
+        json: { mode: "reference", signedIn: false, history: [] },
+      });
+    return route.fulfill({
+      json: {
+        mode: "reference",
+        reply: "Бірінші сөйлем. Екінші сөйлем.",
+        saved: false,
+      },
+    });
+  });
+  await page.goto("/student/friend");
+  await page
+    .getByRole("button", { name: "Досжанмен дауыспен сөйлесу" })
+    .click();
+  const dialog = page.getByRole("dialog", {
+    name: "Досжанмен дауыстық әңгіме",
+  });
+  await expect(dialog).toBeVisible();
+  await page.evaluate(() => {
+    const w = window as typeof window & {
+      __recognition?: { onresult?: (event: unknown) => void };
+    };
+    w.__recognition?.onresult?.({
+      results: [{ 0: { transcript: "Сәлем, Досжан" }, isFinal: true }],
+    });
+  });
+  await expect(dialog.getByRole("status")).toHaveText("Бірінші сөйлем.");
+  await page.evaluate(() => {
+    const w = window as typeof window & {
+      __utterances?: Array<{ onend?: () => void }>;
+    };
+    w.__utterances?.[0]?.onend?.();
+  });
+  await expect(dialog.getByRole("status")).toHaveText("Екінші сөйлем.");
+  await page
+    .getByRole("button", { name: "Дауыстық режимді жабу және чатқа оралу" })
+    .click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole("log")).toContainText("Сәлем, Досжан");
+  await expect(page.getByRole("log")).toContainText(
+    "Бірінші сөйлем. Екінші сөйлем.",
+  );
+});
+
+test("voice subtitle stays visible if the browser cannot synthesize sound", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const w = window as typeof window & {
+      __recognition?: { onresult?: ((event: unknown) => void) | null };
+    };
+    class FakeRecognition {
+      lang = "";
+      interimResults = false;
+      continuous = false;
+      onresult: ((event: unknown) => void) | null = null;
+      onerror = null;
+      onend = null;
+      start() {
+        w.__recognition = this;
+      }
+      stop() {}
+      abort() {}
+    }
+    class FakeUtterance {
+      lang = "";
+      rate = 1;
+      voice = null;
+      onend = null;
+      onerror: ((event: unknown) => void) | null = null;
+      constructor(public text: string) {}
+    }
+    Object.defineProperty(window, "SpeechRecognition", {
+      configurable: true,
+      value: FakeRecognition,
+    });
+    Object.defineProperty(window, "SpeechSynthesisUtterance", {
+      configurable: true,
+      value: FakeUtterance,
+    });
+    Object.defineProperty(window, "speechSynthesis", {
+      configurable: true,
+      value: {
+        getVoices: () => [],
+        cancel: () => {},
+        speak: (utterance: FakeUtterance) =>
+          utterance.onerror?.({ error: "synthesis-failed" }),
+      },
+    });
+  });
+  await page.route("**/api/dossha/voice", (route) =>
+    route.fulfill({ status: 503 }),
+  );
+  await page.route("**/api/ai-friend", (route) =>
+    route.fulfill({
+      json:
+        route.request().method() === "GET"
+          ? { mode: "reference", history: [] }
+          : { mode: "reference", reply: "Досжанның жауабы көрініп тұр." },
+    }),
+  );
+  await page.goto("/student/friend");
+  await page
+    .getByRole("button", { name: "Досжанмен дауыспен сөйлесу" })
+    .click();
+  await page.evaluate(() => {
+    const w = window as typeof window & {
+      __recognition?: { onresult?: (event: unknown) => void };
+    };
+    w.__recognition?.onresult?.({
+      results: [{ 0: { transcript: "Сәлем" }, isFinal: true }],
+    });
+  });
+  const dialog = page.getByRole("dialog", {
+    name: "Досжанмен дауыстық әңгіме",
+  });
+  await expect(dialog.getByRole("status")).toHaveText(
+    "Досжанның жауабы көрініп тұр.",
+  );
+  await expect(dialog.getByRole("alert")).toContainText(
+    "дауысын ойнату мүмкін болмады",
+  );
+  await expect(dialog.getByRole("status")).toHaveText(
+    "Досжанның жауабы көрініп тұр.",
+  );
+});
